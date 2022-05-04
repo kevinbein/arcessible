@@ -109,11 +109,26 @@ class MainARView: ARView {
         setupCoachingOverlay() // not really activating when used with lidar phone
         setupConfiguration()
         
-        model = AccessibleModel.load(named: "mansion")
-        model = AccessibleModel.load(named: "boxgreen")
-        if model == nil {
-            fatalError("Failed to load model mansion.usdz")
-        }
+//        var anchor = AnchorEntity(plane: .horizontal)
+//        let box = MeshResource.generateBox(size: 0.2)
+//        let material = SimpleMaterial(color: .green, isMetallic: true)
+//        //let entity = ModelEntity(mesh: box, materials: [material])
+//        guard let entity = try? Entity.load(named: "mansion") else { print("error"); return }
+//        anchor.addChild(entity)
+//        let mansion = try! Mansion.load_Mansion()
+//        scene.addAnchor(anchor)
+//        anchor.position = SIMD3(0.0, 0.0, -5.0)
+//        let currentMatrix = anchor.transform.matrix
+//        let rotation = simd_float4x4(SCNMatrix4MakeRotation(.pi / 2, 0,1,0))
+//        let transform = simd_mul(currentMatrix, rotation)
+//        anchor.move(to: transform, relativeTo: nil, duration: 3.0, timingFunction: .linear)
+    
+        
+//        model = AccessibleModel.load(named: "mansion")
+//        model = AccessibleModel.load(named: "boxgreen")
+//        if model == nil {
+//            fatalError("Failed to load model mansion.usdz")
+//        }
         
         // let rcporjectModel = try! Boxgreen.loadScene()
         // arView.scene.anchors.append(rcporjectModel)

@@ -267,14 +267,14 @@
                 ]
               },
               "physicsMode" : "grid",
-              "title" : "Scene",
+              "title" : "mansion",
               "viewTransform" : {
                 "cameraTransform" : [
                   1,
                   0,
-                  -0,
                   0,
-                  -0,
+                  0,
+                  0,
                   0.87825691699981689,
                   -0.47818902134895325,
                   0,

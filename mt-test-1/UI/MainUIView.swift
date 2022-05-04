@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct PrimaryButton: UIViewRepresentable {
     let title: String
@@ -43,11 +44,15 @@ struct MainUIView: View {
     @State private var posY = 0.5
     @State private var posZ = 0.5
     
-    func onButton1() {}
-    func onButton2() {}
-    func onButton3() {}
+    func onButton1() { NotificationCenter.default.post(name: Notification.Name("Button1Pressed"), object: self) }
+    func onButton2() { NotificationCenter.default.post(name: Notification.Name("Button2Pressed"), object: self) }
+    func onButton3() { NotificationCenter.default.post(name: Notification.Name("Button3Pressed"), object: self) }
+    func onSlider1(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("Slider1Changed"), object: self, userInfo: ["value": value]) }
+    func onSlider2(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("Slider2Changed"), object: self, userInfo: ["value": value]) }
+    func onSlider3(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("Slider3Changed"), object: self, userInfo: ["value": value]) }
     
     var body: some View {
+        
         let content = VStack {
             Text("Blah ...")
             Text("... Blub")
@@ -119,17 +124,15 @@ struct MainUIView: View {
                         HStack {
                             Spacer()
                             VStack {
-                                Slider(value: $posX, in: 0.0...1.0, step: 0.05).onChange(of: posX) { posX in
-                                    print(posX)
-                                }
+                                Slider(value: $posX, in: 0.0...1.0, step: 0.05).onChange(of: posX, perform: onSlider1)
                                 Text("\(String(format: "X: %.2f", posX))")
                             }
                             VStack {
-                                Slider(value: $posY, in: 0.0...1.0, step: 0.05)
+                                Slider(value: $posY, in: 0.0...1.0, step: 0.05).onChange(of: posY, perform: onSlider2)
                                 Text("\(String(format: "Y: %.2f", posY))")
                             }
                             VStack {
-                                Slider(value: $posZ, in: 0.0...1.0, step: 0.05)
+                                Slider(value: $posZ, in: 0.0...1.0, step: 0.05).onChange(of: posZ, perform: onSlider3)
                                 Text("\(String(format: "Z: %.2f", posZ))")
                             }
                             Spacer()
