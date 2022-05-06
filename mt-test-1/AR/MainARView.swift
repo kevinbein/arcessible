@@ -65,21 +65,18 @@ class MainARView: ARView {
     var boxAnchor: AnchorEntity?
     var model: AccessibleModel?
     
+    static let shared = MainARView()
+    
     func setupConfiguration() {
         session.delegate = self
 
-        environment.sceneUnderstanding.options = []
-        
-        // Turn on occlusion from the scene reconstruction's mesh.
-        //environment.sceneUnderstanding.options.insert(.occlusion)
-        
-        // Turn on physics for the scene reconstruction's mesh.
-        //environment.sceneUnderstanding.options.insert(.physics)
-
         // Display a debug visualization of the mesh.
-        //debugOptions.insert(.showSceneUnderstanding)
-#if DEBUG
-        self.debugOptions = [
+        environment.sceneUnderstanding.options = []
+        //environment.sceneUnderstanding.options.insert(.physics)
+        environment.sceneUnderstanding.options.insert(.occlusion)
+        environment.background = Environment.Background.color(.black.withAlphaComponent(0.0))
+        
+        debugOptions = [
 //            .showFeaturePoints,
 //            .showAnchorOrigins,
 //            .showAnchorGeometry,
@@ -87,20 +84,58 @@ class MainARView: ARView {
 //            .showSceneUnderstanding,
 //            .showWorldOrigin
         ]
-#endif
         
         // For performance, disable render options that are not required for this app.
         //renderOptions = [.disablePersonOcclusion, .disableDepthOfField, .disableMotionBlur]
+        renderOptions = [
+            //.disableAutomaticLighting, // deprecated
+            .disableGroundingShadows,
+            .disableMotionBlur,
+            //.disableDepthOfField, // we definitely need this
+            .disableHDR,
+            //.disableFaceOcclusions, // deprecated
+            .disablePersonOcclusion,
+            .disableAREnvironmentLighting,
+            .disableFaceMesh
+        ]
         
         // Manually configure what kind of AR session to run since
         // ARView on its own does not turn on mesh classification.
-        //automaticallyConfigureSession = false
+        automaticallyConfigureSession = false
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = [.horizontal, .vertical]
-        //configuration.sceneReconstruction = .meshWithClassification
+        configuration.sceneReconstruction = .meshWithClassification
+        //configuration.environmentTexturing = .automatic
 
         //configuration.environmentTexturing = .automatic
         session.run(configuration)
+    }
+    
+    func setupDummyScene() {
+        let coords = [
+            SIMD3<Float>(0.0, 0.0, 1.0),
+            SIMD3<Float>(1.0, 0.0, 0.0),
+            SIMD3<Float>(-1.0, 0.0, 0.0),
+            SIMD3<Float>(0.0, 0.0, -1.0),
+        ]
+        for coord in coords {
+            let box = MeshResource.generateBox(size: 0.2)
+            let material = SimpleMaterial(color: .green, isMetallic: true)
+            let entity = ModelEntity(mesh: box, materials: [material])
+            let ar = AnchorEntity()
+            ar.position = coord
+            ar.addChild(entity)
+            scene.addAnchor(ar)
+        }
+    }
+    
+    func resetSession() {
+        let configuration = session.configuration?.copy() as! ARConfiguration
+        session.pause()
+        /*scene.rootNode.enumerateChildNodes { (node, stop) in
+            node.removeFromParentNode()
+        }*/
+        session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
     }
     
     required init() {
@@ -108,15 +143,18 @@ class MainARView: ARView {
         
         setupCoachingOverlay() // not really activating when used with lidar phone
         setupConfiguration()
+    
+        setupDummyScene()
         
 //        var anchor = AnchorEntity(plane: .horizontal)
-//        let box = MeshResource.generateBox(size: 0.2)
-//        let material = SimpleMaterial(color: .green, isMetallic: true)
+//        //let box = MeshResource.generateBox(size: 0.2)
+//        //let material = SimpleMaterial(color: .green, isMetallic: true)
 //        //let entity = ModelEntity(mesh: box, materials: [material])
-//        guard let entity = try? Entity.load(named: "mansion") else { print("error"); return }
-//        anchor.addChild(entity)
-//        let mansion = try! Mansion.load_Mansion()
 //        scene.addAnchor(anchor)
+//        guard let entity = try? AccessibleModel.load(named: "mansion") else { print("error"); return }
+//        //guard let entity = try? Entity.load(named: "mansion") else { print("error"); return }
+//        anchor.addChild(entity)
+//        // let mansion = try! Mansion.load_Mansion()
 //        anchor.position = SIMD3(0.0, 0.0, -5.0)
 //        let currentMatrix = anchor.transform.matrix
 //        let rotation = simd_float4x4(SCNMatrix4MakeRotation(.pi / 2, 0,1,0))

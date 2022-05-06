@@ -13,10 +13,13 @@ import FocusEntity
 
 struct MainARViewContainer: UIViewRepresentable {
     
+    @Binding var frame: CGImage?
+    //@Binding var frame: String
+    
     func makeUIView(context: Context) -> ARView {
         // model = try! Mansion.loadScene()
         
-        let arView = MainARView()
+        let arView = MainARView.shared
         
         context.coordinator.view = arView
         arView.session.delegate = context.coordinator
@@ -33,29 +36,40 @@ struct MainARViewContainer: UIViewRepresentable {
                 action: #selector(Coordinator.handlePan)
             )
         )
+        arView.addGestureRecognizer(
+            UIPinchGestureRecognizer(
+                target: context.coordinator,
+                action: #selector(Coordinator.handlePinch)
+            )
+        )
         
+        //return arView.snapshotView(afterScreenUpdates: false)
+
+        //return arView.session.currentFrame?.capturedImage
         return arView
     }
     
     func updateUIView(_ uiView: ARView, context: Context) {
-        
     }
     
     func makeCoordinator() -> Coordinator {
-        Coordinator()
+        Coordinator(frame: _frame)
     }
     
     class Coordinator: NSObject, ARSessionDelegate {
+        @Binding var frame: CGImage?
+        
         weak var view: MainARView?
         
-        var loadedModel: Mansion._Mansion
-        var model: Mansion._Mansion
+        var model: AccessibleModel = AccessibleModel()
+        var anchor: AnchorEntity?
         var addedModel = false
         var focusEntity: FocusEntity?
-        
-        override init() {
-            loadedModel = try! Mansion.load_Mansion()
-            self.model = loadedModel
+
+        init(frame: Binding<CGImage?>) {
+            let modelName = "mansion"
+
+            _frame = frame
             
             super.init()
             
@@ -72,23 +86,19 @@ struct MainARViewContainer: UIViewRepresentable {
             self.focusEntity = FocusEntity(on: view, style: .classic(color: .yellow))
         }
         
+        func session(_ session: ARSession, didUpdate frame: ARFrame) {
+            self.frame = CGImage.create(from: session.currentFrame?.capturedImage)!
+        }
+        
         @objc func handleButton1Pressed(_ notification: Notification) {
-            let currentMatrix = self.model.transform.matrix
-            let rotation = simd_float4x4(SCNMatrix4MakeRotation(.pi / 2, 0,1,0))
-            let transform = simd_mul(currentMatrix, rotation)
-            self.model.move(to: transform, relativeTo: nil, duration: 3.0, timingFunction: .linear)
-            debugPrint("handleButton1Pressed")
         }
         
         @objc func handleButton2Pressed(_ notification: Notification) {
-            let newPos = self.model.position - SIMD3(0.0, 0.0, 0.5)
-            self.model.setScale(self.model.scale - SIMD3(repeating: 0.2), relativeTo: nil)
-            self.model.setPosition(newPos, relativeTo: nil)
-            debugPrint(String(format: "handleButton2Pressed: New position: (%.2f, %.2f, %.2f)", self.model.position.x, self.model.position.y, self.model.position.z))
         }
         
         @objc func handleButton3Pressed(_ notification: Notification) {
-            debugPrint("handleButton3Pressed")
+            guard let view = self.view else { return }
+            view.resetSession()
         }
         
         @objc func handleSlider1Changed(_ notification: Notification) {
@@ -110,18 +120,33 @@ struct MainARViewContainer: UIViewRepresentable {
             guard let view = self.view, let focusEntity = self.focusEntity else { return }
             
             if self.addedModel {
-                view.scene.removeAnchor(self.model)
+                view.scene.removeAnchor(self.anchor!)
+                model.reset()
                 self.addedModel = false
                 // debugPrint("Removed mansion from ", model.position)
             } else {
-                self.model = self.loadedModel.clone(recursive: true)
+                if (self.anchor != nil) {
+                    view.scene.removeAnchor(self.anchor!)
+                }
+                let anchor = AnchorEntity(plane: .horizontal)
                 #if !targetEnvironment(simulator)
-                self.model.setTransformMatrix(simd_float4x4(1.0), relativeTo: nil)
-                self.model.position = focusEntity.position
+                // self.model.setTransformMatrix(simd_float4x4(1.0), relativeTo: nil)
+                anchor.position = focusEntity.position
                 #endif
-                handleButton1Pressed(Notification(name: Notification.Name("")))
-                view.scene.addAnchor(self.model)
+                view.scene.addAnchor(anchor)
+                guard let model = AccessibleModel.load(named: "mansion") else {
+                    fatalError("Failed loading model 'mansion'")
+                }
+                self.model = model
+                anchor.addChild(model)
+//                let currentMatrix = model.transform.matrix
+//                let rotation = simd_float4x4(1.0) //simd_float4x4(SCNMatrix4MakeRotation(.pi / 2.0, 0.0, 1.0, 0.0))
+//                let scaling = simd_float4x4(1.0)  //simd_float4x4(SCNMatrix4MakeScale(0.5, 0.5, 0.5))
+//                let transform = simd_mul(simd_mul(currentMatrix, rotation), scaling)
+//                model.move(to: transform, relativeTo: model, duration: 3.0, timingFunction: .linear)
+                
                 self.addedModel = true
+                self.anchor = anchor
 //                let mtc = model.transform.matrix.columns
 //                let matc = model.anchor!.transform.matrix.columns
 //                let map = model.anchor!.position
@@ -159,11 +184,26 @@ struct MainARViewContainer: UIViewRepresentable {
                 panTranslation = translation
             } else if sender.state == .changed {
                 panTranslation = panTranslation ?? translation
-                let xChange = abs(panTranslation!.x - translation.x)
-                //let yChange = abs(panTranslation!.y - translation.y)
-                //self.view.model.rotate(xChange)
+                let xDiff = Float(panTranslation!.x - translation.x)
+                model.rotate(degrees: -1.0 * xDiff)
+                panTranslation = translation
             } else if sender.state != .possible {
                 panTranslation = nil
+            }
+        }
+        
+        var pinchScale: CGFloat?
+        @objc func handlePinch(sender: UIPinchGestureRecognizer) {
+            let scale = sender.scale
+            if sender.state == .began {
+                pinchScale = scale
+            } else if sender.state == .changed {
+                pinchScale = pinchScale ?? scale
+                let sDiff = 1.0 - Float(pinchScale! - scale)
+                model.scale(factor: sDiff)
+                pinchScale = scale
+            } else if sender.state != .possible {
+                pinchScale = nil
             }
         }
     }

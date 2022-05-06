@@ -7,71 +7,87 @@
 
 import Foundation // Dates, Strings
 import RealityKit
+import SceneKit
 
-class AccessibleModel: Entity, HasModel, HasAnchoring, HasCollision {
+//class AccessibleAnchor: AnchorEntity {
+
+class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
     
     required init() {
-        fatalError("init() has not been implemented")
     }
     
     required init(entity: Entity) {
         super.init()
-        
-        name = entity.name 
-        
-        addAnchoring()
-        addModel(entity: entity)
-        
-        //entity.generateCollisionShapes(recursive: true)
-        
-        //self.components[ModelComponent.self] = entity.components[ModelComponent.self]
-        //self.components[AnchoringComponent.self] = anchor
-        //self.position = entity.position
-        //print(anchor)
-        //self.components = entity.components
-    }
-    
-    private func addModel(entity: Entity) {
+        name = entity.name
         self.addChild(entity)
-        
         // Will generate collision boxes automatically also for children
         self.generateCollisionShapes(recursive: true)
     }
     
-    private func addAnchoring() {
-        #if !targetEnvironment(simulator)
-        let anchorPlane = AnchoringComponent.Target.plane(AnchoringComponent.Target.Alignment.horizontal, classification: AnchoringComponent.Target.Classification.floor, minimumBounds: SIMD2<Float>.init(x: 1, y: 1))
-        let anchorComponent = AnchoringComponent(anchorPlane)
-        self.anchoring = anchorComponent
-        #endif
+    func rotate(degrees: Float) {
+//        let currentMatrix = transform.matrix
+//        let rotation = simd_float4x4(SCNMatrix4MakeRotation(.pi / 3.0, 0.0, 1.0, 0.0))
+//        let scaling = simd_float4x4(1.0)  //simd_float4x4(SCNMatrix4MakeScale(0.5, 0.5, 0.5))
+//        let transform = simd_mul(simd_mul(currentMatrix, rotation), scaling)
+//        resetTransform = simd_mul(resetTransform, transform)
+//        move(to: transform, relativeTo: self, duration: 1.0, timingFunction: .linear)
+//        let rad = (deg * .pi / 180.0) //.truncatingRemainder(dividingBy: 2.0 * .pi)
+//        let oldRad = self.transform.rotation.angle
+//        let oldDeg = oldRad * 180.0 / .pi
+//        let newDeg = oldDeg + deg
+        let twoPi = 2 * Float.pi
+        var newRad = transform.rotation.angle + (degrees * .pi / 180.0)
+        if newRad < 0 {
+            newRad = twoPi - newRad
+        } else if newRad > twoPi {
+            newRad -= twoPi
+        }
+        let rotation = simd_quatf(angle: newRad, axis: SIMD3<Float>(0.0, 1.0, 0.0))
+        transform.rotation = rotation
     }
     
-    static public func load(named: String) -> AccessibleModel? {
+    func scale(factor: Float) {
+        scale *= SIMD3<Float>(repeating: factor)
+    }
+    
+    func reset() {
+        self.transform = Transform()
+    }
+    
+    static public func load(named: String, scene: String? = "") -> AccessibleModel? {
+        guard let realityFileURL = Foundation.Bundle(for: AccessibleModel.self).url(forResource: "mansion", withExtension: "reality") else {
+            fatalError("File not found '\(named)'")
+        }
+        let sceneName = scene ?? named
+        let realityFileSceneURL = realityFileURL.appendingPathComponent(sceneName, isDirectory: false)
+        let anchorEntity = try! AccessibleModel.loadAnchor(contentsOf: realityFileSceneURL)
+        
+        let model = AccessibleModel()
+        model.anchoring = anchorEntity.anchoring
+        model.addChild(anchorEntity)
+        return model
+        
+//        guard let entity = try? Entity.load(named: named) else {
+//            return nil
+//        }
+//
+//        let model = AccessibleModel(entity: entity)
+//
+//        return model
+    }
+    
+    static public func load_old(named: String) -> AccessibleModel? {
         guard let entity = try? Entity.load(named: named) else {
-            print("Error loading model '\(named)'")
             return nil
         }
+        
         let model = AccessibleModel(entity: entity)
         
-        if named == "mansion" {
-            let scale = SIMD3<Float>.init(repeating: 0.5)
-            model.setScale(scale, relativeTo: nil)
-        }
+//        if named == "mansion" {
+//            let scale = SIMD3<Float>.init(repeating: 0.5)
+//            model.setScale(scale, relativeTo: nil)
+//        }
         
         return model
     }
-    
-    /*public init?(fileName: String, fileExtension: String = "usdz") {
-        super.init()
-        
-        guard let url = Bundle.main.url(forResource: fileName, withExtension: fileExtension) else {
-            print("Error finding Reality file \(fileName).\(fileExtension)")
-            return nil
-        }
-        
-        //if let anchor = try? Entity.loadAnchor(named: fileName) {
-        if let anchor = try? Entity.loadAnchor(contentsOf: url) {
-            self.components = anchor.components
-        }
-    }*/
 }

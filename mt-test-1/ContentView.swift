@@ -10,13 +10,16 @@ import SwiftUI
 import RealityKit
 
 struct ContentView : View {
+    @StateObject private var frameModel = FrameModel()
+    
     var body: some View {
         ZStack {
-            Color.black.edgesIgnoringSafeArea(.all)
+            Color.red.edgesIgnoringSafeArea(.all)
 #if targetEnvironment(simulator)
             Color.gray.edgesIgnoringSafeArea(.all)
 #else
-            MainARViewContainer().edgesIgnoringSafeArea(.all)
+            MainBGContainer(frame: frameModel.frame).edgesIgnoringSafeArea(.all)
+            MainARViewContainer(frame: $frameModel.frame).edgesIgnoringSafeArea(.all)
 #endif
             MainUIView()
         }

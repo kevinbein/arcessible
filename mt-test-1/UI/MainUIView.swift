@@ -53,10 +53,11 @@ struct MainUIView: View {
     
     var body: some View {
         
-        let content = VStack {
-            Text("Blah ...")
-            Text("... Blub")
-        }.foregroundColor(.white)
+        let content = EmptyView()
+//        let content = VStack {
+//            Text("Blah ...")
+//            Text("... Blub")
+//        }.foregroundColor(.white)
         
         let blackOpacity = 0.2
         let safeAreaHeightTop = UIApplication.shared.keyWindow?.safeAreaInsets.top
