@@ -14,9 +14,14 @@ import SceneKit
 class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
     
     required init() {
+        super.init()
+        
+        self.generateCollisionShapes(recursive: true)
     }
     
+    var entity: Entity?
     required init(entity: Entity) {
+        self.entity = entity
         super.init()
         name = entity.name
         self.addChild(entity)
@@ -35,19 +40,27 @@ class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
 //        let oldRad = self.transform.rotation.angle
 //        let oldDeg = oldRad * 180.0 / .pi
 //        let newDeg = oldDeg + deg
+        
+        guard let entity = children.first else {
+            return
+        }
         let twoPi = 2 * Float.pi
-        var newRad = transform.rotation.angle + (degrees * .pi / 180.0)
+        var newRad = entity.transform.rotation.angle + (degrees * .pi / 180.0)
+        //var newRad = transform.rotation.angle + (degrees * .pi / 180.0)
         if newRad < 0 {
             newRad = twoPi - newRad
         } else if newRad > twoPi {
             newRad -= twoPi
         }
         let rotation = simd_quatf(angle: newRad, axis: SIMD3<Float>(0.0, 1.0, 0.0))
-        transform.rotation = rotation
+        entity.transform.rotation = rotation
     }
     
     func scale(factor: Float) {
-        scale *= SIMD3<Float>(repeating: factor)
+        guard let entity = children.first else {
+            return
+        }
+        entity.scale *= SIMD3<Float>(repeating: factor)
     }
     
     func reset() {

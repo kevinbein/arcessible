@@ -13,7 +13,7 @@ import FocusEntity
 
 struct MainARViewContainer: UIViewRepresentable {
     
-    @Binding var frame: CGImage?
+    @Binding var frame: ARFrame?
     //@Binding var frame: String
     
     func makeUIView(context: Context) -> ARView {
@@ -57,7 +57,7 @@ struct MainARViewContainer: UIViewRepresentable {
     }
     
     class Coordinator: NSObject, ARSessionDelegate {
-        @Binding var frame: CGImage?
+        @Binding var frame: ARFrame?
         
         weak var view: MainARView?
         
@@ -66,9 +66,7 @@ struct MainARViewContainer: UIViewRepresentable {
         var addedModel = false
         var focusEntity: FocusEntity?
 
-        init(frame: Binding<CGImage?>) {
-            let modelName = "mansion"
-
+        init(frame: Binding<ARFrame?>) {
             _frame = frame
             
             super.init()
@@ -86,19 +84,28 @@ struct MainARViewContainer: UIViewRepresentable {
             self.focusEntity = FocusEntity(on: view, style: .classic(color: .yellow))
         }
         
+        let context = CIContext()
         func session(_ session: ARSession, didUpdate frame: ARFrame) {
-            self.frame = CGImage.create(from: session.currentFrame?.capturedImage)!
+            self.frame = frame
+            //self.frame = CIImage(cvPixelBuffer: session.currentFrame!.capturedImage)
+//            let cgImage = CGImage.create(from: session.currentFrame?.capturedImage)!
+//            var ciImage = CIImage(cgImage: cgImage)
+//            ciImage = ciImage.applyingFilter("CIComicEffect")
+//            self.frame = context.createCGImage(ciImage, from: ciImage.extent)
         }
         
         @objc func handleButton1Pressed(_ notification: Notification) {
+            debugPrint("handleButton1Pressed")
         }
         
         @objc func handleButton2Pressed(_ notification: Notification) {
+            debugPrint("handleButton2Pressed")
         }
         
         @objc func handleButton3Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.resetSession()
+            debugPrint("handleButton3Pressed")
         }
         
         @objc func handleSlider1Changed(_ notification: Notification) {
@@ -128,11 +135,10 @@ struct MainARViewContainer: UIViewRepresentable {
                 if (self.anchor != nil) {
                     view.scene.removeAnchor(self.anchor!)
                 }
+#if !targetEnvironment(simulator)
                 let anchor = AnchorEntity(plane: .horizontal)
-                #if !targetEnvironment(simulator)
                 // self.model.setTransformMatrix(simd_float4x4(1.0), relativeTo: nil)
                 anchor.position = focusEntity.position
-                #endif
                 view.scene.addAnchor(anchor)
                 guard let model = AccessibleModel.load(named: "mansion") else {
                     fatalError("Failed loading model 'mansion'")
@@ -163,6 +169,7 @@ struct MainARViewContainer: UIViewRepresentable {
 //                    mtc.1.x, mtc.1.y, mtc.1.z, mtc.1.w,
 //                    mtc.2.x, mtc.2.y, mtc.2.z, mtc.2.w,
 //                    mtc.3.x, mtc.3.y, mtc.3.z, mtc.3.w))
+#endif
             }
 //            // Create a new anchor to add content to
 //            let anchor = AnchorEntity()
@@ -184,8 +191,8 @@ struct MainARViewContainer: UIViewRepresentable {
                 panTranslation = translation
             } else if sender.state == .changed {
                 panTranslation = panTranslation ?? translation
-                let xDiff = Float(panTranslation!.x - translation.x)
-                model.rotate(degrees: -1.0 * xDiff)
+                let degrees = -1.0 * Float(panTranslation!.x - translation.x)
+                self.model.rotate(degrees: degrees)
                 panTranslation = translation
             } else if sender.state != .possible {
                 panTranslation = nil
@@ -199,8 +206,8 @@ struct MainARViewContainer: UIViewRepresentable {
                 pinchScale = scale
             } else if sender.state == .changed {
                 pinchScale = pinchScale ?? scale
-                let sDiff = 1.0 - Float(pinchScale! - scale)
-                model.scale(factor: sDiff)
+                let degrees = 1.0 - Float(pinchScale! - scale)
+                self.model.scale(factor: degrees)
                 pinchScale = scale
             } else if sender.state != .possible {
                 pinchScale = nil

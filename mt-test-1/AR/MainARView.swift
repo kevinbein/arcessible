@@ -61,14 +61,10 @@ extension MainARView: ARSessionDelegate {
 }
 
 class MainARView: ARView {
-    var sub_SceneEventsUpdate: Cancellable!
-    var boxAnchor: AnchorEntity?
-    var model: AccessibleModel?
-    
     static let shared = MainARView()
     
     func setupConfiguration() {
-        session.delegate = self
+        //session.delegate = self
 
         // Display a debug visualization of the mesh.
         environment.sceneUnderstanding.options = []

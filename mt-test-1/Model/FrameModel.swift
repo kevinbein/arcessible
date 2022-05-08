@@ -6,7 +6,8 @@
 //
 
 import CoreImage
+import ARKit
 
 class FrameModel: ObservableObject {
-    @Published var frame: CGImage?
+    @Published var frame: ARFrame?
 }

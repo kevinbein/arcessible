@@ -18,8 +18,11 @@ struct ContentView : View {
 #if targetEnvironment(simulator)
             Color.gray.edgesIgnoringSafeArea(.all)
 #else
-            MainBGContainer(frame: frameModel.frame).edgesIgnoringSafeArea(.all)
-            MainARViewContainer(frame: $frameModel.frame).edgesIgnoringSafeArea(.all)
+            MainBGContainer(arFrame: frameModel.frame)
+                .edgesIgnoringSafeArea(.all)
+            
+            MainARViewContainer(frame: $frameModel.frame)
+                .edgesIgnoringSafeArea(.all)
 #endif
             MainUIView()
         }
