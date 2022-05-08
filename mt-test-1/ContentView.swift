@@ -27,60 +27,7 @@ struct ContentView : View {
             MainUIView()
         }
     }
-    
-    /*var body: some View {
-        VStack {
-            // LogoUIView()
-            
-            // GreetingsUIView()
-            
-            Button("Next") {
-                /*@START_MENU_TOKEN@*//*@PLACEHOLDER=Action@*/ /*@END_MENU_TOKEN@*/
-            }.padding()
-            
-            Spacer()
-        }.padding()
-        //return ARViewContainer().edgesIgnoringSafeArea(.all)
-    }*/
 }
-
-/*struct ARViewContainer: UIViewRepresentable {
-    
-    func makeUIView(context: Context) -> ARView {
-        
-        let arView = ARView(frame: .zero)
-        
-        // Start AR session
-        let session = arView.session
-        let config = ARWorldTrackingConfiguration()
-        config.planeDetection = [.horizontal]
-        session.run(config)
-        
-        // Add coaching overlay
-        let coachingOverlay = ARCoachingOverlayView()
-        coachingOverlay.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        coachingOverlay.session = session
-        coachingOverlay.goal = .horizontalPlane
-        arView.addSubview(coachingOverlay)
-        
-        // Set debug options
-        #if DEBUG
-        arView.debugOptions = [.showFeaturePoints, .showAnchorOrigins, .showAnchorGeometry, .showSceneUnderstanding]
-        #endif
-        
-        // Load the "Box" scene from the "Experience" Reality File
-        // let boxAnchor = try! Experience.loadBox()
-        
-        // Add the box anchor to the scene
-        // arView.scene.anchors.append(boxAnchor)
-        
-        return arView
-        
-    }
-    
-    func updateUIView(_ uiView: ARView, context: Context) {}
-    
-}*/
 
 #if DEBUG
 struct ContentView_Previews : PreviewProvider {

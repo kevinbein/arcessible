@@ -14,11 +14,8 @@ import FocusEntity
 struct MainARViewContainer: UIViewRepresentable {
     
     @Binding var frame: ARFrame?
-    //@Binding var frame: String
     
     func makeUIView(context: Context) -> ARView {
-        // model = try! Mansion.loadScene()
-        
         let arView = MainARView.shared
         
         context.coordinator.view = arView
@@ -43,9 +40,6 @@ struct MainARViewContainer: UIViewRepresentable {
             )
         )
         
-        //return arView.snapshotView(afterScreenUpdates: false)
-
-        //return arView.session.currentFrame?.capturedImage
         return arView
     }
     
@@ -87,11 +81,6 @@ struct MainARViewContainer: UIViewRepresentable {
         let context = CIContext()
         func session(_ session: ARSession, didUpdate frame: ARFrame) {
             self.frame = frame
-            //self.frame = CIImage(cvPixelBuffer: session.currentFrame!.capturedImage)
-//            let cgImage = CGImage.create(from: session.currentFrame?.capturedImage)!
-//            var ciImage = CIImage(cgImage: cgImage)
-//            ciImage = ciImage.applyingFilter("CIComicEffect")
-//            self.frame = context.createCGImage(ciImage, from: ciImage.extent)
         }
         
         @objc func handleButton1Pressed(_ notification: Notification) {
@@ -130,14 +119,12 @@ struct MainARViewContainer: UIViewRepresentable {
                 view.scene.removeAnchor(self.anchor!)
                 model.reset()
                 self.addedModel = false
-                // debugPrint("Removed mansion from ", model.position)
             } else {
                 if (self.anchor != nil) {
                     view.scene.removeAnchor(self.anchor!)
                 }
 #if !targetEnvironment(simulator)
                 let anchor = AnchorEntity(plane: .horizontal)
-                // self.model.setTransformMatrix(simd_float4x4(1.0), relativeTo: nil)
                 anchor.position = focusEntity.position
                 view.scene.addAnchor(anchor)
                 guard let model = AccessibleModel.load(named: "mansion") else {
@@ -145,43 +132,10 @@ struct MainARViewContainer: UIViewRepresentable {
                 }
                 self.model = model
                 anchor.addChild(model)
-//                let currentMatrix = model.transform.matrix
-//                let rotation = simd_float4x4(1.0) //simd_float4x4(SCNMatrix4MakeRotation(.pi / 2.0, 0.0, 1.0, 0.0))
-//                let scaling = simd_float4x4(1.0)  //simd_float4x4(SCNMatrix4MakeScale(0.5, 0.5, 0.5))
-//                let transform = simd_mul(simd_mul(currentMatrix, rotation), scaling)
-//                model.move(to: transform, relativeTo: model, duration: 3.0, timingFunction: .linear)
-                
                 self.addedModel = true
                 self.anchor = anchor
-//                let mtc = model.transform.matrix.columns
-//                let matc = model.anchor!.transform.matrix.columns
-//                let map = model.anchor!.position
-//                debugPrint(String(format: "focusEntity.position: (%.2f, %.2f, %.2f)", focusEntity.position.x, focusEntity.position.y, focusEntity.position.z))
-//                debugPrint(String(format: "Added mansion at (%.2f,%.2f,%.2f) with rot=%.2f", model.position.x, model.position.y, model.position.z, model.transform.rotation.angle))
-//                debugPrint(String(format: "anchor.position: (%.2f, %.2f, %.2f)", map.x, map.y, map.z))
-//                debugPrint(String(format: "anchor.transform.matrix: [ [%.2f, %.2f, %.2f, %.2f], [%.2f, %.2f, %.2f, %.2f], [%.2f, %.2f, %.2f, %.2f], [%.2f, %.2f, %.2f, %.2f] ]",
-//                    matc.0.x, matc.0.y, matc.0.z, matc.0.w,
-//                    matc.1.x, matc.1.y, matc.1.z, matc.1.w,
-//                    matc.2.x, matc.2.y, matc.2.z, matc.2.w,
-//                    matc.3.x, matc.3.y, matc.3.z, matc.3.w))
-//                debugPrint(String(format: "transform.matrix: [ [%.2f, %.2f, %.2f, %.2f], [%.2f, %.2f, %.2f, %.2f], [%.2f, %.2f, %.2f, %.2f], [%.2f, %.2f, %.2f, %.2f] ]",
-//                    mtc.0.x, mtc.0.y, mtc.0.z, mtc.0.w,
-//                    mtc.1.x, mtc.1.y, mtc.1.z, mtc.1.w,
-//                    mtc.2.x, mtc.2.y, mtc.2.z, mtc.2.w,
-//                    mtc.3.x, mtc.3.y, mtc.3.z, mtc.3.w))
 #endif
             }
-//            // Create a new anchor to add content to
-//            let anchor = AnchorEntity()
-//            view.scene.addAnchor(anchor)
-//            // Add a Box entity with a blue material
-//            let box = MeshResource.generateBox(size: 0.5, cornerRadius: 0.05)
-//            let material = SimpleMaterial(color: .blue, isMetallic: true)
-//            let diceEntity = ModelEntity(mesh: box, materials: [material])
-//            #if !targetEnvironment(simulator)
-//            diceEntity.position = focusEntity.position
-//            #endif
-//            anchor.addChild(diceEntity)
         }
         
         var panTranslation: CGPoint?
@@ -215,10 +169,3 @@ struct MainARViewContainer: UIViewRepresentable {
         }
     }
 }
-
-//struct MainARViewContainer_Previews: PreviewProvider {
-//    static var previews: some View {
-//        MainARViewContainer()
-//            .edgesIgnoringSafeArea(.all)
-//    }
-//}

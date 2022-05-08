@@ -1,8 +1,0 @@
-{
-  "name": "Test set",
-  "data": [
-    { "entry": 1, "a": true, "b": 4.3, "c": "hi" },
-    { "entry": 2, "a": false, "b": 23412344.324, "c": "hi" },
-    { "entry": 4, "a": true, "b": -2349.2349, "c": "töff" }
-  ]
-}

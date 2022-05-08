@@ -16,31 +16,11 @@ class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
     required init() {
         super.init()
         
-        self.generateCollisionShapes(recursive: true)
-    }
-    
-    var entity: Entity?
-    required init(entity: Entity) {
-        self.entity = entity
-        super.init()
-        name = entity.name
-        self.addChild(entity)
         // Will generate collision boxes automatically also for children
         self.generateCollisionShapes(recursive: true)
     }
     
     func rotate(degrees: Float) {
-//        let currentMatrix = transform.matrix
-//        let rotation = simd_float4x4(SCNMatrix4MakeRotation(.pi / 3.0, 0.0, 1.0, 0.0))
-//        let scaling = simd_float4x4(1.0)  //simd_float4x4(SCNMatrix4MakeScale(0.5, 0.5, 0.5))
-//        let transform = simd_mul(simd_mul(currentMatrix, rotation), scaling)
-//        resetTransform = simd_mul(resetTransform, transform)
-//        move(to: transform, relativeTo: self, duration: 1.0, timingFunction: .linear)
-//        let rad = (deg * .pi / 180.0) //.truncatingRemainder(dividingBy: 2.0 * .pi)
-//        let oldRad = self.transform.rotation.angle
-//        let oldDeg = oldRad * 180.0 / .pi
-//        let newDeg = oldDeg + deg
-        
         guard let entity = children.first else {
             return
         }
@@ -78,29 +58,6 @@ class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
         let model = AccessibleModel()
         model.anchoring = anchorEntity.anchoring
         model.addChild(anchorEntity)
-        return model
-        
-//        guard let entity = try? Entity.load(named: named) else {
-//            return nil
-//        }
-//
-//        let model = AccessibleModel(entity: entity)
-//
-//        return model
-    }
-    
-    static public func load_old(named: String) -> AccessibleModel? {
-        guard let entity = try? Entity.load(named: named) else {
-            return nil
-        }
-        
-        let model = AccessibleModel(entity: entity)
-        
-//        if named == "mansion" {
-//            let scale = SIMD3<Float>.init(repeating: 0.5)
-//            model.setScale(scale, relativeTo: nil)
-//        }
-        
         return model
     }
 }

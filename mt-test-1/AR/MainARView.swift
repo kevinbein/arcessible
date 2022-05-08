@@ -64,9 +64,7 @@ class MainARView: ARView {
     static let shared = MainARView()
     
     func setupConfiguration() {
-        //session.delegate = self
-
-        // Display a debug visualization of the mesh.
+        
         environment.sceneUnderstanding.options = []
         //environment.sceneUnderstanding.options.insert(.physics)
         environment.sceneUnderstanding.options.insert(.occlusion)
@@ -82,7 +80,6 @@ class MainARView: ARView {
         ]
         
         // For performance, disable render options that are not required for this app.
-        //renderOptions = [.disablePersonOcclusion, .disableDepthOfField, .disableMotionBlur]
         renderOptions = [
             //.disableAutomaticLighting, // deprecated
             .disableGroundingShadows,
@@ -103,7 +100,6 @@ class MainARView: ARView {
         configuration.sceneReconstruction = .meshWithClassification
         //configuration.environmentTexturing = .automatic
 
-        //configuration.environmentTexturing = .automatic
         session.run(configuration)
     }
     
@@ -141,71 +137,6 @@ class MainARView: ARView {
         setupConfiguration()
     
         setupDummyScene()
-        
-//        var anchor = AnchorEntity(plane: .horizontal)
-//        //let box = MeshResource.generateBox(size: 0.2)
-//        //let material = SimpleMaterial(color: .green, isMetallic: true)
-//        //let entity = ModelEntity(mesh: box, materials: [material])
-//        scene.addAnchor(anchor)
-//        guard let entity = try? AccessibleModel.load(named: "mansion") else { print("error"); return }
-//        //guard let entity = try? Entity.load(named: "mansion") else { print("error"); return }
-//        anchor.addChild(entity)
-//        // let mansion = try! Mansion.load_Mansion()
-//        anchor.position = SIMD3(0.0, 0.0, -5.0)
-//        let currentMatrix = anchor.transform.matrix
-//        let rotation = simd_float4x4(SCNMatrix4MakeRotation(.pi / 2, 0,1,0))
-//        let transform = simd_mul(currentMatrix, rotation)
-//        anchor.move(to: transform, relativeTo: nil, duration: 3.0, timingFunction: .linear)
-    
-        
-//        model = AccessibleModel.load(named: "mansion")
-//        model = AccessibleModel.load(named: "boxgreen")
-//        if model == nil {
-//            fatalError("Failed to load model mansion.usdz")
-//        }
-        
-        // let rcporjectModel = try! Boxgreen.loadScene()
-        // arView.scene.anchors.append(rcporjectModel)
-        //scene.anchors.append(anchorModel)
-//        scene.addAnchor(model!)
-        
-        //        let box = ModelEntity(
-        //          mesh: MeshResource.generateBox(size: 0.05),
-        //          materials: [SimpleMaterial(color: .red, isMetallic: true)]
-        //        )
-        //        let cameraAnchor = AnchorEntity(.camera)
-        //        cameraAnchor.addChild(box)
-        //        scene.addAnchor(cameraAnchor)
-        //        // Move the box in front of the camera slightly, otherwise
-        //        // it will be centered on the camera position and we will
-        //        // be inside the box and not be able to see it
-        //        box.transform.translation = [0, 0, -0.5]
-        
-        
-//        let box2 = ModelEntity(
-//            mesh: MeshResource.generateBox(size: 0.1),
-//            materials: [SimpleMaterial(color: .red, isMetallic: true)]
-//        )
-//        box2.transform.translation = [0, 0, -0.5]
-//        boxAnchor = AnchorEntity(world: [0,0,0])
-//        // scene.addAnchor(boxAnchor!)
-//        sub_SceneEventsUpdate = scene.subscribe(to: SceneEvents.Update.self) { event in
-//            //            guard let boxAnchor = boxAnchor else {
-//            //                return
-//            //            }
-//            //            // Translation matrix that moves the box 1m in front of the camera
-//            //            let translate = float4x4(
-//            //                [1,0,0,0],
-//            //                [0,1,0,0],
-//            //                [0,0,1,0],
-//            //                [0,0,-3,1]
-//            //            )
-//            //            // Transformed applied right to left
-//            //            let finalMatrix = self.cameraTransform.matrix * translate
-//            //            boxAnchor.setTransformMatrix(finalMatrix, relativeTo: nil)
-//            //print(self.cameraTransform.matrix)
-//        }
-//        boxAnchor!.addChild(box2)
     }
     
     @MainActor required dynamic init?(coder decoder: NSCoder) {

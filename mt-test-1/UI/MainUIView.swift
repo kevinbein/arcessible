@@ -54,10 +54,6 @@ struct MainUIView: View {
     var body: some View {
         
         let content = EmptyView()
-//        let content = VStack {
-//            Text("Blah ...")
-//            Text("... Blub")
-//        }.foregroundColor(.white)
         
         let blackOpacity = 0.2
         let safeAreaHeightTop = UIApplication.shared.keyWindow?.safeAreaInsets.top
@@ -187,6 +183,5 @@ struct MainUIView: View {
 struct MainUIView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView().previewDisplayName("ContentView")
-        //MainUIView().previewDisplayName("MainUIView")
     }
 }
