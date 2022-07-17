@@ -115,18 +115,24 @@ class MetalImageView: MTKView, MTKViewDelegate
         let context = CIContext(mtlDevice: device!)
         
         var image = CIImage(cvPixelBuffer: imageBuffer)
-        image = image.applyingFilter("CIComicEffect")
-        let bounds = CGRect(origin: CGPoint.zero, size: drawableSize)
-        let originX = 0.0
-        let originY = drawableSize.height
-        let offsetX = (drawableSize.height - image.extent.width) * 0.5
-        let scaleX = drawableSize.height / image.extent.width
-        let scaleY = drawableSize.width / image.extent.height
+        //image = image.applyingFilter("CIGloom")
+        //image = image.applyingFilter("CIComicEffect")
+        
+        let maxScale = max(drawableSize.height / image.extent.width, drawableSize.width / image.extent.height)
+        let transformationMatrix = CGAffineTransform.identity
+            .translatedBy(x: -334, y: 0)
+            .scaledBy(x: maxScale, y: maxScale)
+            .rotated(by: -90 * .pi / 180)
+            .translatedBy(x: -1920, y: 0)
         let scaledImage = image
-            .transformed(by: CGAffineTransform(scaleX: 1.0, y: scaleY))
-            .transformed(by: CGAffineTransform(scaleX: scaleX, y: scaleX))
-            .transformed(by: CGAffineTransform(rotationAngle: -90 * .pi / 180 ))
-            .transformed(by: CGAffineTransform(translationX: originX - offsetX, y: originY))
+            .transformed(by: transformationMatrix)
+        /// Same as
+        //  .transformed(by: CGAffineTransform(a: 0, b: -1.31875, c: 1.31875, d: 0, tx: -334.0, ty: 2532.0))
+        /// Same as
+        //  .transformed(by: CGAffineTransform(translationX: -1920, y: 0))
+        //  .transformed(by: CGAffineTransform(rotationAngle: -90 * .pi / 180 ))
+        //  .transformed(by: CGAffineTransform(scaleX: maxScale, y: maxScale))
+        //  .transformed(by: CGAffineTransform(translationX: -334, y: 0))
             
         //renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0.3)
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
@@ -136,6 +142,7 @@ class MetalImageView: MTKView, MTKViewDelegate
         //commandEncoder?.setRenderPipelineState(renderPipelineState)
         commandEncoder?.endEncoding()
         
+        let bounds = CGRect(origin: CGPoint.zero, size: drawableSize)
         context.render(scaledImage,
                          to: targetTexture,
                          commandBuffer: commandBuffer,

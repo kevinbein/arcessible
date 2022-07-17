@@ -9,12 +9,27 @@
 /* Begin PBXBuildFile section */
 		442E368D282331F500F2F77B /* MainBGContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442E368C282331F500F2F77B /* MainBGContainer.swift */; };
 		442F9E042815AB7800B87229 /* ProjectSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442F9E032815AB7800B87229 /* ProjectSettings.swift */; };
+		4451194728804291001C4822 /* kokuraCastle.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 4451194628804291001C4822 /* kokuraCastle.usdz */; };
+		4451194928830354001C4822 /* inverseColor_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4451194828830354001C4822 /* inverseColor_kernel.metal */; };
+		4451194B28831187001C4822 /* gaussianBlur_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4451194A28831187001C4822 /* gaussianBlur_kernel.metal */; };
+		4451194F28831F92001C4822 /* GaussianBlurMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451194E28831F92001C4822 /* GaussianBlurMPS.swift */; };
+		4451195328833A76001C4822 /* ObjectMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451195228833A76001C4822 /* ObjectMPS.swift */; };
 		44522A08281EAA0B00C7ADD5 /* FocusEntity in Frameworks */ = {isa = PBXBuildFile; productRef = 44522A07281EAA0B00C7ADD5 /* FocusEntity */; };
 		44522A0D281ECE5B00C7ADD5 /* MainARViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44522A0C281ECE5B00C7ADD5 /* MainARViewContainer.swift */; };
 		44615A20281AF02200C9A84A /* MainUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44615A1F281AF02200C9A84A /* MainUIView.swift */; };
 		4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222A2823E19F00A5598D /* CGImageExtension.swift */; };
 		4475222D2823E49800A5598D /* FrameModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222C2823E49800A5598D /* FrameModel.swift */; };
+		44971B2228428974007C8279 /* bowlingpin.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44971B2128428974007C8279 /* bowlingpin.rcproject */; };
+		44971B242843A275007C8279 /* pipe.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44971B232843A275007C8279 /* pipe.rcproject */; };
+		44971B272843FA57007C8279 /* inverseColorKernel_vf.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44971B262843FA57007C8279 /* inverseColorKernel_vf.metal */; };
+		44981EA12861D15300D34D10 /* braunbaer.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44981EA02861D15300D34D10 /* braunbaer.usdz */; };
+		44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44981EA22861D44200D34D10 /* braunbaer.rcproject */; };
 		44A12E362815B4C800285324 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A12E352815B4C800285324 /* HeaderView.swift */; };
+		44A47DFD284E356900D00FFF /* turm.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44A47DFC284E356900D00FFF /* turm.rcproject */; };
+		44BF29AA2875B2A500FEA02E /* braunbaerVertical.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */; };
+		44BF29AC2875C8C900FEA02E /* blurringKernelGIT.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44BF29AB2875C8C900FEA02E /* blurringKernelGIT.metal */; };
+		44BF29AE28799EA200FEA02E /* gaussianBlur_vf.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44BF29AD28799EA200FEA02E /* gaussianBlur_vf.metal */; };
+		44BF29B0287C965900FEA02E /* passthrough.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44BF29AF287C965900FEA02E /* passthrough.metal */; };
 		44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C821D82816BABA0017AE57 /* AccessibleModel.swift */; };
 		44C821DF2816FB380017AE57 /* boxgreen.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44C821DE2816FB380017AE57 /* boxgreen.usdz */; };
 		44C821E12816FB930017AE57 /* boxgreen.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44C821E02816FB930017AE57 /* boxgreen.rcproject */; };
@@ -50,12 +65,27 @@
 /* Begin PBXFileReference section */
 		442E368C282331F500F2F77B /* MainBGContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBGContainer.swift; sourceTree = "<group>"; };
 		442F9E032815AB7800B87229 /* ProjectSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSettings.swift; sourceTree = "<group>"; };
+		4451194628804291001C4822 /* kokuraCastle.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = kokuraCastle.usdz; sourceTree = "<group>"; };
+		4451194828830354001C4822 /* inverseColor_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = inverseColor_kernel.metal; sourceTree = "<group>"; };
+		4451194A28831187001C4822 /* gaussianBlur_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = gaussianBlur_kernel.metal; sourceTree = "<group>"; };
+		4451194E28831F92001C4822 /* GaussianBlurMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaussianBlurMPS.swift; sourceTree = "<group>"; };
+		4451195228833A76001C4822 /* ObjectMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectMPS.swift; sourceTree = "<group>"; };
 		44522A0C281ECE5B00C7ADD5 /* MainARViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainARViewContainer.swift; sourceTree = "<group>"; };
 		44615A1F281AF02200C9A84A /* MainUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainUIView.swift; sourceTree = "<group>"; };
 		4475222A2823E19F00A5598D /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		4475222C2823E49800A5598D /* FrameModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameModel.swift; sourceTree = "<group>"; };
 		449145C428156F2C0088946B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		44971B2128428974007C8279 /* bowlingpin.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = bowlingpin.rcproject; sourceTree = "<group>"; };
+		44971B232843A275007C8279 /* pipe.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = pipe.rcproject; sourceTree = "<group>"; };
+		44971B262843FA57007C8279 /* inverseColorKernel_vf.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = inverseColorKernel_vf.metal; sourceTree = "<group>"; };
+		44981EA02861D15300D34D10 /* braunbaer.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = braunbaer.usdz; sourceTree = "<group>"; };
+		44981EA22861D44200D34D10 /* braunbaer.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = braunbaer.rcproject; sourceTree = "<group>"; };
 		44A12E352815B4C800285324 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
+		44A47DFC284E356900D00FFF /* turm.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = turm.rcproject; sourceTree = "<group>"; };
+		44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; name = braunbaerVertical.rcproject; path = "../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/braunbaerVertical.rcproject"; sourceTree = "<group>"; };
+		44BF29AB2875C8C900FEA02E /* blurringKernelGIT.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = blurringKernelGIT.metal; sourceTree = "<group>"; };
+		44BF29AD28799EA200FEA02E /* gaussianBlur_vf.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = gaussianBlur_vf.metal; sourceTree = "<group>"; };
+		44BF29AF287C965900FEA02E /* passthrough.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = passthrough.metal; sourceTree = "<group>"; };
 		44C821D82816BABA0017AE57 /* AccessibleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleModel.swift; sourceTree = "<group>"; };
 		44C821DE2816FB380017AE57 /* boxgreen.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = boxgreen.usdz; sourceTree = "<group>"; };
 		44C821E02816FB930017AE57 /* boxgreen.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = boxgreen.rcproject; sourceTree = "<group>"; };
@@ -108,6 +138,27 @@
 			path = BG;
 			sourceTree = "<group>";
 		};
+		4451194C28831F63001C4822 /* Metals */ = {
+			isa = PBXGroup;
+			children = (
+				4451194828830354001C4822 /* inverseColor_kernel.metal */,
+				44971B262843FA57007C8279 /* inverseColorKernel_vf.metal */,
+				44BF29AD28799EA200FEA02E /* gaussianBlur_vf.metal */,
+				44BF29AB2875C8C900FEA02E /* blurringKernelGIT.metal */,
+				44BF29AF287C965900FEA02E /* passthrough.metal */,
+				4451194A28831187001C4822 /* gaussianBlur_kernel.metal */,
+			);
+			path = Metals;
+			sourceTree = "<group>";
+		};
+		4451194D28831F7F001C4822 /* MPs */ = {
+			isa = PBXGroup;
+			children = (
+				4451194E28831F92001C4822 /* GaussianBlurMPS.swift */,
+			);
+			path = MPs;
+			sourceTree = "<group>";
+		};
 		44522A09281ECDB100C7ADD5 /* AR */ = {
 			isa = PBXGroup;
 			children = (
@@ -134,6 +185,16 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		44971B252843FA40007C8279 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				4451195228833A76001C4822 /* ObjectMPS.swift */,
+				4451194D28831F7F001C4822 /* MPs */,
+				4451194C28831F63001C4822 /* Metals */,
+			);
+			path = Shaders;
+			sourceTree = "<group>";
+		};
 		44EA95E22800967A0032EF81 = {
 			isa = PBXGroup;
 			children = (
@@ -158,8 +219,9 @@
 			isa = PBXGroup;
 			children = (
 				449145C428156F2C0088946B /* Info.plist */,
-				44F5EA432803514E00399303 /* Model */,
+				44F5EA432803514E00399303 /* Models */,
 				44F5EA412803511B00399303 /* Ressources */,
+				44971B252843FA40007C8279 /* Shaders */,
 				447522292823E18E00A5598D /* Extensions */,
 				442E368B282331B300F2F77B /* BG */,
 				44522A09281ECDB100C7ADD5 /* AR */,
@@ -167,8 +229,15 @@
 				44EA95F02800967A0032EF81 /* ContentView.swift */,
 				44EA95EE2800967A0032EF81 /* AppDelegate.swift */,
 				442F9E032815AB7800B87229 /* ProjectSettings.swift */,
+				44971B2128428974007C8279 /* bowlingpin.rcproject */,
 				44E1925D281F58EB00172230 /* mansion.rcproject */,
 				44C821E02816FB930017AE57 /* boxgreen.rcproject */,
+				44971B232843A275007C8279 /* pipe.rcproject */,
+				44A47DFC284E356900D00FFF /* turm.rcproject */,
+				44981EA22861D44200D34D10 /* braunbaer.rcproject */,
+				44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */,
+				4451194628804291001C4822 /* kokuraCastle.usdz */,
+				44981EA02861D15300D34D10 /* braunbaer.usdz */,
 				44C821DE2816FB380017AE57 /* boxgreen.usdz */,
 				44EA95F42800967D0032EF81 /* Assets.xcassets */,
 				44EA95F62800967D0032EF81 /* Preview Content */,
@@ -217,13 +286,13 @@
 			path = UI;
 			sourceTree = "<group>";
 		};
-		44F5EA432803514E00399303 /* Model */ = {
+		44F5EA432803514E00399303 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				44C821D82816BABA0017AE57 /* AccessibleModel.swift */,
 				4475222C2823E49800A5598D /* FrameModel.swift */,
 			);
-			path = Model;
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -336,6 +405,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4451194728804291001C4822 /* kokuraCastle.usdz in Resources */,
+				44981EA12861D15300D34D10 /* braunbaer.usdz in Resources */,
 				44EA95F82800967D0032EF81 /* Preview Assets.xcassets in Resources */,
 				44C821DF2816FB380017AE57 /* boxgreen.usdz in Resources */,
 				44EA95F52800967D0032EF81 /* Assets.xcassets in Resources */,
@@ -364,19 +435,32 @@
 			buildActionMask = 2147483647;
 			files = (
 				44522A0D281ECE5B00C7ADD5 /* MainARViewContainer.swift in Sources */,
+				44971B272843FA57007C8279 /* inverseColorKernel_vf.metal in Sources */,
 				44EA95F12800967A0032EF81 /* ContentView.swift in Sources */,
+				4451194F28831F92001C4822 /* GaussianBlurMPS.swift in Sources */,
+				4451194B28831187001C4822 /* gaussianBlur_kernel.metal in Sources */,
 				44EA95EF2800967A0032EF81 /* AppDelegate.swift in Sources */,
 				4475222D2823E49800A5598D /* FrameModel.swift in Sources */,
 				442F9E042815AB7800B87229 /* ProjectSettings.swift in Sources */,
 				4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */,
+				44BF29AE28799EA200FEA02E /* gaussianBlur_vf.metal in Sources */,
 				44615A20281AF02200C9A84A /* MainUIView.swift in Sources */,
+				44A47DFD284E356900D00FFF /* turm.rcproject in Sources */,
+				44BF29AC2875C8C900FEA02E /* blurringKernelGIT.metal in Sources */,
 				44E1925B281F264300172230 /* MainARView+CoachingOverlay.swift in Sources */,
+				44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */,
+				4451194928830354001C4822 /* inverseColor_kernel.metal in Sources */,
 				44D368B8281B0FA700DC0F0E /* MainARView.swift in Sources */,
 				44C821E12816FB930017AE57 /* boxgreen.rcproject in Sources */,
 				44E1925E281F58EB00172230 /* mansion.rcproject in Sources */,
 				442E368D282331F500F2F77B /* MainBGContainer.swift in Sources */,
+				44BF29AA2875B2A500FEA02E /* braunbaerVertical.rcproject in Sources */,
 				44A12E362815B4C800285324 /* HeaderView.swift in Sources */,
 				44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */,
+				44971B242843A275007C8279 /* pipe.rcproject in Sources */,
+				4451195328833A76001C4822 /* ObjectMPS.swift in Sources */,
+				44BF29B0287C965900FEA02E /* passthrough.metal in Sources */,
+				44971B2228428974007C8279 /* bowlingpin.rcproject in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

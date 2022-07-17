@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Combine
+import RealityKit
 
 struct PrimaryButton: UIViewRepresentable {
     let title: String
@@ -38,7 +39,17 @@ struct PrimaryButton: UIViewRepresentable {
 }
 
 struct MainUIView: View {
+    
+    enum Model: String, CaseIterable, Identifiable {
+        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical
+        var id: Self { self }
+    }
+    @State private var activeModelName: Model = .mansion
+    @State private var debugMode: Bool = false
+    
     @State private var showAbout = false
+    
+    @State private var blurSigma = 10.0
     
     @State private var posX = 0.5
     @State private var posY = 0.5
@@ -47,9 +58,19 @@ struct MainUIView: View {
     func onButton1() { NotificationCenter.default.post(name: Notification.Name("Button1Pressed"), object: self) }
     func onButton2() { NotificationCenter.default.post(name: Notification.Name("Button2Pressed"), object: self) }
     func onButton3() { NotificationCenter.default.post(name: Notification.Name("Button3Pressed"), object: self) }
+    func onButton4() { NotificationCenter.default.post(name: Notification.Name("Button4Pressed"), object: self) }
+    func onButton5() { NotificationCenter.default.post(name: Notification.Name("Button5Pressed"), object: self) }
+    func onButton6() { NotificationCenter.default.post(name: Notification.Name("Button6Pressed"), object: self) }
+    func onButton7() { NotificationCenter.default.post(name: Notification.Name("Button7Pressed"), object: self) }
+    func onButton8() { NotificationCenter.default.post(name: Notification.Name("Button8Pressed"), object: self) }
+    
     func onSlider1(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("Slider1Changed"), object: self, userInfo: ["value": value]) }
     func onSlider2(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("Slider2Changed"), object: self, userInfo: ["value": value]) }
     func onSlider3(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("Slider3Changed"), object: self, userInfo: ["value": value]) }
+    
+    func onPicker1(_ value: Model) { NotificationCenter.default.post(name: Notification.Name("Picker1Changed"), object: self, userInfo: ["value": value.rawValue]) }
+    
+    func onToggle1(_ value: Bool) { NotificationCenter.default.post(name: Notification.Name("Toggle1Changed"), object: self, userInfo: ["value": value]) }
     
     var body: some View {
         
@@ -110,15 +131,51 @@ struct MainUIView: View {
                     
                     // Footer - Controls
                     VStack {
+                        
+                        HStack {
+                            Spacer()
+                            Text("Blurring (sigma)")
+                            Slider(value: $blurSigma, in: 1...50, step: 1).onChange(of: blurSigma, perform: onSlider1)
+                            Text("\(String(format: "%d", Int(blurSigma)))")
+                            Spacer()
+                        }
+                        
                         // Footer - Controls - Buttons
                         HStack {
-                            PrimaryButton(title: "Button 1", action: onButton1)
-                            PrimaryButton(title: "Button 2", action: onButton2)
-                            PrimaryButton(title: "Button 3", action: onButton3)
+                            PrimaryButton(title: "Blurring", action: onButton5)
+                            PrimaryButton(title: "Floaters", action: onButton6)
+                            PrimaryButton(title: "[unused]", action: onButton7)
+                            PrimaryButton(title: "[unused]", action: onButton8)
+                        }
+                        .aspectRatio(contentMode: .fit)
+                        // Footer - Controls - Buttons
+                        HStack {
+                            PrimaryButton(title: "Raw", action: onButton1)
+                            PrimaryButton(title: "BG Effect", action: onButton2)
+                            PrimaryButton(title: "Post (Inv)", action: onButton3)
+                            PrimaryButton(title: "Reset", action: onButton4)
+                        }
+                        .aspectRatio(contentMode: .fit)
+                        HStack {
+                            Picker("Model", selection: $activeModelName) {
+                                Text("Mansion").tag(Model.mansion)
+                                Text("Pipe").tag(Model.pipe)
+                                Text("Braunbär").tag(Model.braunbaer)
+                                Text("Braunbär Vertikal").tag(Model.braunbaerVertical)
+                            }
+                            .accentColor(.white)
+                            .onChange(of: activeModelName, perform: onPicker1)
+                            .padding([.leading, .trailing], 20)
+                            
+                            Toggle("Debug", isOn: $debugMode)
+                                .onChange(of: debugMode, perform: onToggle1)
+                                .frame(width: 130, height: 30, alignment: .center)
+                                .padding([.leading, .trailing], 20)
+                            
                         }
                         .aspectRatio(contentMode: .fit)
                         // Footer - Controls - Sliders
-                        HStack {
+                        /*HStack {
                             Spacer()
                             VStack {
                                 Slider(value: $posX, in: 0.0...1.0, step: 0.05).onChange(of: posX, perform: onSlider1)
@@ -133,18 +190,20 @@ struct MainUIView: View {
                                 Text("\(String(format: "Z: %.2f", posZ))")
                             }
                             Spacer()
-                        }
+                        }*/
                     }
                     .padding()
                     .foregroundColor(.white)
                     .background(.black.opacity(blackOpacity))
                     
-                    Rectangle()
-                        .foregroundColor(.black.opacity(blackOpacity))
-                        .frame(height: 10)
-                    
                     // Footer - Tab navigation
-                    HStack {
+                    
+                    /*
+                     Rectangle()
+                         .foregroundColor(.black.opacity(blackOpacity))
+                         .frame(height: 10)
+                     
+                     HStack {
                         Spacer()
                         VStack {
                             Image(systemName: "display")
@@ -153,6 +212,8 @@ struct MainUIView: View {
                             Text("Demonstration")
                                 .font(.system(size: 10))
                         }
+                            .padding()
+                            .foregroundColor(.blue)
                         Spacer()
                         VStack {
                             Image(systemName: "slider.horizontal.3")
@@ -160,13 +221,14 @@ struct MainUIView: View {
                             Spacer()
                             Text("Preferences")
                                 .font(.system(size: 10))
-                        }
+                        }.padding()
                         Spacer()
                     }
                     .frame(height: 20)
                     .padding()
                     .foregroundColor(.white)
                     .background(.black.opacity(blackOpacity))
+                     */
                     
                     // Footer - Bottom margin
                     Rectangle()
@@ -182,6 +244,6 @@ struct MainUIView: View {
 
 struct MainUIView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView().previewDisplayName("ContentView")
+        ContentView().previewDisplayName("ContentView").previewInterfaceOrientation(.portrait)
     }
 }

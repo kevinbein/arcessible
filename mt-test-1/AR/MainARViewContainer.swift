@@ -56,6 +56,7 @@ struct MainARViewContainer: UIViewRepresentable {
         weak var view: MainARView?
         
         var model: AccessibleModel = AccessibleModel()
+        var activeModelName: String = "mansion"
         var anchor: AnchorEntity?
         var addedModel = false
         var focusEntity: FocusEntity?
@@ -68,14 +69,36 @@ struct MainARViewContainer: UIViewRepresentable {
             NotificationCenter.default.addObserver(self, selector: #selector(handleButton1Pressed(_:)), name: Notification.Name("Button1Pressed"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleButton2Pressed(_:)), name: Notification.Name("Button2Pressed"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleButton3Pressed(_:)), name: Notification.Name("Button3Pressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButton4Pressed(_:)), name: Notification.Name("Button4Pressed"), object: nil)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButton5Pressed(_:)), name: Notification.Name("Button5Pressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButton6Pressed(_:)), name: Notification.Name("Button6Pressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButton7Pressed(_:)), name: Notification.Name("Button7Pressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButton8Pressed(_:)), name: Notification.Name("Button8Pressed"), object: nil)
+            
             NotificationCenter.default.addObserver(self, selector: #selector(handleSlider1Changed(_:)), name: Notification.Name("Slider1Changed"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleSlider2Changed(_:)), name: Notification.Name("Slider2Changed"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleSlider3Changed(_:)), name: Notification.Name("Slider3Changed"), object: nil)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(handlePicker1Changed(_:)), name: Notification.Name("Picker1Changed"), object: nil)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(handleToggle1Changed(_:)), name: Notification.Name("Toggle1Changed"), object: nil)
+        }
+        
+        private func loadFocusEntity() {
+            guard let view = self.view, self.focusEntity == nil else { return }
+            self.focusEntity = FocusEntity(on: view, style: .classic(color: .yellow))
+        }
+        
+        private func destroyFocusEntity() {
+#if !targetEnvironment(simulator)
+            self.focusEntity?.destroy()
+            self.focusEntity = nil
+#endif
         }
         
         func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-            guard let view = self.view else { return }
-            self.focusEntity = FocusEntity(on: view, style: .classic(color: .yellow))
+            loadFocusEntity()
         }
         
         let context = CIContext()
@@ -84,21 +107,59 @@ struct MainARViewContainer: UIViewRepresentable {
         }
         
         @objc func handleButton1Pressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            view.environment.background = ARView.Environment.Background.cameraFeed()
+            view.enableShader(enabled: false)
             debugPrint("handleButton1Pressed")
         }
         
         @objc func handleButton2Pressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            view.environment.background = ARView.Environment.Background.color(.black.withAlphaComponent(0.0))
+            view.enableShader(enabled: false)
             debugPrint("handleButton2Pressed")
         }
         
         @objc func handleButton3Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
-            view.resetSession()
+            view.environment.background = ARView.Environment.Background.cameraFeed()
+            view.enableShader(enabled: true, shader: MainARView.Shader(name: "inverseColor", type: .metalShader))
             debugPrint("handleButton3Pressed")
         }
         
+        @objc func handleButton4Pressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            view.resetSession()
+            debugPrint("handleButton4Pressed")
+        }
+        
+        // Blurring
+        @objc func handleButton5Pressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            let mps = GaussianBlurMPS()
+            view.enableShader(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps))
+            debugPrint("handleButton5Pressed")
+        }
+        
+        @objc func handleButton6Pressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            debugPrint("handleButton6Pressed")
+        }
+        
+        @objc func handleButton7Pressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            debugPrint("handleButton7Pressed")
+        }
+        
+        @objc func handleButton8Pressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            debugPrint("handleButton8Pressed")
+        }
+        
         @objc func handleSlider1Changed(_ notification: Notification) {
-            guard let value = notification.userInfo?["value"] as? Double else { return }
+            guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
+            let mps = GaussianBlurMPS(sigma: Float(value))
+            view.enableShader(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps))
             debugPrint("handleSlider1Changed", value)
         }
         
@@ -112,11 +173,36 @@ struct MainARViewContainer: UIViewRepresentable {
             debugPrint("handleSlider3Changed", value)
         }
         
+        @objc func handlePicker1Changed(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? String else { return }
+            activeModelName = value
+            debugPrint("handlePicker1Changed", value)
+        }
+        
+        @objc func handleToggle1Changed(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? Bool else { return }
+            guard let view = self.view else { return }
+            if !value {
+                view.debugOptions = []
+                return
+            }
+            view.debugOptions = [
+                .showFeaturePoints,
+                .showAnchorOrigins,
+                .showAnchorGeometry,
+//                .showPhysics,
+                .showSceneUnderstanding,
+                .showWorldOrigin
+            ]
+            debugPrint("handleToggle1Changed", value)
+        }
+        
         @objc func handleTap() {
             guard let view = self.view, let focusEntity = self.focusEntity else { return }
             
             if self.addedModel {
                 view.scene.removeAnchor(self.anchor!)
+                loadFocusEntity()
                 model.reset()
                 self.addedModel = false
             } else {
@@ -124,14 +210,20 @@ struct MainARViewContainer: UIViewRepresentable {
                     view.scene.removeAnchor(self.anchor!)
                 }
 #if !targetEnvironment(simulator)
-                let anchor = AnchorEntity(plane: .horizontal)
-                anchor.position = focusEntity.position
-                view.scene.addAnchor(anchor)
-                guard let model = AccessibleModel.load(named: "mansion") else {
-                    fatalError("Failed loading model 'mansion'")
+                var anchor: AnchorEntity
+                if activeModelName == "braunbaerVertical" {
+                    anchor = AnchorEntity(plane: .vertical)
+                } else {
+                    anchor = AnchorEntity(plane: .horizontal)
                 }
-                self.model = model
+                anchor.position = focusEntity.position
+                guard let model = AccessibleModel.load(named: activeModelName) else {
+                    fatalError("Failed loading model '\(activeModelName)'")
+                }
                 anchor.addChild(model)
+                view.scene.addAnchor(anchor)
+                destroyFocusEntity()
+                self.model = model
                 self.addedModel = true
                 self.anchor = anchor
 #endif
