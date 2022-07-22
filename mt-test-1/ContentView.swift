@@ -23,6 +23,9 @@ struct ContentView : View {
             
             MainARViewContainer(frame: $frameModel.frame)
                 .edgesIgnoringSafeArea(.all)
+            
+//            MainFGContainer()
+//                .edgesIgnoringSafeArea(.all)
 #endif
             MainUIView()
         }

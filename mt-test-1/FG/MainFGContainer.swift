@@ -1,8 +1,8 @@
 //
-//  MainBGView.swift
+//  MainFGContainer.swift
 //  mt-test-1
 //
-//  Created by Kevin Bein on 05.05.22.
+//  Created by Kevin Bein on 17.07.22.
 //
 
 import GLKit
@@ -14,7 +14,7 @@ import ARKit
 
 // https://github.com/FlexMonkey/CoreImageHelpers/blob/master/CoreImageHelpers/coreImageHelpers/ImageView.swift
 
-class BGMetalImageView: MTKView, MTKViewDelegate
+class FGMetalImageView: MTKView, MTKViewDelegate
 {
     var commandQueue: MTLCommandQueue!
     var renderPipelineState: MTLRenderPipelineState!
@@ -45,28 +45,6 @@ class BGMetalImageView: MTKView, MTKViewDelegate
         
         commandQueue = device.makeCommandQueue()
         
-        // Create Pipeline State is more complex, because we need to pass in the shader functions and update the render pipeline descriptor and state.
-        
-//        // The device will make a library for us
-//        //let library = device.makeDefaultLibrary()
-//        // Our vertex function name
-//        //let vertexFunction = library?.makeFunction(name: "basic_vertex_function")
-//        // Our fragment function name
-//        //let fragmentFunction = library?.makeFunction(name: "basic_fragment_function")
-//        // Create basic descriptor
-//        let renderPipelineDescriptor = MTLRenderPipelineDescriptor()
-//        // Attach the pixel format that is the same as the MetalView
-//        renderPipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
-//        // Attach the shader functions
-//        //renderPipelineDescriptor.vertexFunction = vertexFunction
-//        //renderPipelineDescriptor.fragmentFunction = fragmentFunction
-//        // Try to update the state of the renderPipeline
-//        do {
-//            renderPipelineState = try device.makeRenderPipelineState(descriptor: renderPipelineDescriptor)
-//        } catch {
-//            print(error.localizedDescription)
-//        }
-        
         CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device, nil, &textureCache)
         
         // Other
@@ -91,21 +69,16 @@ class BGMetalImageView: MTKView, MTKViewDelegate
         return mtlTexture
     }
     
-    /// The image to display
-    var arFrame: ARFrame? {
-        didSet {
-            self.setNeedsDisplay()
-            //renderImage()
-        }
-    }
-    
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
     }
     
     func draw(in view: MTKView) {
+        var pixelBuffer: CVPixelBuffer? = nil
+        CVPixelBufferCreate(kCFAllocatorDefault, Int(drawableSize.width), Int(drawableSize.height), kCVPixelFormatType_32BGRA, nil, &pixelBuffer)
+        
         guard
             let targetTexture = currentDrawable?.texture,
-            let imageBuffer = arFrame?.capturedImage,
+            let imageBuffer = pixelBuffer,
             let drawable = currentDrawable,
             let renderPassDescriptor = currentRenderPassDescriptor
         else {
@@ -117,22 +90,6 @@ class BGMetalImageView: MTKView, MTKViewDelegate
         var image = CIImage(cvPixelBuffer: imageBuffer)
         //image = image.applyingFilter("CIGloom")
         //image = image.applyingFilter("CIComicEffect")
-        
-        let maxScale = max(drawableSize.height / image.extent.width, drawableSize.width / image.extent.height)
-        let transformationMatrix = CGAffineTransform.identity
-            .translatedBy(x: -334, y: 0)
-            .scaledBy(x: maxScale, y: maxScale)
-            .rotated(by: -90 * .pi / 180)
-            .translatedBy(x: -1920, y: 0)
-        let scaledImage = image
-            .transformed(by: transformationMatrix)
-        /// Same as
-        //  .transformed(by: CGAffineTransform(a: 0, b: -1.31875, c: 1.31875, d: 0, tx: -334.0, ty: 2532.0))
-        /// Same as
-        //  .transformed(by: CGAffineTransform(translationX: -1920, y: 0))
-        //  .transformed(by: CGAffineTransform(rotationAngle: -90 * .pi / 180 ))
-        //  .transformed(by: CGAffineTransform(scaleX: maxScale, y: maxScale))
-        //  .transformed(by: CGAffineTransform(translationX: -334, y: 0))
             
         //renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0, 0, 0, 0.3)
         renderPassDescriptor.colorAttachments[0].loadAction = .clear
@@ -143,7 +100,7 @@ class BGMetalImageView: MTKView, MTKViewDelegate
         commandEncoder?.endEncoding()
         
         let bounds = CGRect(origin: CGPoint.zero, size: drawableSize)
-        context.render(scaledImage,
+        context.render(image,
                          to: targetTexture,
                          commandBuffer: commandBuffer,
                          bounds: bounds,
@@ -156,19 +113,11 @@ class BGMetalImageView: MTKView, MTKViewDelegate
     }
 }
 
-struct MainBGContainer: UIViewRepresentable {
-    var arFrame: ARFrame?
-    //    @Binding var image: CIImage?
-    
-    init(arFrame: ARFrame?) {
-        self.arFrame = arFrame
+struct MainFGContainer: UIViewRepresentable {
+    func makeUIView(context: Context) -> FGMetalImageView {
+        return FGMetalImageView()
     }
     
-    func makeUIView(context: Context) -> BGMetalImageView {
-        return BGMetalImageView()
-    }
-    
-    func updateUIView(_ mtkView: BGMetalImageView, context: Context) {
-        mtkView.arFrame = self.arFrame
+    func updateUIView(_ mtkView: FGMetalImageView, context: Context) {
     }
 }

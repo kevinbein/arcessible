@@ -136,18 +136,19 @@ struct MainARViewContainer: UIViewRepresentable {
         // Blurring
         @objc func handleButton5Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
-            let mps = GaussianBlurMPS()
-            view.enableShader(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps))
+            view.enableShader(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()))
             debugPrint("handleButton5Pressed")
         }
         
         @objc func handleButton6Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
+            view.enableShader(enabled: true, shader: MainARView.Shader(name: "floatersDots", type: .metalShader))
             debugPrint("handleButton6Pressed")
         }
         
         @objc func handleButton7Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
+            view.enableShader(enabled: true, shader: MainARView.Shader(name: "floaters", type: .metalShader))
             debugPrint("handleButton7Pressed")
         }
         

@@ -70,10 +70,6 @@ class MainARView: ARView {
         case metalShader, metalPerformanceShader, effectFilter
         var id: Self { self }
     }
-    class ShaderOption {
-        
-    }
-    
     struct Shader: Equatable {
         static func == (lhs: MainARView.Shader, rhs: MainARView.Shader) -> Bool {
             return lhs.name == rhs.name && lhs.type == rhs.type
@@ -93,7 +89,7 @@ class MainARView: ARView {
     
     // https://github.com/JohnCoates/Slate/blob/67ab3721eb954d7ac0568f6b546390ae3831df34/Source/Rendering/Filters/Abstract/FragmentFilter.swift
     private func setupComputePipeline(device: MTLDevice, context: ARView.PostProcessContext, targetTexture: MTLTexture, kernelName: String?) throws {
-        debugPrint("Load kernel \(kernelName)_kernel")
+        print("Load kernel \(kernelName)_kernel")
         guard let library = device.makeDefaultLibrary(),
               let kernelFunction = kernelName != nil ? library.makeFunction(name: "\(kernelName!)_kernel") : nil,
               let pipelineState = try? device.makeComputePipelineState(function: kernelFunction)
@@ -111,8 +107,13 @@ class MainARView: ARView {
                                       depth: 1)
     }
     
+    struct FragmentShaderArguments {
+        var time: Float
+    }
+    
     fileprivate func enablePostProcessShader(kernelName: String) {
         computePipelineState = nil
+        let initialTime = Date().timeIntervalSince1970
         // https://rozengain.medium.com/quick-realitykit-tutorial-custom-post-processing-b5275d9271b
         renderCallbacks.postProcess = { [weak self] context in
             guard let self = self,
@@ -139,10 +140,14 @@ class MainARView: ARView {
                   let encoder = context.commandBuffer.makeComputeCommandEncoder()
             else { return }
 
+            var arguments: [Float] = [ Float(Date().timeIntervalSince1970 - initialTime) ]
+            let argumentBuffer = device.makeBuffer(bytes: &arguments, length: MemoryLayout<Float>.size * arguments.count)
+            
             encoder.pushDebugGroup("\(kernelName) compute pipeline")
             encoder.setComputePipelineState(computePipelineState)
             encoder.setTexture(context.sourceColorTexture, index: 0)
             encoder.setTexture(context.targetColorTexture, index: 1)
+            encoder.setBuffer(argumentBuffer, offset: 0, index: 0)
             encoder.dispatchThreadgroups(self.threadgroupsPerGrid, threadsPerThreadgroup: self.threadsPerThreadgroup)
             
             // Vertex/Fragment tests
