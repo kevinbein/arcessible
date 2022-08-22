@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		44206BDA289008B5007F7463 /* BloomMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44206BD9289008B5007F7463 /* BloomMPS.swift */; };
 		442E368D282331F500F2F77B /* MainBGContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442E368C282331F500F2F77B /* MainBGContainer.swift */; };
 		442F9E042815AB7800B87229 /* ProjectSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442F9E032815AB7800B87229 /* ProjectSettings.swift */; };
 		4451194728804291001C4822 /* kokuraCastle.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 4451194628804291001C4822 /* kokuraCastle.usdz */; };
@@ -14,19 +15,22 @@
 		4451194F28831F92001C4822 /* GaussianBlurMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451194E28831F92001C4822 /* GaussianBlurMPS.swift */; };
 		4451195328833A76001C4822 /* ObjectMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4451195228833A76001C4822 /* ObjectMPS.swift */; };
 		44511956288430A2001C4822 /* MainFGContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44511955288430A2001C4822 /* MainFGContainer.swift */; };
-		4451195828843DC3001C4822 /* floaters_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4451195728843DC3001C4822 /* floaters_kernel.metal */; };
-		4451195A288AAD5E001C4822 /* floaters_dots_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44511959288AAD5E001C4822 /* floaters_dots_kernel.metal */; };
+		4451195828843DC3001C4822 /* floatersTest_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4451195728843DC3001C4822 /* floatersTest_kernel.metal */; };
+		4451195A288AAD5E001C4822 /* floatersDots_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44511959288AAD5E001C4822 /* floatersDots_kernel.metal */; };
 		44522A08281EAA0B00C7ADD5 /* FocusEntity in Frameworks */ = {isa = PBXBuildFile; productRef = 44522A07281EAA0B00C7ADD5 /* FocusEntity */; };
 		44522A0D281ECE5B00C7ADD5 /* MainARViewContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44522A0C281ECE5B00C7ADD5 /* MainARViewContainer.swift */; };
 		44615A20281AF02200C9A84A /* MainUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44615A1F281AF02200C9A84A /* MainUIView.swift */; };
 		4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222A2823E19F00A5598D /* CGImageExtension.swift */; };
 		4475222D2823E49800A5598D /* FrameModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222C2823E49800A5598D /* FrameModel.swift */; };
+		4486C40328AA55A80040A654 /* macularDegeneration_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4486C40228AA55A80040A654 /* macularDegeneration_kernel.metal */; };
+		4486C40828AA66260040A654 /* glaucoma_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4486C40728AA66260040A654 /* glaucoma_kernel.metal */; };
 		44971B2228428974007C8279 /* bowlingpin.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44971B2128428974007C8279 /* bowlingpin.rcproject */; };
 		44971B242843A275007C8279 /* pipe.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44971B232843A275007C8279 /* pipe.rcproject */; };
 		44981EA12861D15300D34D10 /* braunbaer.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44981EA02861D15300D34D10 /* braunbaer.usdz */; };
 		44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44981EA22861D44200D34D10 /* braunbaer.rcproject */; };
 		44A12E362815B4C800285324 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A12E352815B4C800285324 /* HeaderView.swift */; };
 		44A47DFD284E356900D00FFF /* turm.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44A47DFC284E356900D00FFF /* turm.rcproject */; };
+		44BD609628B3AFE80058413C /* colorVisionDeficiency_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44BD609528B3AFE80058413C /* colorVisionDeficiency_kernel.metal */; };
 		44BF29AA2875B2A500FEA02E /* braunbaerVertical.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */; };
 		44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C821D82816BABA0017AE57 /* AccessibleModel.swift */; };
 		44C821DF2816FB380017AE57 /* boxgreen.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44C821DE2816FB380017AE57 /* boxgreen.usdz */; };
@@ -61,6 +65,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		44206BD9289008B5007F7463 /* BloomMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BloomMPS.swift; sourceTree = "<group>"; };
 		442E368C282331F500F2F77B /* MainBGContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBGContainer.swift; sourceTree = "<group>"; };
 		442F9E032815AB7800B87229 /* ProjectSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSettings.swift; sourceTree = "<group>"; };
 		4451194628804291001C4822 /* kokuraCastle.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = kokuraCastle.usdz; sourceTree = "<group>"; };
@@ -68,12 +73,15 @@
 		4451194E28831F92001C4822 /* GaussianBlurMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GaussianBlurMPS.swift; sourceTree = "<group>"; };
 		4451195228833A76001C4822 /* ObjectMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObjectMPS.swift; sourceTree = "<group>"; };
 		44511955288430A2001C4822 /* MainFGContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainFGContainer.swift; sourceTree = "<group>"; };
-		4451195728843DC3001C4822 /* floaters_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = floaters_kernel.metal; sourceTree = "<group>"; };
-		44511959288AAD5E001C4822 /* floaters_dots_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = floaters_dots_kernel.metal; sourceTree = "<group>"; };
+		4451195728843DC3001C4822 /* floatersTest_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = floatersTest_kernel.metal; sourceTree = "<group>"; };
+		44511959288AAD5E001C4822 /* floatersDots_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = floatersDots_kernel.metal; sourceTree = "<group>"; };
 		44522A0C281ECE5B00C7ADD5 /* MainARViewContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainARViewContainer.swift; sourceTree = "<group>"; };
 		44615A1F281AF02200C9A84A /* MainUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainUIView.swift; sourceTree = "<group>"; };
 		4475222A2823E19F00A5598D /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		4475222C2823E49800A5598D /* FrameModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameModel.swift; sourceTree = "<group>"; };
+		4486C40228AA55A80040A654 /* macularDegeneration_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = macularDegeneration_kernel.metal; sourceTree = "<group>"; };
+		4486C40628AA62D20040A654 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4486C40728AA66260040A654 /* glaucoma_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = glaucoma_kernel.metal; sourceTree = "<group>"; };
 		449145C428156F2C0088946B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		44971B2128428974007C8279 /* bowlingpin.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = bowlingpin.rcproject; sourceTree = "<group>"; };
 		44971B232843A275007C8279 /* pipe.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = pipe.rcproject; sourceTree = "<group>"; };
@@ -81,6 +89,7 @@
 		44981EA22861D44200D34D10 /* braunbaer.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = braunbaer.rcproject; sourceTree = "<group>"; };
 		44A12E352815B4C800285324 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		44A47DFC284E356900D00FFF /* turm.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = turm.rcproject; sourceTree = "<group>"; };
+		44BD609528B3AFE80058413C /* colorVisionDeficiency_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = colorVisionDeficiency_kernel.metal; sourceTree = "<group>"; };
 		44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; name = braunbaerVertical.rcproject; path = "../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/braunbaerVertical.rcproject"; sourceTree = "<group>"; };
 		44C821D82816BABA0017AE57 /* AccessibleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleModel.swift; sourceTree = "<group>"; };
 		44C821DE2816FB380017AE57 /* boxgreen.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = boxgreen.usdz; sourceTree = "<group>"; };
@@ -137,19 +146,20 @@
 		4451194C28831F63001C4822 /* Metals */ = {
 			isa = PBXGroup;
 			children = (
-				4451194828830354001C4822 /* inverseColor_kernel.metal */,
-				4451195728843DC3001C4822 /* floaters_kernel.metal */,
-				44511959288AAD5E001C4822 /* floaters_dots_kernel.metal */,
+				44BD609428B263760058413C /* Correction */,
+				44BD609328B263670058413C /* Simulation */,
+				4486C40628AA62D20040A654 /* README.md */,
 			);
 			path = Metals;
 			sourceTree = "<group>";
 		};
-		4451194D28831F7F001C4822 /* MPs */ = {
+		4451194D28831F7F001C4822 /* MPS */ = {
 			isa = PBXGroup;
 			children = (
 				4451194E28831F92001C4822 /* GaussianBlurMPS.swift */,
+				44206BD9289008B5007F7463 /* BloomMPS.swift */,
 			);
-			path = MPs;
+			path = MPS;
 			sourceTree = "<group>";
 		};
 		445119542884308B001C4822 /* FG */ = {
@@ -190,10 +200,30 @@
 			isa = PBXGroup;
 			children = (
 				4451195228833A76001C4822 /* ObjectMPS.swift */,
-				4451194D28831F7F001C4822 /* MPs */,
+				4451194D28831F7F001C4822 /* MPS */,
 				4451194C28831F63001C4822 /* Metals */,
 			);
 			path = Shaders;
+			sourceTree = "<group>";
+		};
+		44BD609328B263670058413C /* Simulation */ = {
+			isa = PBXGroup;
+			children = (
+				44BD609528B3AFE80058413C /* colorVisionDeficiency_kernel.metal */,
+				4451194828830354001C4822 /* inverseColor_kernel.metal */,
+				4451195728843DC3001C4822 /* floatersTest_kernel.metal */,
+				44511959288AAD5E001C4822 /* floatersDots_kernel.metal */,
+				4486C40228AA55A80040A654 /* macularDegeneration_kernel.metal */,
+				4486C40728AA66260040A654 /* glaucoma_kernel.metal */,
+			);
+			path = Simulation;
+			sourceTree = "<group>";
+		};
+		44BD609428B263760058413C /* Correction */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Correction;
 			sourceTree = "<group>";
 		};
 		44EA95E22800967A0032EF81 = {
@@ -437,10 +467,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				44522A0D281ECE5B00C7ADD5 /* MainARViewContainer.swift in Sources */,
-				4451195828843DC3001C4822 /* floaters_kernel.metal in Sources */,
-				4451195A288AAD5E001C4822 /* floaters_dots_kernel.metal in Sources */,
+				4451195828843DC3001C4822 /* floatersTest_kernel.metal in Sources */,
+				4451195A288AAD5E001C4822 /* floatersDots_kernel.metal in Sources */,
 				44EA95F12800967A0032EF81 /* ContentView.swift in Sources */,
 				4451194F28831F92001C4822 /* GaussianBlurMPS.swift in Sources */,
+				44BD609628B3AFE80058413C /* colorVisionDeficiency_kernel.metal in Sources */,
 				44511956288430A2001C4822 /* MainFGContainer.swift in Sources */,
 				44EA95EF2800967A0032EF81 /* AppDelegate.swift in Sources */,
 				4475222D2823E49800A5598D /* FrameModel.swift in Sources */,
@@ -449,6 +480,7 @@
 				44615A20281AF02200C9A84A /* MainUIView.swift in Sources */,
 				44A47DFD284E356900D00FFF /* turm.rcproject in Sources */,
 				44E1925B281F264300172230 /* MainARView+CoachingOverlay.swift in Sources */,
+				4486C40828AA66260040A654 /* glaucoma_kernel.metal in Sources */,
 				44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */,
 				4451194928830354001C4822 /* inverseColor_kernel.metal in Sources */,
 				44D368B8281B0FA700DC0F0E /* MainARView.swift in Sources */,
@@ -458,7 +490,9 @@
 				44BF29AA2875B2A500FEA02E /* braunbaerVertical.rcproject in Sources */,
 				44A12E362815B4C800285324 /* HeaderView.swift in Sources */,
 				44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */,
+				44206BDA289008B5007F7463 /* BloomMPS.swift in Sources */,
 				44971B242843A275007C8279 /* pipe.rcproject in Sources */,
+				4486C40328AA55A80040A654 /* macularDegeneration_kernel.metal in Sources */,
 				4451195328833A76001C4822 /* ObjectMPS.swift in Sources */,
 				44971B2228428974007C8279 /* bowlingpin.rcproject in Sources */,
 			);

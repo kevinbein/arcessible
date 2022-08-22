@@ -14,9 +14,9 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "180"
-            endingLineNumber = "180"
-            landmarkName = "enableShader(enabled:shader:)"
+            startingLineNumber = "265"
+            endingLineNumber = "265"
+            landmarkName = "enableShader(target:shader:arguments:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -30,9 +30,9 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "174"
-            endingLineNumber = "174"
-            landmarkName = "enableShader(enabled:shader:)"
+            startingLineNumber = "259"
+            endingLineNumber = "259"
+            landmarkName = "enableShader(target:shader:arguments:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -46,25 +46,9 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "91"
-            endingLineNumber = "91"
+            startingLineNumber = "100"
+            endingLineNumber = "100"
             landmarkName = "setupComputePipeline(device:context:targetTexture:kernelName:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "DE4B6612-EE16-4F27-BCCC-C83188579765"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "mt-test-1/AR/MainARViewContainer.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "162"
-            endingLineNumber = "162"
-            landmarkName = "handleSlider1Changed(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -78,8 +62,8 @@
             filePath = "mt-test-1/UI/MainUIView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "67"
-            endingLineNumber = "67"
+            startingLineNumber = "120"
+            endingLineNumber = "120"
             landmarkName = "MainUIView"
             landmarkType = "14">
          </BreakpointContent>
@@ -94,9 +78,9 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "144"
-            endingLineNumber = "144"
-            landmarkName = "enablePostProcessShader(kernelName:)"
+            startingLineNumber = "159"
+            endingLineNumber = "159"
+            landmarkName = "createPostProcessShader(kernelName:arguments:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -112,8 +96,280 @@
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "43"
             endingLineNumber = "43"
-            landmarkName = "floatersDots_kernel( texture2d&lt;float, access::read&gt; sourceTexture [[texture(0)]], texture2d&lt;float, access::write&gt; targetTexture [[texture(1)]], uint2 gridPosition [[thread_position_in_grid]], constant float &amp;time [[buffer(0)]] )"
+            landmarkName = "floatersDots_kernel( texture2d&lt;float, access::read&gt; sourceTexture [[texture(0)]], texture2d&lt;float, access::write&gt; targetTexture [[texture(1)]], uint2 gridPosition [[thread_position_in_grid]], constant float &amp;iTime [[buffer(0)]] )"
             landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "DA9E5574-06D1-4569-9D0A-31BF08A47BC8"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARViewContainer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "282"
+            endingLineNumber = "282"
+            landmarkName = "handleTap()"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "DA9E5574-06D1-4569-9D0A-31BF08A47BC8 - 110eea401078f016"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "mt_test_1.MainARViewContainer.Coordinator.handleTap() -&gt; ()"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/AR/MainARViewContainer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "248"
+                  endingLineNumber = "248"
+                  offsetFromSymbolStart = "248">
+               </Location>
+               <Location
+                  uuid = "DA9E5574-06D1-4569-9D0A-31BF08A47BC8 - 110eea401078f016"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "mt_test_1.MainARViewContainer.Coordinator.handleTap() -&gt; ()"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/AR/MainARViewContainer.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "248"
+                  endingLineNumber = "248"
+                  offsetFromSymbolStart = "292">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "F11D8792-48F5-4707-A898-25E4A47949E6"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARViewContainer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "118"
+            endingLineNumber = "118"
+            landmarkName = "handlePickerModelChanged(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "30E119CD-BE07-4276-9443-9F71F3987476"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "234"
+            endingLineNumber = "234"
+            landmarkName = "createPipeline()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9AB0B88C-A7DC-4DE8-B35B-993B223059FE"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "270"
+            endingLineNumber = "270"
+            landmarkName = "enableShader(target:shader:arguments:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A7040817-C599-449E-B215-F067EE1B8558"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARViewContainer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "159"
+            endingLineNumber = "159"
+            landmarkName = "handlePickerSimulationChanged(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A7D0F995-E23C-403B-8367-9D076EFD2E30"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARViewContainer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "284"
+            endingLineNumber = "284"
+            landmarkName = "handleTap()"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3567EC23-4C4F-46D4-848B-1CD13874C30F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARViewContainer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "188"
+            endingLineNumber = "188"
+            landmarkName = "handleSliderDeuteranomalyPhiChanged(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "B93A6EBE-C987-4A3F-B47F-9FB45062C04E"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "132"
+            endingLineNumber = "132"
+            landmarkName = "createPostProcessShader(kernelName:arguments:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "B93A6EBE-C987-4A3F-B47F-9FB45062C04E - 451ac3f0f0da4d81"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (RealityKit.ARView.PostProcessContext) -&gt; () in mt_test_1.MainARView.createPostProcessShader(kernelName: Swift.String, arguments: Swift.Array&lt;Swift.Float&gt;) -&gt; Swift.Optional&lt;(RealityKit.ARView.PostProcessContext) -&gt; ()&gt;"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/AR/MainARView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "132"
+                  endingLineNumber = "132"
+                  offsetFromSymbolStart = "584">
+               </Location>
+               <Location
+                  uuid = "B93A6EBE-C987-4A3F-B47F-9FB45062C04E - 451ac3f0f0da4d81"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (RealityKit.ARView.PostProcessContext) -&gt; () in mt_test_1.MainARView.createPostProcessShader(kernelName: Swift.String, arguments: Swift.Array&lt;Swift.Float&gt;) -&gt; Swift.Optional&lt;(RealityKit.ARView.PostProcessContext) -&gt; ()&gt;"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/AR/MainARView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "132"
+                  endingLineNumber = "132"
+                  offsetFromSymbolStart = "636">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "2702D5C2-192D-4F7D-BDC3-22A3AACC63B1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "131"
+            endingLineNumber = "131"
+            landmarkName = "createPostProcessShader(kernelName:arguments:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "2702D5C2-192D-4F7D-BDC3-22A3AACC63B1 - d708b3651edb6d3e"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "mt_test_1.MainARView.createPostProcessShader(kernelName: Swift.String, arguments: Swift.Array&lt;Swift.Float&gt;) -&gt; Swift.Optional&lt;(RealityKit.ARView.PostProcessContext) -&gt; ()&gt;"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/AR/MainARView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "131"
+                  endingLineNumber = "131"
+                  offsetFromSymbolStart = "428">
+               </Location>
+               <Location
+                  uuid = "2702D5C2-192D-4F7D-BDC3-22A3AACC63B1 - 451ac3f0f0da4da0"
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (RealityKit.ARView.PostProcessContext) -&gt; () in mt_test_1.MainARView.createPostProcessShader(kernelName: Swift.String, arguments: Swift.Array&lt;Swift.Float&gt;) -&gt; Swift.Optional&lt;(RealityKit.ARView.PostProcessContext) -&gt; ()&gt;"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/AR/MainARView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "131"
+                  endingLineNumber = "131"
+                  offsetFromSymbolStart = "536">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "AEAA1041-B5A6-4821-8A53-70EEB8883F3A"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "173"
+            endingLineNumber = "173"
+            landmarkName = "createPostProcessShader(kernelName:arguments:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "8954BE76-76D2-4B8C-A2C2-F482E3FB4755"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARViewContainer.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "193"
+            endingLineNumber = "193"
+            landmarkName = "handleSliderTritanomalyPhiChanged(_:)"
+            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

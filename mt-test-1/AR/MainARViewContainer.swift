@@ -60,27 +60,27 @@ struct MainARViewContainer: UIViewRepresentable {
         var anchor: AnchorEntity?
         var addedModel = false
         var focusEntity: FocusEntity?
+        
+        var activeSimulationName: String = "none"
+        
+        var activeCorrectionName: String = "none"
 
         init(frame: Binding<ARFrame?>) {
             _frame = frame
             
             super.init()
             
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton1Pressed(_:)), name: Notification.Name("Button1Pressed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton2Pressed(_:)), name: Notification.Name("Button2Pressed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton3Pressed(_:)), name: Notification.Name("Button3Pressed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton4Pressed(_:)), name: Notification.Name("Button4Pressed"), object: nil)
             
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton5Pressed(_:)), name: Notification.Name("Button5Pressed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton6Pressed(_:)), name: Notification.Name("Button6Pressed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton7Pressed(_:)), name: Notification.Name("Button7Pressed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButton8Pressed(_:)), name: Notification.Name("Button8Pressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButtonResetSessionPressed(_:)), name: Notification.Name("ButtonResetSessionPressed"), object: nil)
             
-            NotificationCenter.default.addObserver(self, selector: #selector(handleSlider1Changed(_:)), name: Notification.Name("Slider1Changed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleSlider2Changed(_:)), name: Notification.Name("Slider2Changed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleSlider3Changed(_:)), name: Notification.Name("Slider3Changed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handlePickerModelChanged(_:)), name: Notification.Name("PickerModelChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handlePickerSimulationChanged(_:)), name: Notification.Name("PickerSimulationChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handlePickerCorrectionChanged(_:)), name: Notification.Name("PickerCorrectionChanged"), object: nil)
             
-            NotificationCenter.default.addObserver(self, selector: #selector(handlePicker1Changed(_:)), name: Notification.Name("Picker1Changed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleSliderBlurringSigmaChanged(_:)), name: Notification.Name("SliderBlurringSigmaChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleSliderProtanomalyPhiChanged(_:)), name: Notification.Name("SliderProtanomalyPhiChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleSliderDeuteranomalyPhiChanged(_:)), name: Notification.Name("SliderDeuteranomalyPhiChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleSliderTritanomalyPhiChanged(_:)), name: Notification.Name("SliderTritanomalyPhiChanged"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleToggle1Changed(_:)), name: Notification.Name("Toggle1Changed"), object: nil)
         }
@@ -106,7 +106,100 @@ struct MainARViewContainer: UIViewRepresentable {
             self.frame = frame
         }
         
-        @objc func handleButton1Pressed(_ notification: Notification) {
+        @objc func handleButtonResetSessionPressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            view.resetSession()
+            debugPrint("handleButtonResetSessionPressed")
+        }
+        
+        @objc func handlePickerModelChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? String else { return }
+            activeModelName = value
+            debugPrint("handlePickerModelChanged", value)
+        }
+        @objc func handlePickerSimulationChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? String else { return }
+            activeSimulationName = value
+            debugPrint("handlePickerSimulationChanged", value)
+            
+            guard let view = self.view else { return }
+            
+            switch activeSimulationName {
+                
+            case "blurring":
+                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()))
+                
+            case "floaters":
+                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "floatersDots", type: .metalShader))
+                
+            case "glaucoma":
+                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "glaucoma", type: .metalShader))
+                
+            case "macularDegeneration":
+                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader))
+                
+            case "protanomaly":
+                let type: Float = 0.0;
+                let args: [Float] = [ type, 1.0 ];
+                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+                
+            case "deuteranomaly":
+                let type: Float = 1.0;
+                let args: [Float] = [ type, 1.0 ];
+                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+                
+            case "tritanomaly":
+                let type: Float = 2.0;
+                let args: [Float] = [ type, 1.0 ];
+                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+                
+            case "none":
+                fallthrough
+            default:
+                view.disableShader(target: .simulation)
+                
+            }
+        }
+        @objc func handlePickerCorrectionChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? String else { return }
+            activeCorrectionName = value
+            debugPrint("handlePickerCorrectionlChanged", value)
+        }
+        
+        @objc func handleSliderBlurringSigmaChanged(_ notification: Notification) {
+            guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
+            let mps = GaussianBlurMPS(sigma: Float(value))
+            view.enableShader(target: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps))
+            debugPrint("handleSliderBlurringSigmaChanged", value)
+        }
+        @objc func handleSliderProtanomalyPhiChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? Double else { return }
+            let type: Float = 0.0;
+            let phi = Float(value);
+            let args: [Float] = [ type, phi ];
+            view!.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+            debugPrint("handleSliderProtanomalyPhiChanged", Float(phi))
+        }
+        @objc func handleSliderDeuteranomalyPhiChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? Double else { return }
+            let type: Float = 1.0;
+            let phi = Float(value);
+            let args: [Float] = [ type, phi ];
+            view!.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+            debugPrint("handleSliderDeuteranomalyPhiChanged", Float(phi))
+        }
+        @objc func handleSliderTritanomalyPhiChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? Double else { return }
+            let type: Float = 2.0;
+            let phi = Float(value);
+            let args: [Float] = [ type, phi ];
+            view!.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+            debugPrint("handleSliderTritanomalyPhiChanged", Float(phi))
+        }
+        
+        
+        // Old
+        /*@objc func handleButton1Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.environment.background = ARView.Environment.Background.cameraFeed()
             view.enableShader(enabled: false)
@@ -154,30 +247,15 @@ struct MainARViewContainer: UIViewRepresentable {
         
         @objc func handleButton8Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
+            //view.enableShader(enabled: true, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader))
+            view.enableShader(enabled: true, shader: MainARView.Shader(name: "glaucoma", type: .metalShader))
             debugPrint("handleButton8Pressed")
         }
-        
-        @objc func handleSlider1Changed(_ notification: Notification) {
-            guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
-            let mps = GaussianBlurMPS(sigma: Float(value))
-            view.enableShader(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps))
-            debugPrint("handleSlider1Changed", value)
-        }
-        
-        @objc func handleSlider2Changed(_ notification: Notification) {
-            guard let value = notification.userInfo?["value"] as? Double else { return }
-            debugPrint("handleSlider2Changed", value)
-        }
+        */
         
         @objc func handleSlider3Changed(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? Double else { return }
             debugPrint("handleSlider3Changed", value)
-        }
-        
-        @objc func handlePicker1Changed(_ notification: Notification) {
-            guard let value = notification.userInfo?["value"] as? String else { return }
-            activeModelName = value
-            debugPrint("handlePicker1Changed", value)
         }
         
         @objc func handleToggle1Changed(_ notification: Notification) {
@@ -197,6 +275,8 @@ struct MainARViewContainer: UIViewRepresentable {
             ]
             debugPrint("handleToggle1Changed", value)
         }
+        
+        // User Controls
         
         @objc func handleTap() {
             guard let view = self.view, let focusEntity = self.focusEntity else { return }
