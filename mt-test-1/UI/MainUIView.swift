@@ -66,10 +66,9 @@ struct MainUIView: View {
             case .floaters: return "Floaters"
             case .macularDegeneration: return "Macular Degeneration"
             case .glaucoma: return "Glaucoma"
-            case .protanomaly: return "Protanomaly"
-            case .deuteranomaly: return "Deuteranomaly"
-            case .tritanomaly: return "Tritanomaly"
-                
+            case .protanomaly: return "CVD - Protanomaly"
+            case .deuteranomaly: return "CVD - Deuteranomaly"
+            case .tritanomaly: return "CVD - Tritanomaly"
             }
         }
     }
