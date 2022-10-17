@@ -1,0 +1,201 @@
+{
+  "__content" : [
+    {
+      "scenes" : [
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "6FE69E24-1C0C-40F3-AF80-DF794A4FA16D",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "5E783A96-EECF-436A-8477-C3C9D2DD8C49" : null,
+                  "DED554F9-0F6D-474E-8141-2273BE57096F" : {
+                    "overrides" : {
+                      "children" : {
+                        "USDScene" : {
+                          "overrides" : {
+                            "arguments" : [
+                              [
+                                "includeSceneScaling",
+                                {
+                                  "typeName" : "Bool",
+                                  "value" : false
+                                }
+                              ],
+                              [
+                                "subpath",
+                                {
+                                  "typeName" : "String",
+                                  "value" : ""
+                                }
+                              ],
+                              [
+                                "url",
+                                {
+                                  "typeName" : "String",
+                                  "value" : "model:44a7753599098f2122ac6ce765fa2ad1\/newYorkDowntown.usdz"
+                                }
+                              ],
+                              [
+                                "withDescendants",
+                                {
+                                  "typeName" : "Bool",
+                                  "value" : true
+                                }
+                              ]
+                            ],
+                            "factory" : {
+                              "identifier" : "com.apple.af.FileImportAssetFactory",
+                              "version" : "0.0"
+                            },
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "3945BE0F-E919-42C3-92B3-135F030AAF17"
+                                }
+                              ]
+                            ]
+                          },
+                          "transform" : {
+                            "matrix" : [
+                              0.0099999997764825821,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0.0099999997764825821,
+                              0,
+                              0,
+                              0,
+                              0,
+                              0.0099999997764825821,
+                              0,
+                              0,
+                              0,
+                              0,
+                              1
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.af.Group",
+                        "version" : "0.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "83A0785F-08B9-4417-8580-6D5CF200FC79"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1
+                      ]
+                    }
+                  }
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "Scene",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  0.97647517919540405,
+                  -7.4505805969238281e-09,
+                  0.21562975645065308,
+                  0,
+                  0.08414054661989212,
+                  0.92072659730911255,
+                  -0.38102877140045166,
+                  0,
+                  -0.19853603839874268,
+                  0.39020836353302002,
+                  0.89906668663024902,
+                  0,
+                  0.88799428939819336,
+                  8.0265960693359375,
+                  19.435401916503906,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        }
+      ],
+      "tags" : {
+        "__content" : [
+          {
+            "tagsStore" : {
+
+            }
+          }
+        ],
+        "__version" : 1
+      }
+    }
+  ],
+  "__version" : 1
+}

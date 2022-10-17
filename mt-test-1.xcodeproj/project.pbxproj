@@ -41,6 +41,7 @@
 		44A47DFD284E356900D00FFF /* turm.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44A47DFC284E356900D00FFF /* turm.rcproject */; };
 		44AE9A5328EC55F600AA6D9B /* SobelMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AE9A5228EC55F600AA6D9B /* SobelMPS.swift */; };
 		44AE9A5528ECA40700AA6D9B /* daltonizationStep0_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44AE9A5428ECA40700AA6D9B /* daltonizationStep0_kernel.metal */; };
+		44BA122028FDFEF70032D68F /* newYorkDowntown.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BA121F28FDFEF70032D68F /* newYorkDowntown.rcproject */; };
 		44BD609628B3AFE80058413C /* colorVisionDeficiency_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44BD609528B3AFE80058413C /* colorVisionDeficiency_kernel.metal */; };
 		44BD609A28B4F49B0058413C /* wuschel1.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44BD609928B4F49B0058413C /* wuschel1.usdz */; };
 		44BD609E28C603420058413C /* ninetydegreebracket.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD609D28C603420058413C /* ninetydegreebracket.rcproject */; };
@@ -120,6 +121,7 @@
 		44A47DFC284E356900D00FFF /* turm.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = turm.rcproject; sourceTree = "<group>"; };
 		44AE9A5228EC55F600AA6D9B /* SobelMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SobelMPS.swift; sourceTree = "<group>"; };
 		44AE9A5428ECA40700AA6D9B /* daltonizationStep0_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep0_kernel.metal; sourceTree = "<group>"; };
+		44BA121F28FDFEF70032D68F /* newYorkDowntown.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = newYorkDowntown.rcproject; sourceTree = "<group>"; };
 		44BD609528B3AFE80058413C /* colorVisionDeficiency_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = colorVisionDeficiency_kernel.metal; sourceTree = "<group>"; };
 		44BD609928B4F49B0058413C /* wuschel1.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = wuschel1.usdz; sourceTree = "<group>"; };
 		44BD609D28C603420058413C /* ninetydegreebracket.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = ninetydegreebracket.rcproject; sourceTree = "<group>"; };
@@ -148,6 +150,8 @@
 		44EA960B2800967D0032EF81 /* mt_test_1UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mt_test_1UITests.swift; sourceTree = "<group>"; };
 		44EA960D2800967D0032EF81 /* mt_test_1UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mt_test_1UITestsLaunchTests.swift; sourceTree = "<group>"; };
 		44F372B828FDA5D200A21850 /* contrast.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = contrast.metal; sourceTree = "<group>"; };
+		44F372BC28FDFEA800A21850 /* braunbaerVertical.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; name = braunbaerVertical.rcproject; path = "../../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/braunbaerVertical.rcproject"; sourceTree = "<group>"; };
+		44F372BD28FDFEAC00A21850 /* braunbaerVertical.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; name = braunbaerVertical.rcproject; path = "../../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/braunbaerVertical.rcproject"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -287,6 +291,7 @@
 				44971B232843A275007C8279 /* pipe.rcproject */,
 				44A47DFC284E356900D00FFF /* turm.rcproject */,
 				44981EA22861D44200D34D10 /* braunbaer.rcproject */,
+				44BA121F28FDFEF70032D68F /* newYorkDowntown.rcproject */,
 				44BD60B828C66C3A0058413C /* braunbaerVertical.rcproject */,
 				44BD609D28C603420058413C /* ninetydegreebracket.rcproject */,
 				44BD60A128C603B40058413C /* dcWhiteHouse.rcproject */,
@@ -295,6 +300,8 @@
 				44BD60B128C6194F0058413C /* decorativeLightPole.rcproject */,
 				44BD60B328C619BA0058413C /* bathroomInterior.rcproject */,
 				44BD60B528C61A000058413C /* scaffold.rcproject */,
+				44F372BC28FDFEA800A21850 /* braunbaerVertical.rcproject */,
+				44F372BD28FDFEAC00A21850 /* braunbaerVertical.rcproject */,
 				4422B08128F3006D00D5C732 /* noise.png */,
 				44BD609928B4F49B0058413C /* wuschel1.usdz */,
 				4451194628804291001C4822 /* kokuraCastle.usdz */,
@@ -556,6 +563,7 @@
 				4475323928C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift in Sources */,
 				4422B08428FADDDD00D5C732 /* daltonizationStep1_kernel.metal in Sources */,
 				44BD60B028C6184F0058413C /* cinemaChair.rcproject in Sources */,
+				44BA122028FDFEF70032D68F /* newYorkDowntown.rcproject in Sources */,
 				442F9E042815AB7800B87229 /* ProjectSettings.swift in Sources */,
 				4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */,
 				44AE9A5328EC55F600AA6D9B /* SobelMPS.swift in Sources */,

@@ -41,7 +41,7 @@ struct PrimaryButton: UIViewRepresentable {
 struct MainUIView: View {
     
     enum Model: String, CaseIterable, Identifiable {
-        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical, wuschel1, ninetydegreebracket, dcWhiteHouse, cinemaChair, decorativeLightPole, scaffold, realisticEuropanTree, bathroomInterior
+        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical, wuschel1, ninetydegreebracket, dcWhiteHouse, cinemaChair, decorativeLightPole, scaffold, realisticEuropanTree, bathroomInterior, newYorkDowntown
         var id: Self { self }
         var description: String {
             switch self {
@@ -59,6 +59,7 @@ struct MainUIView: View {
             case .scaffold: return "Scaffold"
             case .realisticEuropanTree: return "Realistic European Tree"
             case .bathroomInterior: return "Bathroom Interior"
+            case .newYorkDowntown: return "New York Downtown"
             }
         }
     }
@@ -107,6 +108,7 @@ struct MainUIView: View {
     @State private var protanomalyPhi = 1.0
     @State private var deuteranomalyPhi = 1.0
     @State private var tritanomalyPhi = 1.0
+    @State private var contrastSaturation = 1.0
     
     @State private var posX = 0.5
     @State private var posY = 0.5
@@ -129,6 +131,7 @@ struct MainUIView: View {
     func onSliderProtanomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderProtanomalyPhiChanged"), object: self, userInfo: ["value": value]) }
     func onSliderDeuteranomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderDeuteranomalyPhiChanged"), object: self, userInfo: ["value": value]) }
     func onSliderTritanomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderTritanomalyPhiChanged"), object: self, userInfo: ["value": value]) }
+    func onSliderContrastSaturation(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderContrastSaturationChanged"), object: self, userInfo: ["value": value]) }
     
     func onPickerModel(_ value: Model) { NotificationCenter.default.post(name: Notification.Name("PickerModelChanged"), object: self, userInfo: ["value": value.rawValue]) }
     func onPickerSimulation(_ value: Simulation) { NotificationCenter.default.post(name: Notification.Name("PickerSimulationChanged"), object: self, userInfo: ["value": value.rawValue]) }
@@ -271,6 +274,27 @@ struct MainUIView: View {
                                     
                                 }
                                 .aspectRatio(contentMode: .fit)
+                                
+                                switch activeCorrectionName {
+                                case .contrast:
+                                    HStack {
+                                        Spacer()
+                                        Text("Saturation")
+                                        Slider(value: $contrastSaturation, in: 0.0...1.0, step: 0.1).onChange(of: contrastSaturation, perform: onSliderContrastSaturation)
+                                        Text("\(String(format: "%.1f", contrastSaturation))")
+                                        Spacer()
+                                    }
+                                case .none:
+                                    EmptyView()
+                                case .daltonization:
+                                    EmptyView()
+                                case .colorRedBlue:
+                                    EmptyView()
+                                case .brightness:
+                                    EmptyView()
+                                case .sobel:
+                                    EmptyView()
+                                }
                                 
                                 // Simulation
                                 HStack {

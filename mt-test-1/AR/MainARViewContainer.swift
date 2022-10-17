@@ -82,6 +82,7 @@ struct MainARViewContainer: UIViewRepresentable {
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderProtanomalyPhiChanged(_:)), name: Notification.Name("SliderProtanomalyPhiChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderDeuteranomalyPhiChanged(_:)), name: Notification.Name("SliderDeuteranomalyPhiChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderTritanomalyPhiChanged(_:)), name: Notification.Name("SliderTritanomalyPhiChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleSliderContrastSaturationChanged(_:)), name: Notification.Name("SliderContrastSaturationChanged"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleToggle1Changed(_:)), name: Notification.Name("Toggle1Changed"), object: nil)
         }
@@ -229,6 +230,13 @@ struct MainARViewContainer: UIViewRepresentable {
             let args: [Float] = [ type, phi ];
             view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
             debugPrint("handleSliderTritanomalyPhiChanged", Float(phi))
+        }
+        @objc func handleSliderContrastSaturationChanged(_ notification: Notification) {
+            guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
+            let saturation = Float(value);
+            let args: [Float] = [ saturation ];
+            view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "contrast", type: .metalShader), arguments: args, textures: [])])
+            debugPrint("handleSliderContrastSaturationChanged", Float(saturation))
         }
         
         

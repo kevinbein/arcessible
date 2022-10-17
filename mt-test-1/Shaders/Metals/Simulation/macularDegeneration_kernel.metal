@@ -42,7 +42,7 @@ kernel void macularDegeneration_kernel(
     float d = length(uv - .5);
     d = smoothstep(.1, .5, d);
     vec4 col = vec4(vec3(d), 1.0);
-
+    
     // ========= Custom code END =========
     
     

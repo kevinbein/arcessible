@@ -14,8 +14,8 @@
             filePath = "mt-test-1/UI/MainUIView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "128"
-            endingLineNumber = "128"
+            startingLineNumber = "130"
+            endingLineNumber = "130"
             landmarkName = "MainUIView"
             landmarkType = "14">
          </BreakpointContent>
@@ -46,8 +46,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "316"
-            endingLineNumber = "316"
+            startingLineNumber = "325"
+            endingLineNumber = "325"
             landmarkName = "handleTap()"
             landmarkType = "7">
             <Locations>
@@ -94,8 +94,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "126"
-            endingLineNumber = "126"
+            startingLineNumber = "127"
+            endingLineNumber = "127"
             landmarkName = "handlePickerModelChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -110,8 +110,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "167"
-            endingLineNumber = "167"
+            startingLineNumber = "168"
+            endingLineNumber = "168"
             landmarkName = "handlePickerSimulationChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -126,25 +126,9 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "318"
-            endingLineNumber = "318"
+            startingLineNumber = "327"
+            endingLineNumber = "327"
             landmarkName = "handleTap()"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "8954BE76-76D2-4B8C-A2C2-F482E3FB4755"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "mt-test-1/AR/MainARViewContainer.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "227"
-            endingLineNumber = "227"
-            landmarkName = "handleSliderTritanomalyPhiChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -206,8 +190,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "194"
-            endingLineNumber = "194"
+            startingLineNumber = "195"
+            endingLineNumber = "195"
             landmarkName = "handlePickerCorrectionChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -222,8 +206,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "214"
-            endingLineNumber = "214"
+            startingLineNumber = "216"
+            endingLineNumber = "216"
             landmarkName = "handleSliderProtanomalyPhiChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -238,8 +222,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "152"
-            endingLineNumber = "152"
+            startingLineNumber = "153"
+            endingLineNumber = "153"
             landmarkName = "handlePickerSimulationChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -254,10 +238,72 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "287"
-            endingLineNumber = "287"
-            landmarkName = "runShaders(shaders:)"
+            startingLineNumber = "324"
+            endingLineNumber = "324">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "408578B2-778D-4F43-BFBB-04D8249D10E1"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/AR/MainARView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "254"
+            endingLineNumber = "254"
+            landmarkName = "createPostProcess(shaderDescriptors:)"
             landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "3E452648-8BBA-47B9-BDE5-0BA2EC060AC3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "mt-test-1/Models/AccessibleModel.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "64"
+            endingLineNumber = "64"
+            landmarkName = "load(named:scene:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "3E452648-8BBA-47B9-BDE5-0BA2EC060AC3 - f3abec68adbd69a2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static mt_test_1.AccessibleModel.load(named: Swift.String, scene: Swift.Optional&lt;Swift.String&gt;) -&gt; Swift.Optional&lt;mt_test_1.AccessibleModel&gt;"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/Models/AccessibleModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "64"
+                  endingLineNumber = "64"
+                  offsetFromSymbolStart = "1644">
+               </Location>
+               <Location
+                  uuid = "3E452648-8BBA-47B9-BDE5-0BA2EC060AC3 - f3abec68adbd69a2"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "static mt_test_1.AccessibleModel.load(named: Swift.String, scene: Swift.Optional&lt;Swift.String&gt;) -&gt; Swift.Optional&lt;mt_test_1.AccessibleModel&gt;"
+                  moduleName = "mt-test-1"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/kevinbein/Projects/MasterThesisLocal/mt-test-1/mt-test-1/Models/AccessibleModel.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "64"
+                  endingLineNumber = "64"
+                  offsetFromSymbolStart = "1872">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
