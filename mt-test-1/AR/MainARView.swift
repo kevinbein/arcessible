@@ -11,57 +11,10 @@ import ARKit
 import Combine // Cancellable
 import RealityKit
 import FocusEntity
+import GameplayKit
 
 import Foundation
 import MetalKit
-
-extension MainARView: ARSessionDelegate {
-    func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-        //        // check if found anchors are Plane Anchors
-        //        let planeAnchors = anchors.map { $0 as! ARPlaneAnchor }
-        //        for planeAnchor in planeAnchors {
-        //            let planeEntity = PlaneEntity(with: planeAnchor)
-        //            scene.anchors.append(planeEntity)
-        //        }
-    }
-    
-    func session(_ session: ARSession, didUpdate anchors: [ARAnchor]) {
-        //        // Filter to ARPlaneAnchors only
-        //        let planeAnchors = anchors.map { $0 as! ARPlaneAnchor }
-        //
-        //        // Take all IDs of already attached ARPlaneAnchors
-        //        let scenePlaneAnchorsID = scene.anchors.map { $0.anchorIdentifier }
-        //
-        //        // Iterate through each updated ARPlaneAnchor
-        //        for planeAnchor in planeAnchors {
-        //            // Take id of updated anchor
-        //            let id = planeAnchor.identifier
-        //
-        //            // Look for matching id, if matches, update the transform
-        //            if scenePlaneAnchorsID.contains(id) {
-        //                print("found!")
-        //                let entityToUpdate = (scene.anchors.filter { $0.anchorIdentifier == id }).first
-        //                if let a = entityToUpdate as? PlaneEntity {
-        //                    print("plane entity")
-        //                }
-        //                if let b = entityToUpdate as? ARPlaneAnchor {
-        //                    print("just plane anchor")
-        //                }
-        //                if let c = entityToUpdate as? ModelEntity {
-        //                    print("model entity")
-        //                }
-        //            }
-        //        }
-    }
-    
-    func sessionWasInterrupted(_ session: ARSession) {
-        print("Session was interrupted")
-    }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        print("session interruption ended")
-    }
-}
 
 class MainARView: ARView {
     static let shared = MainARView()
@@ -79,221 +32,46 @@ class MainARView: ARView {
         var mpsFunction: ((ARView.PostProcessContext) -> Void)?
         var mpsObject: ObjectMPS?
     }
-    public var useShader = false
-    
     enum PipelineTarget {
         case simulation, correction
         var id: Self { self }
     }
-    
-    private var device = MTLCreateSystemDefaultDevice()
-    
-    struct ComputePipelineState {
-        var state: MTLComputePipelineState
-        var threadsPerThreadgroup: MTLSize
-        var threadgroupsPerGrid: MTLSize
-    }
-    private var computePipelineState: ComputePipelineState?
-    private var computePipelineState_TEST: ComputePipelineState?
-    
-    // https://github.com/JohnCoates/Slate/blob/67ab3721eb954d7ac0568f6b546390ae3831df34/Source/Rendering/Filters/Abstract/FragmentFilter.swift
-    private func setupComputePipeline(device: MTLDevice, context: ARView.PostProcessContext, targetTexture: MTLTexture, kernelName: String?) throws -> ComputePipelineState? {
-        print("Load kernel \(String(describing: kernelName!))_kernel")
-        guard let library = device.makeDefaultLibrary(),
-              let kernelFunction = kernelName != nil ? library.makeFunction(name: "\(kernelName!)_kernel") : nil,
-              let pipelineState = try? device.makeComputePipelineState(function: kernelFunction)
-        else {
-            assertionFailure()
-            return nil
-        }
-        
-        let computePipelineState = pipelineState
-        let threadsPerThreadgroup = MTLSize(width: pipelineState.threadExecutionWidth,
-                                            height: pipelineState.maxTotalThreadsPerThreadgroup / pipelineState.threadExecutionWidth,
-                                            depth: 1)
-        let threadgroupsPerGrid = MTLSize(width: (targetTexture.width + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width,
-                                          height: (targetTexture.height + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height,
-                                          depth: 1)
-        
-        return ComputePipelineState(
-            state: pipelineState,
-            threadsPerThreadgroup: threadsPerThreadgroup,
-            threadgroupsPerGrid: threadgroupsPerGrid
-        )
-    }
-    
-    private var shaderTargets: [PipelineTarget: [String]] = [:]
-    
-    private func createPostProcessShader(kernelName: String, arguments: [Float] = []) -> ((ARView.PostProcessContext) -> Void)? {
-        computePipelineState = nil
-        let initialTime = Date().timeIntervalSince1970
-        // https://rozengain.medium.com/quick-realitykit-tutorial-custom-post-processing-b5275d9271b
-        return { [weak self] context in
-            guard let self = self,
-                  let device = self.device
-            else { return }
-            
-            if self.computePipelineState == nil {
-                self.computePipelineState = try? self.setupComputePipeline(
-                    device: device,
-                    context: context,
-                    targetTexture: context.targetColorTexture,
-                    kernelName: kernelName
-                )
-            }
-
-            //let renderPassDescriptor = MTLRenderPassDescriptor()
-            //renderPassDescriptor.colorAttachments[0].texture = context.sourceColorTexture
-            //renderPassDescriptor.colorAttachments[0].texture = context.targetColorTexture
-            //renderPassDescriptor.colorAttachments[0].clearColor = MTLClearColorMake(0.0, 0.5, 0.0, 1.0)
-            //renderPassDescriptor.colorAttachments[0].loadAction = .clear
-            //renderPassDescriptor.colorAttachments[0].storeAction = .store
-            
-            guard let computePipelineState = self.computePipelineState,
-                  let encoder = context.commandBuffer.makeComputeCommandEncoder()
-            else { return }
-
-            var allArguments: [Float] = [Float(Date().timeIntervalSince1970 - initialTime)]
-            allArguments.append(contentsOf: arguments)
-            //var arguments: [Float] = [ Float(Date().timeIntervalSince1970 - initialTime) ]
-            let argumentBuffer = device.makeBuffer(bytes: &allArguments, length: MemoryLayout<Float>.size * allArguments.count)
-            
-            let textureDescriptor = MTLTextureDescriptor()
-            textureDescriptor.pixelFormat = context.sourceColorTexture.pixelFormat
-            textureDescriptor.width = context.sourceColorTexture.width
-            textureDescriptor.height = context.sourceColorTexture.height
-            textureDescriptor.usage = [ .shaderWrite, .shaderRead ]
-            //let simulationTexture = device.makeTexture(descriptor: textureDescriptor)
-                     
-            encoder.pushDebugGroup("\(kernelName) compute pipeline")
-            encoder.setComputePipelineState(computePipelineState.state)
-            encoder.setTexture(context.sourceColorTexture, index: 0)
-            //encoder.setTexture(simulationTexture, index: 1)
-            encoder.setTexture(context.targetColorTexture, index: 1)
-            for i in (0 ..< allArguments.count) {
-                //encoder.setBuffer(argumentBuffer, offset: 0, index: i)
-                encoder.setBuffer(argumentBuffer, offset: MemoryLayout<Float>.size * i, index: i)
-            }
-            encoder.dispatchThreadgroups(
-                computePipelineState.threadgroupsPerGrid,
-                threadsPerThreadgroup: computePipelineState.threadsPerThreadgroup
-            )
-            
-            
-            // Vertex/Fragment tests
-            // encoder.setRenderPipelineState(renderPipelineState)
-            //encoder.setVertexTexture(context.sourceColorTexture, index: 0)
-            // let widthData: [Int] = [ context.sourceColorTexture.width ]
-            // let widthBuffer = device.makeBuffer(bytes: widthData, length: MemoryLayout<Int>.size)
-            // encoder.setVertexBuffer(widthBuffer, offset: 0, index: 0)
-            // encoder.setFragmentTexture(context.sourceColorTexture, index: 0)
-            
-            encoder.popDebugGroup()
-            
-            encoder.endEncoding()
-        }
-    }
-    
-    private func createMetalPerformanceShader(mpsFunction: ((ARView.PostProcessContext) -> Void)?) -> ((ARView.PostProcessContext) -> Void)? {
-        return mpsFunction
-    }
-    
-    private func createMetalPerformanceShader(mpsObject: ObjectMPS) -> ((ARView.PostProcessContext) -> Void)? {
-        return mpsObject.process
-    }
-    
-    /*func clearShaders(target: PipelineTarget? = nil) {
-        if target == nil {
-            // Clear all
-        }
-        
-        if target == .simulation {
-            
-        }
-        else if target == .correction {
-            
-        }
-    }*/
-    
-    struct PostProcessInfo {
-        var name: String
+    public struct ShaderDescriptor {
         var target: PipelineTarget
-        var callback: ((ARView.PostProcessContext) -> Void) = {_ in }
-    }
-    private var postProcessInfos: [PostProcessInfo] = []
-
-    
-    private func createPipeline() {
-        if postProcessInfos.count == 0 {
-            renderCallbacks.postProcess = nil
-            return
-        }
-        
-        renderCallbacks.postProcess = ((ARView.PostProcessContext) -> Void)? {context in
-            // Simulation
-            for info in self.postProcessInfos {
-                if info.target == .simulation {
-                    info.callback(context)
-                }
-            }
-            // Correction
-            for info in self.postProcessInfos {
-                if info.target == .correction {
-                    info.callback(context)
-                }
-            }
-        }
+        var shader: Shader
+        var arguments: [Float]
+        var textures: [String]
     }
     
-    func disableShader(target: PipelineTarget, name: String? = nil) {
-        for (index, info) in postProcessInfos.enumerated() {
-            if info.target == target && (name == nil || info.name == name) {
-                self.postProcessInfos.remove(at: index)
-            }
-        }
+    private var device: MTLDevice!
+    // private var metalLayer: CAMetalLayer!
+    private var renderPipelineState: MTLRenderPipelineState!
+    private var commandQueue: MTLCommandQueue!
+    private var library: MTLLibrary!
+    private var computePipelineState: MTLComputePipelineDescriptor!
+    private var loadedTextures: [String:MTLTexture] = [:]
+    private var postProcessCallbacks: [PipelineTarget:((ARView.PostProcessContext) -> Void)?] = [:]
+    
+    public var currentContext: PostProcessContext?
+    
+    required init() {
+        super.init(frame: .zero)
         
-        createPipeline()
+        setupCoachingOverlay() // not really activating when used with lidar phone
+        setupConfiguration()
+        
+        setupRenderingProcess()
     }
     
-    func enableShader(target: PipelineTarget, shader: Shader? = nil, arguments: [Float]? = nil) {
-        if shader == nil {
-            renderCallbacks.postProcess = nil
-            return
-        }
-        
-        // TODO: Optimization later
-        // if renderCallbacks.postProcess != nil && activeShader == shader { return }
-        
-        var postProcessInfo: PostProcessInfo = PostProcessInfo(name: shader!.name, target: target)
-        
-        // TODO: Special logic, only one simulation shader is possible and, as of now, only one correction shader too!
-        for info in self.postProcessInfos {
-            if info.target == target {
-                disableShader(target: target)
+    private func setupRenderingProcess() {
+        renderCallbacks.prepareWithDevice = ((MTLDevice) -> Void)? { device in
+            self.device = device
+            guard let library = device.makeDefaultLibrary() else {
+                fatalError()
             }
+            self.library = library
+            self.commandQueue = device.makeCommandQueue()
         }
-        
-        switch shader!.type {
-        case .metalShader:
-            guard let callback = createPostProcessShader(kernelName: shader!.name, arguments: arguments ?? []) else { return }
-            postProcessInfo.callback = callback
-            
-        case .metalPerformanceShader:
-            if shader!.mpsFunction != nil {
-                guard let callback = createMetalPerformanceShader(mpsFunction: shader!.mpsFunction!) else { return }
-                postProcessInfo.callback = callback
-            } else if shader!.mpsObject != nil {
-                guard let callback = createMetalPerformanceShader(mpsObject: shader!.mpsObject!) else { return }
-                postProcessInfo.callback = callback
-            }
-        
-        case .effectFilter: fallthrough
-        default: return
-        }
-        
-        postProcessInfos.append(postProcessInfo)
-        
-        createPipeline()
     }
     
     func setupConfiguration() {
@@ -335,40 +113,203 @@ class MainARView: ARView {
         session.run(configuration)
     }
     
-    func setupDummyScene() {
-        let coords = [
-            SIMD3<Float>(0.0, 0.0, 1.0),
-            SIMD3<Float>(1.0, 0.0, 0.0),
-            SIMD3<Float>(-1.0, 0.0, 0.0),
-            SIMD3<Float>(0.0, 0.0, -1.0),
-        ]
-        for coord in coords {
-            let box = MeshResource.generateBox(size: 0.2)
-            let material = SimpleMaterial(color: .green, isMetallic: true)
-            let entity = ModelEntity(mesh: box, materials: [material])
-            let ar = AnchorEntity()
-            ar.position = coord
-            ar.addChild(entity)
-            scene.addAnchor(ar)
+    private func generateNoiseTextureBuffer(width: Int, height: Int) -> [Float] {
+        let w = Float(width)
+        let h = Float(height)
+        var noiseData = [Float](repeating: 0, count: width * height * 4 + (2 * height))
+        let padding = 2
+        
+        let random = GKRandomSource()
+        let gaussianGenerator = GKGaussianDistribution(randomSource: random, mean: 0.0, deviation: 1.0)
+        let scale = sqrt(2.0 * min(w, h) * (2.0 / Float.pi))
+        
+        DispatchQueue.concurrentPerform(iterations: height * width) { index in
+            // let index = yi * width + xi
+            let y = Float(floor(Double(index / height)))
+            let x = Float(index % width)
+            
+            let randX = gaussianGenerator.nextUniform()
+            let randY = gaussianGenerator.nextUniform()
+            
+            let rx = floor(max(min(x + scale * randX, w - 1.0), 0.0))
+            let ry = floor(max(min(y + scale * randY, h - 1.0), 0.0))
+            
+            noiseData[index * 4 + 0] = (rx + 0.5)
+            noiseData[index * 4 + 1] = (ry + 0.5)
+            noiseData[index * 4 + 2] = 1
+            noiseData[index * 4 + 3] = 1
+        }
+        
+        return noiseData
+    }
+    
+    private func getTextureDescriptor() -> MTLTextureDescriptor{
+        let textureDescriptor = MTLTextureDescriptor()
+        textureDescriptor.pixelFormat = .rgba32Float // context.sourceColorTexture.pixelFormat // bgra10_xr_srgb
+        //textureDescriptor.width =  1172 + 2 // context.sourceColorTexture.width + 2
+        textureDescriptor.width = 1170
+        textureDescriptor.height = 2532// context.sourceColorTexture.height
+        textureDescriptor.usage = [ .shaderWrite, .shaderRead ]
+        return textureDescriptor
+    }
+    
+    private func loadTextures(_ shaderDescriptor: ShaderDescriptor) {
+        for name in shaderDescriptor.textures {
+            if self.loadedTextures[name] != nil {
+                continue
+            }
+            
+            switch name {
+            case "temp1": fallthrough
+            case "temp2": fallthrough
+            case "temp3": fallthrough
+            case "temp4": fallthrough
+            case "temp5":
+                let textureDescriptor = getTextureDescriptor()
+                guard let texture = device.makeTexture(descriptor: textureDescriptor) else {
+                    continue
+                }
+                loadedTextures[name] = texture
+                
+            case "noise":
+                let textureDescriptor = getTextureDescriptor()
+                let noiseData = self.generateNoiseTextureBuffer(width: textureDescriptor.width + 2, height: textureDescriptor.height)
+                let noiseDataSize = noiseData.count * MemoryLayout.size(ofValue: noiseData[0])  + (MemoryLayout<Float32>.size * 4)
+                let noiseBuffer = device.makeBuffer(bytes: noiseData, length: noiseDataSize)
+                //let texture = noiseBuffer?.makeTexture(descriptor: textureDescriptor, offset: 0, bytesPerRow: MemoryLayout<Float32>.size * textureDescriptor.width * 4 + (2 * MemoryLayout<Float32>.size * 4))
+                let texture = noiseBuffer?.makeTexture(descriptor: textureDescriptor, offset: 0, bytesPerRow: MemoryLayout<Float32>.size * textureDescriptor.width * 4 + (2 * MemoryLayout<Float32>.size * 4))
+                
+                /*let textureUrl = Bundle.main.url(forResource: "noise", withExtension: "png")
+                if textureUrl == nil {
+                    continue
+                }
+                let loader = MTKTextureLoader(device: self.device)
+                let texture = try! loader.newTexture(URL: textureUrl!)*/
+                
+                loadedTextures[name] = texture
+                
+            default:
+                break
+            }
         }
     }
     
-    func resetSession() {
-        let configuration = session.configuration?.copy() as! ARConfiguration
-        session.pause()
-        /*scene.rootNode.enumerateChildNodes { (node, stop) in
-            node.removeFromParentNode()
-        }*/
-        session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
+    private func createPostProcess(shaderDescriptors shaders: [ShaderDescriptor]) -> ((ARView.PostProcessContext) -> Void)? {
+        var computePipelineStates: [MTLComputePipelineState] = []
+        for shaderDescriptor in shaders {
+            // Load kernel function into the library
+            guard let kernelFunction = self.library.makeFunction(name: "\(shaderDescriptor.shader.name)_kernel"),
+                  let computePipelineState = try? device.makeComputePipelineState(function: kernelFunction)
+            else {
+                return nil
+            }
+            computePipelineStates.append(computePipelineState)
+            
+            loadTextures(shaderDescriptor)
+        }
+        
+        let initialTime = Date().timeIntervalSince1970
+        
+        return { context in
+            var computePassDescriptor = MTLComputePassDescriptor()
+            
+            for (i, shaderDescriptor) in shaders.enumerated() {
+                let computePipelineState = computePipelineStates[i]
+                
+                guard let encoder = context.commandBuffer.makeComputeCommandEncoder(descriptor: computePassDescriptor) else {
+                    continue
+                }
+                encoder.setComputePipelineState(computePipelineState)
+                encoder.setTexture(context.sourceColorTexture, index: 0)
+                encoder.setTexture(context.targetColorTexture, index: 1)
+                
+                var allArguments: [Float] = [Float(Date().timeIntervalSince1970 - initialTime)]
+                allArguments.append(contentsOf: shaderDescriptor.arguments)
+                let argumentBuffer = context.device.makeBuffer(bytes: &allArguments, length: MemoryLayout<Float>.size * allArguments.count)
+                for j in (0 ..< allArguments.count) {
+                    encoder.setBuffer(argumentBuffer, offset: MemoryLayout<Float>.size * j, index: j)
+                }
+                
+                for (j, name) in shaderDescriptor.textures.enumerated() {
+                    if self.loadedTextures[name] != nil {
+                        encoder.setTexture(self.loadedTextures[name], index: 2 + j)
+                    }
+                }
+                
+                let threadsPerThreadgroup = MTLSize(width: computePipelineState.threadExecutionWidth,
+                                                    height: computePipelineState.maxTotalThreadsPerThreadgroup / computePipelineState.threadExecutionWidth,
+                                                    depth: 1)
+                let threadgroupsPerGrid = MTLSize(width: (context.targetColorTexture.width + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width,
+                                                   height: (context.targetColorTexture.height + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height,
+                                                  depth: 1)
+                encoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+                encoder.endEncoding()
+            }
+            
+            // commited by postprocess
+            // context.commandBuffer.commit()
+            
+            self.currentContext = context
+        }
     }
     
-    required init() {
-        super.init(frame: .zero)
-        
-        setupCoachingOverlay() // not really activating when used with lidar phone
-        setupConfiguration()
+    private func createMetalPerformanceShader(mpsFunction: ((ARView.PostProcessContext) -> Void)?) -> ((ARView.PostProcessContext) -> Void)? {
+        return mpsFunction
+    }
     
-        //setupDummyScene()
+    private func createMetalPerformanceShader(mpsObject: ObjectMPS) -> ((ARView.PostProcessContext) -> Void)? {
+        return mpsObject.process
+    }
+    
+    public func runShaders(shaders: [ShaderDescriptor]) {
+        if shaders.isEmpty {
+            return
+        }
+        
+        if shaders[0].shader.type == .metalPerformanceShader {
+            for shaderDescriptor in shaders {
+                if shaderDescriptor.shader.mpsFunction != nil {
+                    guard let callback = createMetalPerformanceShader(mpsFunction: shaderDescriptor.shader.mpsFunction!) else { return }
+                    postProcessCallbacks[shaderDescriptor.target] = callback
+                } else if shaderDescriptor.shader.mpsObject != nil {
+                    guard let callback = createMetalPerformanceShader(mpsObject: shaderDescriptor.shader.mpsObject!) else { return }
+                    postProcessCallbacks[shaderDescriptor.target] = callback
+                }
+            }
+        }
+        
+        if shaders[0].shader.type == .metalShader {
+            let callback = createPostProcess(shaderDescriptors: shaders)
+            postProcessCallbacks[shaders[0].target] = callback
+        }
+        
+        renderCallbacks.postProcess = { context in
+            var context = context
+            let correctionCallback = self.postProcessCallbacks[.correction]
+            let simulationCallback = self.postProcessCallbacks[.simulation]
+            if correctionCallback != nil {
+                correctionCallback!!(context)
+            }
+            if correctionCallback != nil, simulationCallback != nil {
+                context.sourceColorTexture = context.targetColorTexture
+            }
+            if simulationCallback != nil {
+                simulationCallback!!(context)
+            }
+        }
+    }
+    
+    public func stopShaders(target: PipelineTarget) {
+        postProcessCallbacks[target] = nil
+        if postProcessCallbacks[.simulation] == nil, postProcessCallbacks[.correction] == nil {
+            renderCallbacks.postProcess = nil
+        }
+    }
+    
+    public func resetSession() {
+        let configuration = session.configuration?.copy() as! ARConfiguration
+        session.pause()
+        session.run(configuration, options: [.resetTracking, .removeExistingAnchors])
     }
     
     @MainActor required dynamic init?(coder decoder: NSCoder) {

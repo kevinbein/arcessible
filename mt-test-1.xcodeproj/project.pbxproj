@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		44206BDA289008B5007F7463 /* BloomMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44206BD9289008B5007F7463 /* BloomMPS.swift */; };
+		4422B08228F3006D00D5C732 /* noise.png in Resources */ = {isa = PBXBuildFile; fileRef = 4422B08128F3006D00D5C732 /* noise.png */; };
+		4422B08428FADDDD00D5C732 /* daltonizationStep1_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4422B08328FADDDD00D5C732 /* daltonizationStep1_kernel.metal */; };
 		442E368D282331F500F2F77B /* MainBGContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442E368C282331F500F2F77B /* MainBGContainer.swift */; };
 		442F9E042815AB7800B87229 /* ProjectSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442F9E032815AB7800B87229 /* ProjectSettings.swift */; };
 		4451194728804291001C4822 /* kokuraCastle.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 4451194628804291001C4822 /* kokuraCastle.usdz */; };
@@ -22,15 +24,32 @@
 		44615A20281AF02200C9A84A /* MainUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44615A1F281AF02200C9A84A /* MainUIView.swift */; };
 		4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222A2823E19F00A5598D /* CGImageExtension.swift */; };
 		4475222D2823E49800A5598D /* FrameModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222C2823E49800A5598D /* FrameModel.swift */; };
+		4475323928C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */; };
 		4486C40328AA55A80040A654 /* macularDegeneration_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4486C40228AA55A80040A654 /* macularDegeneration_kernel.metal */; };
 		4486C40828AA66260040A654 /* glaucoma_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4486C40728AA66260040A654 /* glaucoma_kernel.metal */; };
+		44935FFB28FAEC740027F4AE /* daltonizationStep2_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44935FFA28FAEC740027F4AE /* daltonizationStep2_kernel.metal */; };
+		44935FFD28FAF0670027F4AE /* daltonizationStep25_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44935FFC28FAF0670027F4AE /* daltonizationStep25_kernel.metal */; };
+		44935FFF28FAF16F0027F4AE /* daltonizationStep3_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44935FFE28FAF16F0027F4AE /* daltonizationStep3_kernel.metal */; };
+		4493600128FAF17D0027F4AE /* daltonizationStep4_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4493600028FAF17D0027F4AE /* daltonizationStep4_kernel.metal */; };
+		4493600328FAF1860027F4AE /* daltonizationStep5_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4493600228FAF1860027F4AE /* daltonizationStep5_kernel.metal */; };
+		4493600528FAFB0E0027F4AE /* daltonizationStep6_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4493600428FAFB0E0027F4AE /* daltonizationStep6_kernel.metal */; };
 		44971B2228428974007C8279 /* bowlingpin.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44971B2128428974007C8279 /* bowlingpin.rcproject */; };
 		44971B242843A275007C8279 /* pipe.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44971B232843A275007C8279 /* pipe.rcproject */; };
 		44981EA12861D15300D34D10 /* braunbaer.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44981EA02861D15300D34D10 /* braunbaer.usdz */; };
 		44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44981EA22861D44200D34D10 /* braunbaer.rcproject */; };
 		44A12E362815B4C800285324 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A12E352815B4C800285324 /* HeaderView.swift */; };
 		44A47DFD284E356900D00FFF /* turm.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44A47DFC284E356900D00FFF /* turm.rcproject */; };
+		44AE9A5328EC55F600AA6D9B /* SobelMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AE9A5228EC55F600AA6D9B /* SobelMPS.swift */; };
+		44AE9A5528ECA40700AA6D9B /* daltonizationStep0_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44AE9A5428ECA40700AA6D9B /* daltonizationStep0_kernel.metal */; };
 		44BD609628B3AFE80058413C /* colorVisionDeficiency_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44BD609528B3AFE80058413C /* colorVisionDeficiency_kernel.metal */; };
+		44BD609A28B4F49B0058413C /* wuschel1.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44BD609928B4F49B0058413C /* wuschel1.usdz */; };
+		44BD609E28C603420058413C /* ninetydegreebracket.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD609D28C603420058413C /* ninetydegreebracket.rcproject */; };
+		44BD60A228C603B40058413C /* dcWhiteHouse.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60A128C603B40058413C /* dcWhiteHouse.rcproject */; };
+		44BD60AE28C617970058413C /* realisticEuropanTree.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60AD28C617970058413C /* realisticEuropanTree.rcproject */; };
+		44BD60B028C6184F0058413C /* cinemaChair.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60AF28C6184F0058413C /* cinemaChair.rcproject */; };
+		44BD60B228C6194F0058413C /* decorativeLightPole.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60B128C6194F0058413C /* decorativeLightPole.rcproject */; };
+		44BD60B428C619BA0058413C /* bathroomInterior.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60B328C619BA0058413C /* bathroomInterior.rcproject */; };
+		44BD60B628C61A000058413C /* scaffold.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60B528C61A000058413C /* scaffold.rcproject */; };
 		44BF29AA2875B2A500FEA02E /* braunbaerVertical.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */; };
 		44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C821D82816BABA0017AE57 /* AccessibleModel.swift */; };
 		44C821DF2816FB380017AE57 /* boxgreen.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44C821DE2816FB380017AE57 /* boxgreen.usdz */; };
@@ -45,6 +64,7 @@
 		44EA96022800967D0032EF81 /* mt_test_1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EA96012800967D0032EF81 /* mt_test_1Tests.swift */; };
 		44EA960C2800967D0032EF81 /* mt_test_1UITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EA960B2800967D0032EF81 /* mt_test_1UITests.swift */; };
 		44EA960E2800967D0032EF81 /* mt_test_1UITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44EA960D2800967D0032EF81 /* mt_test_1UITestsLaunchTests.swift */; };
+		44F372B928FDA5D200A21850 /* contrast.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44F372B828FDA5D200A21850 /* contrast.metal */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,6 +86,8 @@
 
 /* Begin PBXFileReference section */
 		44206BD9289008B5007F7463 /* BloomMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BloomMPS.swift; sourceTree = "<group>"; };
+		4422B08128F3006D00D5C732 /* noise.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = noise.png; sourceTree = "<group>"; };
+		4422B08328FADDDD00D5C732 /* daltonizationStep1_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep1_kernel.metal; sourceTree = "<group>"; };
 		442E368C282331F500F2F77B /* MainBGContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainBGContainer.swift; sourceTree = "<group>"; };
 		442F9E032815AB7800B87229 /* ProjectSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectSettings.swift; sourceTree = "<group>"; };
 		4451194628804291001C4822 /* kokuraCastle.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = kokuraCastle.usdz; sourceTree = "<group>"; };
@@ -79,17 +101,35 @@
 		44615A1F281AF02200C9A84A /* MainUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainUIView.swift; sourceTree = "<group>"; };
 		4475222A2823E19F00A5598D /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		4475222C2823E49800A5598D /* FrameModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameModel.swift; sourceTree = "<group>"; };
+		4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MTLTexture+writeToSavedPhotosAlbum.swift"; sourceTree = "<group>"; };
 		4486C40228AA55A80040A654 /* macularDegeneration_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = macularDegeneration_kernel.metal; sourceTree = "<group>"; };
 		4486C40628AA62D20040A654 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		4486C40728AA66260040A654 /* glaucoma_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = glaucoma_kernel.metal; sourceTree = "<group>"; };
 		449145C428156F2C0088946B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		44935FFA28FAEC740027F4AE /* daltonizationStep2_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep2_kernel.metal; sourceTree = "<group>"; };
+		44935FFC28FAF0670027F4AE /* daltonizationStep25_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep25_kernel.metal; sourceTree = "<group>"; };
+		44935FFE28FAF16F0027F4AE /* daltonizationStep3_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep3_kernel.metal; sourceTree = "<group>"; };
+		4493600028FAF17D0027F4AE /* daltonizationStep4_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep4_kernel.metal; sourceTree = "<group>"; };
+		4493600228FAF1860027F4AE /* daltonizationStep5_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep5_kernel.metal; sourceTree = "<group>"; };
+		4493600428FAFB0E0027F4AE /* daltonizationStep6_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep6_kernel.metal; sourceTree = "<group>"; };
 		44971B2128428974007C8279 /* bowlingpin.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = bowlingpin.rcproject; sourceTree = "<group>"; };
 		44971B232843A275007C8279 /* pipe.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = pipe.rcproject; sourceTree = "<group>"; };
 		44981EA02861D15300D34D10 /* braunbaer.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = braunbaer.usdz; sourceTree = "<group>"; };
 		44981EA22861D44200D34D10 /* braunbaer.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = braunbaer.rcproject; sourceTree = "<group>"; };
 		44A12E352815B4C800285324 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		44A47DFC284E356900D00FFF /* turm.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = turm.rcproject; sourceTree = "<group>"; };
+		44AE9A5228EC55F600AA6D9B /* SobelMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SobelMPS.swift; sourceTree = "<group>"; };
+		44AE9A5428ECA40700AA6D9B /* daltonizationStep0_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep0_kernel.metal; sourceTree = "<group>"; };
 		44BD609528B3AFE80058413C /* colorVisionDeficiency_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = colorVisionDeficiency_kernel.metal; sourceTree = "<group>"; };
+		44BD609928B4F49B0058413C /* wuschel1.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = wuschel1.usdz; sourceTree = "<group>"; };
+		44BD609D28C603420058413C /* ninetydegreebracket.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = ninetydegreebracket.rcproject; sourceTree = "<group>"; };
+		44BD60A128C603B40058413C /* dcWhiteHouse.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = dcWhiteHouse.rcproject; sourceTree = "<group>"; };
+		44BD60AD28C617970058413C /* realisticEuropanTree.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = realisticEuropanTree.rcproject; sourceTree = "<group>"; };
+		44BD60AF28C6184F0058413C /* cinemaChair.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = cinemaChair.rcproject; sourceTree = "<group>"; };
+		44BD60B128C6194F0058413C /* decorativeLightPole.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = decorativeLightPole.rcproject; sourceTree = "<group>"; };
+		44BD60B328C619BA0058413C /* bathroomInterior.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = bathroomInterior.rcproject; sourceTree = "<group>"; };
+		44BD60B528C61A000058413C /* scaffold.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = scaffold.rcproject; sourceTree = "<group>"; };
+		44BD60B828C66C3A0058413C /* braunbaerVertical.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = braunbaerVertical.rcproject; sourceTree = "<group>"; };
 		44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; name = braunbaerVertical.rcproject; path = "../../../../Library/Mobile Documents/com~apple~CloudDocs/Downloads/braunbaerVertical.rcproject"; sourceTree = "<group>"; };
 		44C821D82816BABA0017AE57 /* AccessibleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleModel.swift; sourceTree = "<group>"; };
 		44C821DE2816FB380017AE57 /* boxgreen.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = boxgreen.usdz; sourceTree = "<group>"; };
@@ -107,6 +147,7 @@
 		44EA96072800967D0032EF81 /* mt-test-1UITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "mt-test-1UITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		44EA960B2800967D0032EF81 /* mt_test_1UITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mt_test_1UITests.swift; sourceTree = "<group>"; };
 		44EA960D2800967D0032EF81 /* mt_test_1UITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = mt_test_1UITestsLaunchTests.swift; sourceTree = "<group>"; };
+		44F372B828FDA5D200A21850 /* contrast.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = contrast.metal; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -158,6 +199,7 @@
 			children = (
 				4451194E28831F92001C4822 /* GaussianBlurMPS.swift */,
 				44206BD9289008B5007F7463 /* BloomMPS.swift */,
+				44AE9A5228EC55F600AA6D9B /* SobelMPS.swift */,
 			);
 			path = MPS;
 			sourceTree = "<group>";
@@ -192,6 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				4475222A2823E19F00A5598D /* CGImageExtension.swift */,
+				4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -222,8 +265,43 @@
 		44BD609428B263760058413C /* Correction */ = {
 			isa = PBXGroup;
 			children = (
+				44AE9A5428ECA40700AA6D9B /* daltonizationStep0_kernel.metal */,
+				4422B08328FADDDD00D5C732 /* daltonizationStep1_kernel.metal */,
+				44935FFA28FAEC740027F4AE /* daltonizationStep2_kernel.metal */,
+				44935FFC28FAF0670027F4AE /* daltonizationStep25_kernel.metal */,
+				44935FFE28FAF16F0027F4AE /* daltonizationStep3_kernel.metal */,
+				4493600028FAF17D0027F4AE /* daltonizationStep4_kernel.metal */,
+				4493600228FAF1860027F4AE /* daltonizationStep5_kernel.metal */,
+				4493600428FAFB0E0027F4AE /* daltonizationStep6_kernel.metal */,
+				44F372B828FDA5D200A21850 /* contrast.metal */,
 			);
 			path = Correction;
+			sourceTree = "<group>";
+		};
+		44BD60B728C66C350058413C /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				44971B2128428974007C8279 /* bowlingpin.rcproject */,
+				44E1925D281F58EB00172230 /* mansion.rcproject */,
+				44C821E02816FB930017AE57 /* boxgreen.rcproject */,
+				44971B232843A275007C8279 /* pipe.rcproject */,
+				44A47DFC284E356900D00FFF /* turm.rcproject */,
+				44981EA22861D44200D34D10 /* braunbaer.rcproject */,
+				44BD60B828C66C3A0058413C /* braunbaerVertical.rcproject */,
+				44BD609D28C603420058413C /* ninetydegreebracket.rcproject */,
+				44BD60A128C603B40058413C /* dcWhiteHouse.rcproject */,
+				44BD60AD28C617970058413C /* realisticEuropanTree.rcproject */,
+				44BD60AF28C6184F0058413C /* cinemaChair.rcproject */,
+				44BD60B128C6194F0058413C /* decorativeLightPole.rcproject */,
+				44BD60B328C619BA0058413C /* bathroomInterior.rcproject */,
+				44BD60B528C61A000058413C /* scaffold.rcproject */,
+				4422B08128F3006D00D5C732 /* noise.png */,
+				44BD609928B4F49B0058413C /* wuschel1.usdz */,
+				4451194628804291001C4822 /* kokuraCastle.usdz */,
+				44981EA02861D15300D34D10 /* braunbaer.usdz */,
+				44C821DE2816FB380017AE57 /* boxgreen.usdz */,
+			);
+			path = Assets;
 			sourceTree = "<group>";
 		};
 		44EA95E22800967A0032EF81 = {
@@ -261,16 +339,8 @@
 				44EA95F02800967A0032EF81 /* ContentView.swift */,
 				44EA95EE2800967A0032EF81 /* AppDelegate.swift */,
 				442F9E032815AB7800B87229 /* ProjectSettings.swift */,
-				44971B2128428974007C8279 /* bowlingpin.rcproject */,
-				44E1925D281F58EB00172230 /* mansion.rcproject */,
-				44C821E02816FB930017AE57 /* boxgreen.rcproject */,
-				44971B232843A275007C8279 /* pipe.rcproject */,
-				44A47DFC284E356900D00FFF /* turm.rcproject */,
-				44981EA22861D44200D34D10 /* braunbaer.rcproject */,
+				44BD60B728C66C350058413C /* Assets */,
 				44BF29A92875B2A500FEA02E /* braunbaerVertical.rcproject */,
-				4451194628804291001C4822 /* kokuraCastle.usdz */,
-				44981EA02861D15300D34D10 /* braunbaer.usdz */,
-				44C821DE2816FB380017AE57 /* boxgreen.usdz */,
 				44EA95F42800967D0032EF81 /* Assets.xcassets */,
 				44EA95F62800967D0032EF81 /* Preview Content */,
 			);
@@ -442,6 +512,8 @@
 				44EA95F82800967D0032EF81 /* Preview Assets.xcassets in Resources */,
 				44C821DF2816FB380017AE57 /* boxgreen.usdz in Resources */,
 				44EA95F52800967D0032EF81 /* Assets.xcassets in Resources */,
+				4422B08228F3006D00D5C732 /* noise.png in Resources */,
+				44BD609A28B4F49B0058413C /* wuschel1.usdz in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -468,20 +540,35 @@
 			files = (
 				44522A0D281ECE5B00C7ADD5 /* MainARViewContainer.swift in Sources */,
 				4451195828843DC3001C4822 /* floatersTest_kernel.metal in Sources */,
+				44BD60AE28C617970058413C /* realisticEuropanTree.rcproject in Sources */,
 				4451195A288AAD5E001C4822 /* floatersDots_kernel.metal in Sources */,
 				44EA95F12800967A0032EF81 /* ContentView.swift in Sources */,
 				4451194F28831F92001C4822 /* GaussianBlurMPS.swift in Sources */,
 				44BD609628B3AFE80058413C /* colorVisionDeficiency_kernel.metal in Sources */,
 				44511956288430A2001C4822 /* MainFGContainer.swift in Sources */,
+				44AE9A5528ECA40700AA6D9B /* daltonizationStep0_kernel.metal in Sources */,
 				44EA95EF2800967A0032EF81 /* AppDelegate.swift in Sources */,
+				44935FFB28FAEC740027F4AE /* daltonizationStep2_kernel.metal in Sources */,
+				44935FFD28FAF0670027F4AE /* daltonizationStep25_kernel.metal in Sources */,
+				4493600128FAF17D0027F4AE /* daltonizationStep4_kernel.metal in Sources */,
 				4475222D2823E49800A5598D /* FrameModel.swift in Sources */,
+				4493600328FAF1860027F4AE /* daltonizationStep5_kernel.metal in Sources */,
+				4475323928C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift in Sources */,
+				4422B08428FADDDD00D5C732 /* daltonizationStep1_kernel.metal in Sources */,
+				44BD60B028C6184F0058413C /* cinemaChair.rcproject in Sources */,
 				442F9E042815AB7800B87229 /* ProjectSettings.swift in Sources */,
 				4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */,
+				44AE9A5328EC55F600AA6D9B /* SobelMPS.swift in Sources */,
 				44615A20281AF02200C9A84A /* MainUIView.swift in Sources */,
+				44BD60B628C61A000058413C /* scaffold.rcproject in Sources */,
+				44F372B928FDA5D200A21850 /* contrast.metal in Sources */,
 				44A47DFD284E356900D00FFF /* turm.rcproject in Sources */,
 				44E1925B281F264300172230 /* MainARView+CoachingOverlay.swift in Sources */,
 				4486C40828AA66260040A654 /* glaucoma_kernel.metal in Sources */,
+				44BD60B428C619BA0058413C /* bathroomInterior.rcproject in Sources */,
 				44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */,
+				44935FFF28FAF16F0027F4AE /* daltonizationStep3_kernel.metal in Sources */,
+				44BD609E28C603420058413C /* ninetydegreebracket.rcproject in Sources */,
 				4451194928830354001C4822 /* inverseColor_kernel.metal in Sources */,
 				44D368B8281B0FA700DC0F0E /* MainARView.swift in Sources */,
 				44C821E12816FB930017AE57 /* boxgreen.rcproject in Sources */,
@@ -489,11 +576,14 @@
 				442E368D282331F500F2F77B /* MainBGContainer.swift in Sources */,
 				44BF29AA2875B2A500FEA02E /* braunbaerVertical.rcproject in Sources */,
 				44A12E362815B4C800285324 /* HeaderView.swift in Sources */,
+				4493600528FAFB0E0027F4AE /* daltonizationStep6_kernel.metal in Sources */,
 				44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */,
 				44206BDA289008B5007F7463 /* BloomMPS.swift in Sources */,
 				44971B242843A275007C8279 /* pipe.rcproject in Sources */,
 				4486C40328AA55A80040A654 /* macularDegeneration_kernel.metal in Sources */,
 				4451195328833A76001C4822 /* ObjectMPS.swift in Sources */,
+				44BD60B228C6194F0058413C /* decorativeLightPole.rcproject in Sources */,
+				44BD60A228C603B40058413C /* dcWhiteHouse.rcproject in Sources */,
 				44971B2228428974007C8279 /* bowlingpin.rcproject in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -664,6 +754,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -696,6 +787,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

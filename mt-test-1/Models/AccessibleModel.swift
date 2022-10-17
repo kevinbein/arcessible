@@ -57,14 +57,20 @@ class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
         if matches.count > 0 {
             let nsString = named as NSString
             let match = matches[0]
-            fileName = nsString.substring(with: match.range) as String
+            //fileName = nsString.substring(with: match.range) as String
+            fileName = nsString.replacingOccurrences(of: ".usdz", with: "")
             ext = "usdz"
         }
-        guard let realityFileURL = Foundation.Bundle(for: AccessibleModel.self).url(forResource: fileName, withExtension: ext) else {
-            fatalError("File not found '\(fileName)'")
+        var realityFileURL = Foundation.Bundle(for: AccessibleModel.self).url(forResource: fileName, withExtension: ext)
+        if realityFileURL == nil {
+            ext = ext == "reality" ? "usdz" : "reality"
+            realityFileURL = Foundation.Bundle(for: AccessibleModel.self).url(forResource: fileName, withExtension: ext)
+            if realityFileURL == nil {
+                fatalError("File not found '\(fileName)'")
+            }
         }
         let sceneName = scene ?? fileName
-        let realityFileSceneURL = realityFileURL.appendingPathComponent(sceneName, isDirectory: false)
+        let realityFileSceneURL = realityFileURL!.appendingPathComponent(sceneName, isDirectory: false)
         let anchorEntity = try! AccessibleModel.loadAnchor(contentsOf: realityFileSceneURL)
         
         let model = AccessibleModel()

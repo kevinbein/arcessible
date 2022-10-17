@@ -72,6 +72,7 @@ struct MainARViewContainer: UIViewRepresentable {
             
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleButtonResetSessionPressed(_:)), name: Notification.Name("ButtonResetSessionPressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButtonScreenshotPressed(_:)), name: Notification.Name("ButtonScreenshotPressed"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerModelChanged(_:)), name: Notification.Name("PickerModelChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerSimulationChanged(_:)), name: Notification.Name("PickerSimulationChanged"), object: nil)
@@ -112,6 +113,13 @@ struct MainARViewContainer: UIViewRepresentable {
             debugPrint("handleButtonResetSessionPressed")
         }
         
+        @objc func handleButtonScreenshotPressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            //view.currentContext!.targetColorTexture.writeToSavedPhotosAlbum()
+            view.currentContext!.targetColorTexture.saveImage()
+            debugPrint("handleButtonScreenshotPressed")
+        }
+        
         @objc func handlePickerModelChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
             activeModelName = value
@@ -127,49 +135,75 @@ struct MainARViewContainer: UIViewRepresentable {
             switch activeSimulationName {
                 
             case "blurring":
-                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()))
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()), arguments: [], textures: [])])
                 
             case "floaters":
-                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "floatersDots", type: .metalShader))
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "floatersDots", type: .metalShader), arguments: [], textures: [])])
                 
             case "glaucoma":
-                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "glaucoma", type: .metalShader))
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "glaucoma", type: .metalShader), arguments: [], textures: [])])
                 
             case "macularDegeneration":
-                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader))
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader), arguments: [], textures: [])])
                 
             case "protanomaly":
                 let type: Float = 0.0;
                 let args: [Float] = [ type, 1.0 ];
-                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
                 
             case "deuteranomaly":
                 let type: Float = 1.0;
                 let args: [Float] = [ type, 1.0 ];
-                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
                 
             case "tritanomaly":
                 let type: Float = 2.0;
                 let args: [Float] = [ type, 1.0 ];
-                view.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
                 
             case "none":
                 fallthrough
             default:
-                view.disableShader(target: .simulation)
-                
+                view.stopShaders(target: .simulation)
             }
         }
+        
         @objc func handlePickerCorrectionChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
             activeCorrectionName = value
             debugPrint("handlePickerCorrectionlChanged", value)
+            
+            guard let view = self.view else { return }
+            
+            switch activeCorrectionName {
+            case "daltonization":
+                let type: Float = 1.0; // Deut
+                let args: [Float] = [ type ];
+                var shaders: [MainARView.ShaderDescriptor] = []
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep0", type: .metalShader), arguments: args, textures: []))
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep1", type: .metalShader), arguments: args, textures: ["noise", "temp1"]))
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep2", type: .metalShader), arguments: args, textures: ["temp1", "temp2"]))
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep25", type: .metalShader), arguments: args, textures: ["temp2", "temp3"]))
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep3", type: .metalShader), arguments: args, textures: ["temp3", "temp1", "temp2"]))
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep4", type: .metalShader), arguments: args, textures: ["temp2", "temp4"]))
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep5", type: .metalShader), arguments: args, textures: ["temp2", "temp4", "temp1", "temp3"]))
+                shaders.append(MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "daltonizationStep6", type: .metalShader), arguments: args, textures: ["temp3"]))
+                view.runShaders(shaders: shaders)
+                
+            case "sobel":
+                view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .correction, shader: MainARView.Shader(name: "sobel", type: .metalPerformanceShader, mpsObject: SobelMPS()), arguments: [], textures: [])])
+                
+            case "none":
+                fallthrough
+            default:
+                view.stopShaders(target: .correction)
+            }
         }
         
         @objc func handleSliderBlurringSigmaChanged(_ notification: Notification) {
             guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
             let mps = GaussianBlurMPS(sigma: Float(value))
-            view.enableShader(target: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps))
+            view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps), arguments: [], textures: [])])
             debugPrint("handleSliderBlurringSigmaChanged", value)
         }
         @objc func handleSliderProtanomalyPhiChanged(_ notification: Notification) {
@@ -177,23 +211,23 @@ struct MainARViewContainer: UIViewRepresentable {
             let type: Float = 0.0;
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
-            view!.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+            view!.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
             debugPrint("handleSliderProtanomalyPhiChanged", Float(phi))
         }
         @objc func handleSliderDeuteranomalyPhiChanged(_ notification: Notification) {
-            guard let value = notification.userInfo?["value"] as? Double else { return }
+            guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
             let type: Float = 1.0;
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
-            view!.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+            view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
             debugPrint("handleSliderDeuteranomalyPhiChanged", Float(phi))
         }
         @objc func handleSliderTritanomalyPhiChanged(_ notification: Notification) {
-            guard let value = notification.userInfo?["value"] as? Double else { return }
+            guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
             let type: Float = 2.0;
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
-            view!.enableShader(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args)
+            view.runShaders(shaders: [MainARView.ShaderDescriptor(target: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
             debugPrint("handleSliderTritanomalyPhiChanged", Float(phi))
         }
         
@@ -202,21 +236,21 @@ struct MainARViewContainer: UIViewRepresentable {
         /*@objc func handleButton1Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.environment.background = ARView.Environment.Background.cameraFeed()
-            view.enableShader(enabled: false)
+            view.runShaders(enabled: false)
             debugPrint("handleButton1Pressed")
         }
         
         @objc func handleButton2Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.environment.background = ARView.Environment.Background.color(.black.withAlphaComponent(0.0))
-            view.enableShader(enabled: false)
+            view.runShaders(enabled: false)
             debugPrint("handleButton2Pressed")
         }
         
         @objc func handleButton3Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.environment.background = ARView.Environment.Background.cameraFeed()
-            view.enableShader(enabled: true, shader: MainARView.Shader(name: "inverseColor", type: .metalShader))
+            view.runShaders(enabled: true, shader: MainARView.Shader(name: "inverseColor", type: .metalShader))
             debugPrint("handleButton3Pressed")
         }
         
@@ -229,26 +263,26 @@ struct MainARViewContainer: UIViewRepresentable {
         // Blurring
         @objc func handleButton5Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
-            view.enableShader(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()))
+            view.runShaders(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()))
             debugPrint("handleButton5Pressed")
         }
         
         @objc func handleButton6Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
-            view.enableShader(enabled: true, shader: MainARView.Shader(name: "floatersDots", type: .metalShader))
+            view.runShaders(enabled: true, shader: MainARView.Shader(name: "floatersDots", type: .metalShader))
             debugPrint("handleButton6Pressed")
         }
         
         @objc func handleButton7Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
-            view.enableShader(enabled: true, shader: MainARView.Shader(name: "floaters", type: .metalShader))
+            view.runShaders(enabled: true, shader: MainARView.Shader(name: "floaters", type: .metalShader))
             debugPrint("handleButton7Pressed")
         }
         
         @objc func handleButton8Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
-            //view.enableShader(enabled: true, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader))
-            view.enableShader(enabled: true, shader: MainARView.Shader(name: "glaucoma", type: .metalShader))
+            //view.runShaders(enabled: true, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader))
+            view.runShaders(enabled: true, shader: MainARView.Shader(name: "glaucoma", type: .metalShader))
             debugPrint("handleButton8Pressed")
         }
         */
@@ -296,6 +330,9 @@ struct MainARViewContainer: UIViewRepresentable {
                     anchor = AnchorEntity(plane: .vertical)
                 } else {
                     anchor = AnchorEntity(plane: .horizontal)
+                }
+                if activeModelName == "wuschel1" {
+                    activeModelName = "wuschel1.usdz"
                 }
                 anchor.position = focusEntity.position
                 guard let model = AccessibleModel.load(named: activeModelName) else {

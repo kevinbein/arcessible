@@ -41,7 +41,7 @@ struct PrimaryButton: UIViewRepresentable {
 struct MainUIView: View {
     
     enum Model: String, CaseIterable, Identifiable {
-        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical
+        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical, wuschel1, ninetydegreebracket, dcWhiteHouse, cinemaChair, decorativeLightPole, scaffold, realisticEuropanTree, bathroomInterior
         var id: Self { self }
         var description: String {
             switch self {
@@ -51,6 +51,14 @@ struct MainUIView: View {
             case .giebeldach: return "Giebeldach"
             case .braunbaer: return "Braunbär"
             case .braunbaerVertical: return "Braunbär Vertikal"
+            case .wuschel1: return "Wuschel 1"
+            case .ninetydegreebracket: return "90 Degree Bracket"
+            case .dcWhiteHouse: return "DC White House"
+            case .cinemaChair: return "Cinema Chair"
+            case .decorativeLightPole: return "Decorative Light Pole"
+            case .scaffold: return "Scaffold"
+            case .realisticEuropanTree: return "Realistic European Tree"
+            case .bathroomInterior: return "Bathroom Interior"
             }
         }
     }
@@ -75,14 +83,16 @@ struct MainUIView: View {
     @State private var activeSimulationName: Simulation = .none
     
     enum Correction: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case none, contrast, colorRedBlue, brightness
+        case none, daltonization, contrast, colorRedBlue, brightness, sobel
         var id: Self { self }
         var description: String {
             switch self {
             case .none: return "-"
+            case .daltonization: return "Daltonization"
             case .contrast: return "Contrast"
             case .colorRedBlue: return "Color Red Blue"
             case .brightness: return "Brightness"
+            case .sobel: return "Sobel"
             }
         }
     }
@@ -102,9 +112,8 @@ struct MainUIView: View {
     @State private var posY = 0.5
     @State private var posZ = 0.5
     
-    
-    func onButtonReload() { NotificationCenter.default.post(name: Notification.Name("ButtonReloadPressed"), object: self) }
     func onButtonResetSession() { NotificationCenter.default.post(name: Notification.Name("ButtonResetSessionPressed"), object: self) }
+    func onButtonScreenshot() { NotificationCenter.default.post(name: Notification.Name("ButtonScreenshotPressed"), object: self) }
     
     // Old
     func onButton1() { NotificationCenter.default.post(name: Notification.Name("Button1Pressed"), object: self) }
@@ -152,6 +161,12 @@ struct MainUIView: View {
                         .padding([ .leading ], 20)
                     
                     Spacer()
+                    
+                    Button(action: onButtonScreenshot) {
+                        Label("", systemImage: "camera.viewfinder")
+                            .font(.title)
+                            .foregroundColor(.blue)
+                    }
                     
                     Button(action: onButtonResetSession) {
                         Label("", systemImage: "arrow.clockwise.circle")
@@ -243,20 +258,6 @@ struct MainUIView: View {
                                     .onChange(of: activeModelName, perform: onPickerModel)
                                 }
                                 
-                                // Simulation
-                                HStack {
-                                    Image(systemName: "bolt")
-                                    Picker("Simulation (S)", selection: $activeSimulationName) {
-                                        ForEach(Simulation.allCases.reversed(), id: \.id) { value in
-                                            Text("S: \(value.description)")
-                                        }
-                                    }
-                                    .accentColor(.blue)
-                                    .onChange(of: activeSimulationName, perform: onPickerSimulation)
-                                    
-                                }
-                                .aspectRatio(contentMode: .fit)
-                                
                                 // Correction - Single
                                 HStack {
                                     Image(systemName: "checkmark")
@@ -267,6 +268,20 @@ struct MainUIView: View {
                                     }
                                     .accentColor(.blue)
                                     .onChange(of: activeCorrectionName, perform: onPickerCorrection)
+                                    
+                                }
+                                .aspectRatio(contentMode: .fit)
+                                
+                                // Simulation
+                                HStack {
+                                    Image(systemName: "bolt")
+                                    Picker("Simulation (S)", selection: $activeSimulationName) {
+                                        ForEach(Simulation.allCases.reversed(), id: \.id) { value in
+                                            Text("S: \(value.description)")
+                                        }
+                                    }
+                                    .accentColor(.blue)
+                                    .onChange(of: activeSimulationName, perform: onPickerSimulation)
                                     
                                 }
                                 .aspectRatio(contentMode: .fit)
