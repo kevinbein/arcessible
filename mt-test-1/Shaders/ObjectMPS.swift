@@ -6,7 +6,8 @@
 //
 
 import RealityKit
+import MetalKit
 
 protocol ObjectMPS {
-    func process(context: ARView.PostProcessContext) -> Void
+    func process(context: ARView.PostProcessContext, sourceTexture: MTLTexture, destinationTexture: MTLTexture) -> Void
 }

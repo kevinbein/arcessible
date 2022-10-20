@@ -15,6 +15,7 @@ import GameplayKit
 
 import Foundation
 import MetalKit
+import MetalPerformanceShaders
 
 class MainARView: ARView {
     static let shared = MainARView()
@@ -36,48 +37,67 @@ class MainARView: ARView {
         case simulation, correction
         var id: Self { self }
     }
+    enum FrameTarget {
+        case full, background, foreground
+        var id: Self { self }
+    }
     public struct ShaderDescriptor {
-        var target: PipelineTarget
+        var pipelineTarget: PipelineTarget
         var shader: Shader
+        var frameTarget: FrameTarget = .full
         var arguments: [Float]
         var textures: [String]
     }
     
     private var device: MTLDevice!
+    private var ciContext: CIContext!
     // private var metalLayer: CAMetalLayer!
     private var renderPipelineState: MTLRenderPipelineState!
     private var commandQueue: MTLCommandQueue!
     private var library: MTLLibrary!
     private var computePipelineState: MTLComputePipelineDescriptor!
     private var loadedTextures: [String:MTLTexture] = [:]
+    private var globalTextures: [String:MTLTexture] = [:]
     private var postProcessCallbacks: [PipelineTarget:((ARView.PostProcessContext) -> Void)?] = [:]
+    private var rawFrame: ARFrame?
+    private var backgroundFrameTexture: MTLTexture!
     
     public var currentContext: PostProcessContext?
+    
     
     required init() {
         super.init(frame: .zero)
         
         setupCoachingOverlay() // not really activating when used with lidar phone
         setupConfiguration()
-        
         setupRenderingProcess()
+    }
+    
+    public func updateRawFrame(frame: ARFrame) {
+        self.rawFrame = frame
     }
     
     private func setupRenderingProcess() {
         renderCallbacks.prepareWithDevice = ((MTLDevice) -> Void)? { device in
             self.device = device
+            self.ciContext = CIContext(mtlDevice: device)
             guard let library = device.makeDefaultLibrary() else {
                 fatalError()
             }
             self.library = library
             self.commandQueue = device.makeCommandQueue()
+            
+            self.loadGlobalTextures()
+            
+            NotificationCenter.default.post(name: Notification.Name("ARViewInitialized"), object: nil)
+            print("renderCallbacks.prepareWithDevice: Finished")
         }
     }
     
     func setupConfiguration() {
         environment.sceneUnderstanding.options = []
         //environment.sceneUnderstanding.options.insert(.physics)
-        //environment.sceneUnderstanding.options.insert(.occlusion)
+        environment.sceneUnderstanding.options.insert(.occlusion)
         //environment.background = Environment.Background.color(.black.withAlphaComponent(0.0))
         
         debugOptions = [
@@ -111,6 +131,8 @@ class MainARView: ARView {
         //configuration.environmentTexturing = .automatic
 
         session.run(configuration)
+        
+        print("Loaded session configuration")
     }
     
     private func generateNoiseTextureBuffer(width: Int, height: Int) -> [Float] {
@@ -146,14 +168,41 @@ class MainARView: ARView {
     private func getTextureDescriptor() -> MTLTextureDescriptor{
         let textureDescriptor = MTLTextureDescriptor()
         textureDescriptor.pixelFormat = .rgba32Float // context.sourceColorTexture.pixelFormat // bgra10_xr_srgb
-        //textureDescriptor.width =  1172 + 2 // context.sourceColorTexture.width + 2
         textureDescriptor.width = 1170
         textureDescriptor.height = 2532// context.sourceColorTexture.height
         textureDescriptor.usage = [ .shaderWrite, .shaderRead ]
         return textureDescriptor
     }
     
+    private func loadGlobalTextures() {
+        let loader = MTKTextureLoader(device: self.device)
+        for (name, ext) in ProjectSettings.globalTextures {
+            let textureUrl = Bundle.main.url(forResource: name, withExtension: ext)
+            let fullName = "\(name).\(ext)"
+            if textureUrl == nil {
+                fatalError("Global texture \(fullName) could not be loaded!")
+            }
+            let texture = try! loader.newTexture(URL: textureUrl!)
+            globalTextures[name] = texture
+            print("Loaded global texture \(fullName)")
+        }
+        
+        // Special textures
+        guard let backgroundFrameTexture = device.makeTexture(descriptor: getTextureDescriptor()) else { return }
+        self.backgroundFrameTexture = backgroundFrameTexture
+    }
+    
     private func loadTextures(_ shaderDescriptor: ShaderDescriptor) {
+        // Create intermediate texture which stores the result from the correction step
+        if self.loadedTextures["correctionTexture"] == nil {
+            let textureDescriptor = getTextureDescriptor()
+            guard let texture = device.makeTexture(descriptor: textureDescriptor) else {
+                assertionFailure()
+                return
+            }
+            loadedTextures["correctionTexture"] = texture
+        }
+        
         for name in shaderDescriptor.textures {
             if self.loadedTextures[name] != nil {
                 continue
@@ -194,9 +243,60 @@ class MainARView: ARView {
         }
     }
     
+    private func capturedImageToMTLTexture(_ context: ARView.PostProcessContext, targetTexture: MTLTexture) {
+        guard let frame = self.session.currentFrame else { return }
+        let imageBuffer = frame.capturedImage
+        let imageSize = CGSize(width: CVPixelBufferGetWidth(imageBuffer), height: CVPixelBufferGetHeight(imageBuffer))
+        var viewPort = self.bounds
+        var viewPortSize = self.bounds.size
+        viewPort.size.width *= 3
+        viewPort.size.height *= 3
+        viewPortSize.width *= 3
+        viewPortSize.height *= 3
+        let interfaceOrientation : UIInterfaceOrientation
+        interfaceOrientation = self.window!.windowScene!.interfaceOrientation
+        var image = CIImage(cvImageBuffer: imageBuffer)
+        
+        // Explanation here: https://stackoverflow.com/questions/58809070/transforming-arframecapturedimage-to-view-size
+        let normalizeTransform = CGAffineTransform(scaleX: 1.0/imageSize.width, y: 1.0/imageSize.height)
+        let displayTransform = frame.displayTransform(for: interfaceOrientation, viewportSize: viewPortSize)
+        let toViewPortTransform = CGAffineTransform(scaleX: viewPortSize.width, y: viewPortSize.height)
+        image = image.transformed(by:normalizeTransform
+            .concatenating(displayTransform)
+            .concatenating(toViewPortTransform)
+        ).cropped(to: viewPort)
+        image = image.oriented(.upMirrored)
+        
+        self.ciContext.render(
+            image,
+            to: targetTexture,
+            commandBuffer: context.commandBuffer,
+            bounds: viewPort,
+            colorSpace: CGColorSpaceCreateDeviceCMYK()
+        )
+        
+        
+        /*guard let srcColorSpace = CGColorSpace(name: CGColorSpace.genericCMYK),
+              let dstColorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB) else { return }
+        let conversionInfo = CGColorConversionInfo(src: srcColorSpace, dst: dstColorSpace)
+        let conversion = MPSImageConversion(device: self.device,
+                                            srcAlpha: .alphaIsOne,
+                                            destAlpha: .alphaIsOne,
+                                            backgroundColor: nil,
+                                            conversionInfo: conversionInfo)*/
+    }
+    
     private func createPostProcess(shaderDescriptors shaders: [ShaderDescriptor]) -> ((ARView.PostProcessContext) -> Void)? {
-        var computePipelineStates: [MTLComputePipelineState] = []
+        var computePipelineStates: [MTLComputePipelineState?] = []
         for shaderDescriptor in shaders {
+            loadTextures(shaderDescriptor)
+            
+            // Metal Performance Shaders generate their own computePipelineState
+            if shaderDescriptor.shader.type == .metalPerformanceShader {
+                computePipelineStates.append(nil)
+                continue
+            }
+            
             // Load kernel function into the library
             guard let kernelFunction = self.library.makeFunction(name: "\(shaderDescriptor.shader.name)_kernel"),
                   let computePipelineState = try? device.makeComputePipelineState(function: kernelFunction)
@@ -204,24 +304,61 @@ class MainARView: ARView {
                 return nil
             }
             computePipelineStates.append(computePipelineState)
-            
-            loadTextures(shaderDescriptor)
+            print("Loaded kernel function \(shaderDescriptor.shader.name)")
         }
         
         let initialTime = Date().timeIntervalSince1970
-        
         return { context in
+            var context = context
             var computePassDescriptor = MTLComputePassDescriptor()
+        
+            self.capturedImageToMTLTexture(context, targetTexture: self.backgroundFrameTexture!)
+            
+            // Used for testing pipeline
+            //context.sourceColorTexture = self.globalTextures["calibrationImage"]!
+            context.sourceColorTexture = self.backgroundFrameTexture
+            
+            // Determine which texture set is to be used
+            var sourceTexture: MTLTexture
+            var destinationTexture: MTLTexture
+            guard let correctionTexture: MTLTexture = self.loadedTextures["correctionTexture"] else {
+                assertionFailure()
+                return
+            }
+            let hasCorrectionShaders = self.postProcessCallbacks[.correction] != nil
+            let hasSimulationShaders = self.postProcessCallbacks[.simulation] != nil
+            if shaders[0].pipelineTarget == .correction {
+                sourceTexture = context.sourceColorTexture
+                destinationTexture = hasSimulationShaders ? correctionTexture : context.targetColorTexture
+            } else {
+                sourceTexture = hasCorrectionShaders ? correctionTexture : context.sourceColorTexture
+                destinationTexture = context.targetColorTexture
+            }
             
             for (i, shaderDescriptor) in shaders.enumerated() {
+                if shaderDescriptor.shader.type == .metalPerformanceShader {
+                    let mps = shaderDescriptor.shader
+                    if mps.mpsFunction != nil {
+                        mps.mpsFunction!(context)
+                    } else {
+                        mps.mpsObject?.process(
+                            context: context,
+                            sourceTexture: sourceTexture,
+                            destinationTexture: destinationTexture
+                        )
+                    }
+                    continue
+                }
+                
+                
                 let computePipelineState = computePipelineStates[i]
                 
                 guard let encoder = context.commandBuffer.makeComputeCommandEncoder(descriptor: computePassDescriptor) else {
                     continue
                 }
-                encoder.setComputePipelineState(computePipelineState)
-                encoder.setTexture(context.sourceColorTexture, index: 0)
-                encoder.setTexture(context.targetColorTexture, index: 1)
+                encoder.setComputePipelineState(computePipelineState!)
+                encoder.setTexture(sourceTexture, index: 0)
+                encoder.setTexture(destinationTexture, index: 1)
                 
                 var allArguments: [Float] = [Float(Date().timeIntervalSince1970 - initialTime)]
                 allArguments.append(contentsOf: shaderDescriptor.arguments)
@@ -236,8 +373,8 @@ class MainARView: ARView {
                     }
                 }
                 
-                let threadsPerThreadgroup = MTLSize(width: computePipelineState.threadExecutionWidth,
-                                                    height: computePipelineState.maxTotalThreadsPerThreadgroup / computePipelineState.threadExecutionWidth,
+                let threadsPerThreadgroup = MTLSize(width: computePipelineState!.threadExecutionWidth,
+                                                    height: computePipelineState!.maxTotalThreadsPerThreadgroup / computePipelineState!.threadExecutionWidth,
                                                     depth: 1)
                 let threadgroupsPerGrid = MTLSize(width: (context.targetColorTexture.width + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width,
                                                    height: (context.targetColorTexture.height + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height,
@@ -246,19 +383,11 @@ class MainARView: ARView {
                 encoder.endEncoding()
             }
             
-            // commited by postprocess
+            // commited by postprocess itself
             // context.commandBuffer.commit()
             
             self.currentContext = context
         }
-    }
-    
-    private func createMetalPerformanceShader(mpsFunction: ((ARView.PostProcessContext) -> Void)?) -> ((ARView.PostProcessContext) -> Void)? {
-        return mpsFunction
-    }
-    
-    private func createMetalPerformanceShader(mpsObject: ObjectMPS) -> ((ARView.PostProcessContext) -> Void)? {
-        return mpsObject.process
     }
     
     public func runShaders(shaders: [ShaderDescriptor]) {
@@ -266,22 +395,8 @@ class MainARView: ARView {
             return
         }
         
-        if shaders[0].shader.type == .metalPerformanceShader {
-            for shaderDescriptor in shaders {
-                if shaderDescriptor.shader.mpsFunction != nil {
-                    guard let callback = createMetalPerformanceShader(mpsFunction: shaderDescriptor.shader.mpsFunction!) else { return }
-                    postProcessCallbacks[shaderDescriptor.target] = callback
-                } else if shaderDescriptor.shader.mpsObject != nil {
-                    guard let callback = createMetalPerformanceShader(mpsObject: shaderDescriptor.shader.mpsObject!) else { return }
-                    postProcessCallbacks[shaderDescriptor.target] = callback
-                }
-            }
-        }
-        
-        if shaders[0].shader.type == .metalShader {
-            let callback = createPostProcess(shaderDescriptors: shaders)
-            postProcessCallbacks[shaders[0].target] = callback
-        }
+        let callback = createPostProcess(shaderDescriptors: shaders)
+        postProcessCallbacks[shaders[0].pipelineTarget] = callback
         
         renderCallbacks.postProcess = { context in
             var context = context
@@ -289,9 +404,6 @@ class MainARView: ARView {
             let simulationCallback = self.postProcessCallbacks[.simulation]
             if correctionCallback != nil {
                 correctionCallback!!(context)
-            }
-            if correctionCallback != nil, simulationCallback != nil {
-                context.sourceColorTexture = context.targetColorTexture
             }
             if simulationCallback != nil {
                 simulationCallback!!(context)

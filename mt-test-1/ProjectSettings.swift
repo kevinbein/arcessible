@@ -9,4 +9,9 @@ struct ProjectSettings {
     static let appName = "A[R]ccess"
     static let authorName = "Kevin Bein"
     static let authorEmail = "mail@kevinbein.de"
+    
+    static let globalTextures: [String:String] = [
+        "calibrationImage": "jpg",
+        "noise": "png"
+    ]
 }

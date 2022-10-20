@@ -41,7 +41,7 @@ struct PrimaryButton: UIViewRepresentable {
 struct MainUIView: View {
     
     enum Model: String, CaseIterable, Identifiable {
-        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical, wuschel1, ninetydegreebracket, dcWhiteHouse, cinemaChair, decorativeLightPole, scaffold, realisticEuropanTree, bathroomInterior, newYorkDowntown
+        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical, wuschel1, ninetydegreebracket, dcWhiteHouse, cinemaChair, decorativeLightPole, scaffold, realisticEuropanTree, bathroomInterior, newYorkDowntown, loft
         var id: Self { self }
         var description: String {
             switch self {
@@ -60,10 +60,10 @@ struct MainUIView: View {
             case .realisticEuropanTree: return "Realistic European Tree"
             case .bathroomInterior: return "Bathroom Interior"
             case .newYorkDowntown: return "New York Downtown"
+            case .loft: return "Loft"
             }
         }
     }
-    @State private var activeModelName: Model = .mansion
     
     enum Simulation: String, CaseIterable, Identifiable {
         case none, blurring, floaters, macularDegeneration, glaucoma, protanomaly, deuteranomaly, tritanomaly
@@ -81,7 +81,6 @@ struct MainUIView: View {
             }
         }
     }
-    @State private var activeSimulationName: Simulation = .none
     
     enum Correction: String, CaseIterable, Identifiable, CustomStringConvertible {
         case none, daltonization, contrast, colorRedBlue, brightness, sobel
@@ -97,6 +96,10 @@ struct MainUIView: View {
             }
         }
     }
+    
+    // Defaults
+    @State private var activeModelName: Model = .mansion
+    @State private var activeSimulationName: Simulation = .blurring
     @State private var activeCorrectionName: Correction = .none
     
     @State private var debugMode: Bool = false
@@ -108,7 +111,7 @@ struct MainUIView: View {
     @State private var protanomalyPhi = 1.0
     @State private var deuteranomalyPhi = 1.0
     @State private var tritanomalyPhi = 1.0
-    @State private var contrastSaturation = 1.0
+    @State private var contrastSaturation = 0.5
     
     @State private var posX = 0.5
     @State private var posY = 0.5
@@ -138,6 +141,13 @@ struct MainUIView: View {
     func onPickerCorrection(_ value: Correction) { NotificationCenter.default.post(name: Notification.Name("PickerCorrectionChanged"), object: self, userInfo: ["value": value.rawValue]) }
     
     func onToggle1(_ value: Bool) { NotificationCenter.default.post(name: Notification.Name("Toggle1Changed"), object: self, userInfo: ["value": value]) }
+    
+    let arViewLoaded = NotificationCenter.default.publisher(for: NSNotification.Name("ARViewInitialized"))
+    func onARViewLoaded() {
+        debugPrint("onARViewLoaded")
+        onPickerSimulation(activeSimulationName)
+        onPickerCorrection(activeCorrectionName)
+    }
     
     var body: some View {
         
@@ -275,27 +285,6 @@ struct MainUIView: View {
                                 }
                                 .aspectRatio(contentMode: .fit)
                                 
-                                switch activeCorrectionName {
-                                case .contrast:
-                                    HStack {
-                                        Spacer()
-                                        Text("Saturation")
-                                        Slider(value: $contrastSaturation, in: 0.0...1.0, step: 0.1).onChange(of: contrastSaturation, perform: onSliderContrastSaturation)
-                                        Text("\(String(format: "%.1f", contrastSaturation))")
-                                        Spacer()
-                                    }
-                                case .none:
-                                    EmptyView()
-                                case .daltonization:
-                                    EmptyView()
-                                case .colorRedBlue:
-                                    EmptyView()
-                                case .brightness:
-                                    EmptyView()
-                                case .sobel:
-                                    EmptyView()
-                                }
-                                
                                 // Simulation
                                 HStack {
                                     Image(systemName: "bolt")
@@ -321,6 +310,26 @@ struct MainUIView: View {
                                 }
                                 
                                 // Options:
+                                switch activeCorrectionName {
+                                case .contrast:
+                                    HStack {
+                                        Spacer()
+                                        Text("Saturation")
+                                        Slider(value: $contrastSaturation, in: 0.0...1.0, step: 0.05).onChange(of: contrastSaturation, perform: onSliderContrastSaturation)
+                                        Text("\(String(format: "%.1f", contrastSaturation))")
+                                        Spacer()
+                                    }
+                                case .none:
+                                    EmptyView()
+                                case .daltonization:
+                                    EmptyView()
+                                case .colorRedBlue:
+                                    EmptyView()
+                                case .brightness:
+                                    EmptyView()
+                                case .sobel:
+                                    EmptyView()
+                                }
                                 
                                 switch activeSimulationName {
                                 case .blurring:
@@ -380,6 +389,12 @@ struct MainUIView: View {
             Spacer()
         }
         .edgesIgnoringSafeArea(.all)
+        .onLoad {
+            self.onLoad()
+        }
+        .onReceive(arViewLoaded) { (output) in 
+            self.onARViewLoaded()
+        }
     }
 }
 

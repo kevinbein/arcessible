@@ -18,11 +18,11 @@ class SobelMPS: ObjectMPS {
     init() {
     }
     
-    public func process(context: ARView.PostProcessContext) {
+    public func process(context: ARView.PostProcessContext, sourceTexture: MTLTexture, destinationTexture: MTLTexture) {
         let sobel = MPSImageSobel(device: context.device)
         sobel.encode(commandBuffer: context.commandBuffer,
-                            sourceTexture: context.sourceColorTexture,
-                            destinationTexture: context.targetColorTexture
+                            sourceTexture: sourceTexture,
+                            destinationTexture: destinationTexture
         )
     }
 }

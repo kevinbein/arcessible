@@ -11,10 +11,7 @@ using namespace metal;
 // Central view only, outer edges are black with a fade in effect
 // See: https://www.eyesiteonwellness.com/eye-diseases/
 
-// Metal Shadertoy types
-#define vec2 float2
-#define vec3 float3
-#define vec4 float4
+#include "../Utils/types.h"
 
 // Default kernel method
 kernel void glaucoma_kernel(

@@ -14,12 +14,12 @@ struct ContentView : View {
     
     var body: some View {
         ZStack {
-            Color.red.edgesIgnoringSafeArea(.all)
+            Color.indigo.edgesIgnoringSafeArea(.all)
 #if targetEnvironment(simulator)
             Color.gray.edgesIgnoringSafeArea(.all)
 #else
-            MainBGContainer(arFrame: frameModel.frame)
-                .edgesIgnoringSafeArea(.all)
+            //MainBGContainer(arFrame: frameModel.frame)
+            //    .edgesIgnoringSafeArea(.all)
             
             MainARViewContainer(frame: $frameModel.frame)
                 .edgesIgnoringSafeArea(.all)

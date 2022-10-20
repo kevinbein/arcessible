@@ -26,11 +26,11 @@ class GaussianBlurMPS: ObjectMPS {
     init() {
     }
     
-    public func process(context: ARView.PostProcessContext) {
+    public func process(context: ARView.PostProcessContext, sourceTexture: MTLTexture, destinationTexture: MTLTexture) {
         let gaussianBlur = MPSImageGaussianBlur(device: context.device, sigma: sigma)
         gaussianBlur.encode(commandBuffer: context.commandBuffer,
-                            sourceTexture: context.sourceColorTexture,
-                            destinationTexture: context.targetColorTexture
+                            sourceTexture: sourceTexture,
+                            destinationTexture: destinationTexture
         )
     }
 }

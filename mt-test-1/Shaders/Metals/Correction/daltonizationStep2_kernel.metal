@@ -8,11 +8,7 @@
 #include <metal_stdlib>
 using namespace metal;
 
-// Metal Shadertoy types
-#define vec2 float2
-#define vec3 float3
-#define vec4 float4
-#define mat3 float3x3
+#include "../Utils/types.h"
 
 constexpr sampler s = sampler(coord::normalized, address::clamp_to_edge, filter::linear);
 
