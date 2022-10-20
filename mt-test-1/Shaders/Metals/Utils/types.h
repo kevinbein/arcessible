@@ -13,5 +13,6 @@
 #define vec3 float3
 #define vec4 float4
 #define mat3 float3x3
+#define mat4 float4x4
 
 #endif /* types_h */

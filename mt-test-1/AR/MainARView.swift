@@ -55,12 +55,15 @@ class MainARView: ARView {
     private var renderPipelineState: MTLRenderPipelineState!
     private var commandQueue: MTLCommandQueue!
     private var library: MTLLibrary!
-    private var computePipelineState: MTLComputePipelineDescriptor!
+    private var globalComputePipelineStates: [String:MTLComputePipelineState] = [:]
+    //private var computePipelineState: MTLComputePipelineDescriptor!
     private var loadedTextures: [String:MTLTexture] = [:]
     private var globalTextures: [String:MTLTexture] = [:]
     private var postProcessCallbacks: [PipelineTarget:((ARView.PostProcessContext) -> Void)?] = [:]
+    
     private var rawFrame: ARFrame?
     private var backgroundFrameTexture: MTLTexture!
+    private var combinedBackgroundAndModelTexture: MTLTexture!
     
     public var currentContext: PostProcessContext?
     
@@ -87,6 +90,7 @@ class MainARView: ARView {
             self.library = library
             self.commandQueue = device.makeCommandQueue()
             
+            self.loadGlobalShaders()
             self.loadGlobalTextures()
             
             NotificationCenter.default.post(name: Notification.Name("ARViewInitialized"), object: nil)
@@ -97,8 +101,8 @@ class MainARView: ARView {
     func setupConfiguration() {
         environment.sceneUnderstanding.options = []
         //environment.sceneUnderstanding.options.insert(.physics)
-        environment.sceneUnderstanding.options.insert(.occlusion)
-        //environment.background = Environment.Background.color(.black.withAlphaComponent(0.0))
+        //environment.sceneUnderstanding.options.insert(.occlusion)
+        environment.background = Environment.Background.color(.black.withAlphaComponent(0.0))
         
         debugOptions = [
 //            .showFeaturePoints,
@@ -174,6 +178,16 @@ class MainARView: ARView {
         return textureDescriptor
     }
     
+    private func loadGlobalShaders() {
+        for shaderName in ProjectSettings.globalShaders {
+            guard let kernelFunction = self.library.makeFunction(name: "\(shaderName)_kernel"),
+                  let computePipelineState = try? device.makeComputePipelineState(function: kernelFunction)
+            else { continue }
+            globalComputePipelineStates[shaderName] = computePipelineState
+            print("Loaded global kernel function \(shaderName)")
+        }
+    }
+    
     private func loadGlobalTextures() {
         let loader = MTKTextureLoader(device: self.device)
         for (name, ext) in ProjectSettings.globalTextures {
@@ -188,8 +202,13 @@ class MainARView: ARView {
         }
         
         // Special textures
-        guard let backgroundFrameTexture = device.makeTexture(descriptor: getTextureDescriptor()) else { return }
+        var genericTextureDescriptor = getTextureDescriptor()
+        
+        guard let backgroundFrameTexture = device.makeTexture(descriptor: genericTextureDescriptor) else { return }
         self.backgroundFrameTexture = backgroundFrameTexture
+        
+        guard let combinedBackgroundAndModelTexture = device.makeTexture(descriptor: genericTextureDescriptor) else { return }
+        self.combinedBackgroundAndModelTexture = combinedBackgroundAndModelTexture
     }
     
     private func loadTextures(_ shaderDescriptor: ShaderDescriptor) {
@@ -272,9 +291,11 @@ class MainARView: ARView {
             to: targetTexture,
             commandBuffer: context.commandBuffer,
             bounds: viewPort,
-            colorSpace: CGColorSpaceCreateDeviceCMYK()
+            //colorSpace: CGColorSpaceCreateDeviceRGB()
+            //colorSpace: CGColorSpaceCreateDeviceCMYK()
+            colorSpace: CGColorSpace(name: CGColorSpace.genericCMYK)! //CGColorSpace(name: CFStringRef(.kCGColorSpaceSRGB))
+            //colorSpace: CGColorSpaceCreateDeviceGray()
         )
-        
         
         /*guard let srcColorSpace = CGColorSpace(name: CGColorSpace.genericCMYK),
               let dstColorSpace = CGColorSpace(name: CGColorSpace.extendedLinearSRGB) else { return }
@@ -284,6 +305,39 @@ class MainARView: ARView {
                                             destAlpha: .alphaIsOne,
                                             backgroundColor: nil,
                                             conversionInfo: conversionInfo)*/
+    }
+    
+    private func combineModelAndBackground(context: ARView.PostProcessContext,
+                                           background backgroundTexture: MTLTexture,
+                                           model modelTexture: MTLTexture,
+                                           noise noiseTexture: MTLTexture,
+                                           noiseIntensity: Float,
+                                           target targetTexture: MTLTexture
+    ) {
+        guard let computePipelineState = globalComputePipelineStates["combineModelAndBackground"],
+              let encoder = context.commandBuffer.makeComputeCommandEncoder()
+        else {
+            fatalError("Could not combine model and background")
+        }
+        
+        encoder.setComputePipelineState(computePipelineState)
+        encoder.setTexture(backgroundTexture, index: 0)
+        encoder.setTexture(modelTexture, index: 1)
+        encoder.setTexture(noiseTexture, index: 2)
+        encoder.setTexture(targetTexture, index: 3)
+        
+        var noiseIntensityBytes: [Float] = [noiseIntensity]
+        let noiseIntensityBuffer = context.device.makeBuffer(bytes: &noiseIntensityBytes, length: MemoryLayout<Float>.size)
+        encoder.setBuffer(noiseIntensityBuffer, offset: 0, index: 0)
+        
+        let threadsPerThreadgroup = MTLSize(width: computePipelineState.threadExecutionWidth,
+                                            height: computePipelineState.maxTotalThreadsPerThreadgroup / computePipelineState.threadExecutionWidth,
+                                            depth: 1)
+        let threadgroupsPerGrid = MTLSize(width: (context.targetColorTexture.width + threadsPerThreadgroup.width - 1) / threadsPerThreadgroup.width,
+                                           height: (context.targetColorTexture.height + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height,
+                                          depth: 1)
+        encoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+        encoder.endEncoding()
     }
     
     private func createPostProcess(shaderDescriptors shaders: [ShaderDescriptor]) -> ((ARView.PostProcessContext) -> Void)? {
@@ -310,13 +364,24 @@ class MainARView: ARView {
         let initialTime = Date().timeIntervalSince1970
         return { context in
             var context = context
-            var computePassDescriptor = MTLComputePassDescriptor()
+            let computePassDescriptor = MTLComputePassDescriptor()
         
+            // Background
             self.capturedImageToMTLTexture(context, targetTexture: self.backgroundFrameTexture!)
-            
+            guard let frame = self.session.currentFrame else { return }
+            // Add model to background
+            self.combineModelAndBackground(
+                context: context,
+                background: self.backgroundFrameTexture,
+                model: context.sourceColorTexture,
+                noise: frame.cameraGrainTexture!,
+                noiseIntensity: frame.cameraGrainIntensity,
+                target: self.combinedBackgroundAndModelTexture
+            )
             // Used for testing pipeline
             //context.sourceColorTexture = self.globalTextures["calibrationImage"]!
-            context.sourceColorTexture = self.backgroundFrameTexture
+            //context.sourceColorTexture = self.backgroundFrameTexture
+            context.sourceColorTexture = self.combinedBackgroundAndModelTexture
             
             // Determine which texture set is to be used
             var sourceTexture: MTLTexture
@@ -349,7 +414,6 @@ class MainARView: ARView {
                     }
                     continue
                 }
-                
                 
                 let computePipelineState = computePipelineStates[i]
                 

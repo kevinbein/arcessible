@@ -10,6 +10,10 @@ struct ProjectSettings {
     static let authorName = "Kevin Bein"
     static let authorEmail = "mail@kevinbein.de"
     
+    static let globalShaders: [String] = [
+        "combineModelAndBackground"
+    ]
+    
     static let globalTextures: [String:String] = [
         "calibrationImage": "jpg",
         "noise": "png"
