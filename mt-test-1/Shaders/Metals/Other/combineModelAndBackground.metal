@@ -16,14 +16,14 @@ using namespace metal;
 kernel void combineModelAndBackground_kernel(
     texture2d<float, access::read> backgroundTexture [[texture(0)]],
     texture2d<float, access::read> modelTexture [[texture(1)]],
-    texture3d<float, access::read> noiseTexture [[texture(2)]],
-    texture2d<float, access::write> targetTexture [[texture(3)]],
-    uint2 gridPosition [[thread_position_in_grid]],
-    constant float &noiseIntensity [[buffer(0)]]
+    //texture3d<float, access::read> noiseTexture [[texture(2)]],
+    texture2d<float, access::write> targetTexture [[texture(2)]],
+    uint2 gridPosition [[thread_position_in_grid]]
+    //constant float &noiseIntensity [[buffer(0)]]
 ) {
     vec4 background = backgroundTexture.read(gridPosition);
     vec4 model = modelTexture.read(gridPosition);
-    vec4 noise = noiseTexture.read(uint3(gridPosition, 0.0));
+    //vec4 noise = noiseTexture.read(uint3(gridPosition, 0.0));
     
     // Correct background
     //background = ycbcrToRGBTransform * background;

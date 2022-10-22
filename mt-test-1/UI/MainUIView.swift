@@ -83,13 +83,14 @@ struct MainUIView: View {
     }
     
     enum Correction: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case none, daltonization, contrast, colorRedBlue, brightness, sobel
+        case none, daltonization, hsbc, colorRedBlue, brightness, sobel, bgDimming
         var id: Self { self }
         var description: String {
             switch self {
             case .none: return "-"
             case .daltonization: return "Daltonization"
-            case .contrast: return "Contrast"
+            case .hsbc: return "HSBC"
+            case .bgDimming: return "BG Dimming"
             case .colorRedBlue: return "Color Red Blue"
             case .brightness: return "Brightness"
             case .sobel: return "Sobel"
@@ -99,8 +100,8 @@ struct MainUIView: View {
     
     // Defaults
     @State private var activeModelName: Model = .mansion
-    @State private var activeSimulationName: Simulation = .blurring
-    @State private var activeCorrectionName: Correction = .none
+    @State private var activeSimulationName: Simulation = .none
+    @State private var activeCorrectionName: Correction = .bgDimming
     
     @State private var debugMode: Bool = false
     
@@ -111,7 +112,11 @@ struct MainUIView: View {
     @State private var protanomalyPhi = 1.0
     @State private var deuteranomalyPhi = 1.0
     @State private var tritanomalyPhi = 1.0
-    @State private var contrastSaturation = 0.5
+    
+    @State private var hue = 0.0
+    @State private var saturation = 0.5
+    @State private var brightness = 0.5
+    @State private var contrast = 0.5
     
     @State private var posX = 0.5
     @State private var posY = 0.5
@@ -134,7 +139,11 @@ struct MainUIView: View {
     func onSliderProtanomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderProtanomalyPhiChanged"), object: self, userInfo: ["value": value]) }
     func onSliderDeuteranomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderDeuteranomalyPhiChanged"), object: self, userInfo: ["value": value]) }
     func onSliderTritanomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderTritanomalyPhiChanged"), object: self, userInfo: ["value": value]) }
-    func onSliderContrastSaturation(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderContrastSaturationChanged"), object: self, userInfo: ["value": value]) }
+    func onSliderHSBC(_ value: Double) {
+        let hsbc = [ "hue": hue, "saturation": saturation, "brightness": brightness, "contrast": contrast ]
+        NotificationCenter.default.post(name: Notification.Name("SliderHSBCChanged"), object: self, userInfo: hsbc)
+        debugPrint("HSBC: ", hsbc)
+    }
     
     func onPickerModel(_ value: Model) { NotificationCenter.default.post(name: Notification.Name("PickerModelChanged"), object: self, userInfo: ["value": value.rawValue]) }
     func onPickerSimulation(_ value: Simulation) { NotificationCenter.default.post(name: Notification.Name("PickerSimulationChanged"), object: self, userInfo: ["value": value.rawValue]) }
@@ -311,13 +320,30 @@ struct MainUIView: View {
                                 
                                 // Options:
                                 switch activeCorrectionName {
-                                case .contrast:
-                                    HStack {
-                                        Spacer()
-                                        Text("Saturation")
-                                        Slider(value: $contrastSaturation, in: 0.0...1.0, step: 0.05).onChange(of: contrastSaturation, perform: onSliderContrastSaturation)
-                                        Text("\(String(format: "%.1f", contrastSaturation))")
-                                        Spacer()
+                                case .hsbc:
+                                    VStack {
+                                        HStack {
+                                            Spacer()
+                                            Text("H")
+                                            Slider(value: $hue, in: 0.0...1.0, step: 0.05).onChange(of: hue, perform: onSliderHSBC)
+                                            Text("\(String(format: "%.1f", hue))")
+                                            Spacer()
+                                            Text("S")
+                                            Slider(value: $saturation, in: 0.0...1.0, step: 0.05).onChange(of: saturation, perform: onSliderHSBC)
+                                            Text("\(String(format: "%.1f", saturation))")
+                                            Spacer()
+                                        }
+                                        HStack {
+                                            Spacer()
+                                            Text("B")
+                                            Slider(value: $brightness, in: 0.0...1.0, step: 0.05).onChange(of: brightness, perform: onSliderHSBC)
+                                            Text("\(String(format: "%.1f", brightness))")
+                                            Spacer()
+                                            Text("C")
+                                            Slider(value: $contrast, in: 0.0...1.0, step: 0.05).onChange(of: contrast, perform: onSliderHSBC)
+                                            Text("\(String(format: "%.1f", contrast))")
+                                            Spacer()
+                                        }
                                     }
                                 case .none:
                                     EmptyView()
@@ -328,6 +354,8 @@ struct MainUIView: View {
                                 case .brightness:
                                     EmptyView()
                                 case .sobel:
+                                    EmptyView()
+                                case .bgDimming:
                                     EmptyView()
                                 }
                                 

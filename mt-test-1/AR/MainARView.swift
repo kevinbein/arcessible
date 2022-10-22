@@ -37,14 +37,22 @@ class MainARView: ARView {
         case simulation, correction
         var id: Self { self }
     }
-    enum FrameTarget {
-        case full, background, foreground
+    enum FrameMode {
+        case separate, combined
         var id: Self { self }
     }
-    public struct ShaderDescriptor {
+    enum FrameTarget {
+        case combined, background, model
+        var id: Self { self }
+    }
+    public struct ShaderChain {
+        var shaders: [ShaderDescriptor]
         var pipelineTarget: PipelineTarget
+        var frameMode: FrameMode = .combined
+    }
+    public struct ShaderDescriptor {
         var shader: Shader
-        var frameTarget: FrameTarget = .full
+        var frameTarget: FrameTarget = .combined
         var arguments: [Float]
         var textures: [String]
     }
@@ -61,9 +69,13 @@ class MainARView: ARView {
     private var globalTextures: [String:MTLTexture] = [:]
     private var postProcessCallbacks: [PipelineTarget:((ARView.PostProcessContext) -> Void)?] = [:]
     
+    private var testTexture: MTLTexture!
+    private var targetTestTexture: MTLTexture!
+    
     private var rawFrame: ARFrame?
-    private var backgroundFrameTexture: MTLTexture!
-    private var combinedBackgroundAndModelTexture: MTLTexture!
+    //private var backgroundTexture: MTLTexture!
+    //private var modelTexture: MTLTexture!
+    //private var combinedBackgroundAndModelTexture: MTLTexture!
     
     public var currentContext: PostProcessContext?
     
@@ -91,7 +103,6 @@ class MainARView: ARView {
             self.commandQueue = device.makeCommandQueue()
             
             self.loadGlobalShaders()
-            self.loadGlobalTextures()
             
             NotificationCenter.default.post(name: Notification.Name("ARViewInitialized"), object: nil)
             print("renderCallbacks.prepareWithDevice: Finished")
@@ -171,7 +182,8 @@ class MainARView: ARView {
     
     private func getTextureDescriptor() -> MTLTextureDescriptor{
         let textureDescriptor = MTLTextureDescriptor()
-        textureDescriptor.pixelFormat = .rgba32Float // context.sourceColorTexture.pixelFormat // bgra10_xr_srgb
+        //textureDescriptor.pixelFormat = .rgba32Float // context.sourceColorTexture.pixelFormat // bgra10_xr_srgb
+        textureDescriptor.pixelFormat = .bgra10_xr_srgb //MTLPixelFormatBGRA10_XR_sRGB
         textureDescriptor.width = 1170
         textureDescriptor.height = 2532// context.sourceColorTexture.height
         textureDescriptor.usage = [ .shaderWrite, .shaderRead ]
@@ -188,6 +200,8 @@ class MainARView: ARView {
         }
     }
     
+    private var combinedBackgroundAndModelTexture: MTLTexture!
+    private var targetCombinedBackgroundAndModelTexture: MTLTexture!
     private func loadGlobalTextures() {
         let loader = MTKTextureLoader(device: self.device)
         for (name, ext) in ProjectSettings.globalTextures {
@@ -202,26 +216,36 @@ class MainARView: ARView {
         }
         
         // Special textures
-        var genericTextureDescriptor = getTextureDescriptor()
+        var getTextureDescriptorTest = getTextureDescriptor()
+        guard let testTexture = device.makeTexture(descriptor: getTextureDescriptorTest) else { return }
+        self.testTexture = testTexture
+        guard let targetTestTexture = device.makeTexture(descriptor: getTextureDescriptorTest) else { return }
+        self.targetTestTexture = targetTestTexture
         
-        guard let backgroundFrameTexture = device.makeTexture(descriptor: genericTextureDescriptor) else { return }
-        self.backgroundFrameTexture = backgroundFrameTexture
-        
-        guard let combinedBackgroundAndModelTexture = device.makeTexture(descriptor: genericTextureDescriptor) else { return }
-        self.combinedBackgroundAndModelTexture = combinedBackgroundAndModelTexture
+        // Intermediate textures
+        let genericTextureDescriptor = getTextureDescriptor()
+        let textureNames = [
+            "backgroundTexture", "modelTexture", "combinedBackgroundAndModelTexture",
+            "targetBackgroundTexture", "targetModelTexture", "targetCombinedBackgroundAndModelTexture"
+        ]
+        for name in textureNames {
+            if self.loadedTextures[name] == nil {
+                //guard let texture = device.makeTexture(descriptor: genericTextureDescriptor) else {
+                //    assertionFailure()
+                //    return
+                //}
+                //self.globalTextures[name] = texture
+                self.globalTextures[name] = device.makeTexture(descriptor: genericTextureDescriptor)
+            }
+        }
+
+        //guard let combinedBackgroundAndModelTexture = device.makeTexture(descriptor: genericTextureDescriptor) else { fatalError() }
+        //self.combinedBackgroundAndModelTexture = combinedBackgroundAndModelTexture
+        //guard let targetCombinedBackgroundAndModelTexture = device.makeTexture(descriptor: genericTextureDescriptor) else { fatalError() }
+        //self.targetCombinedBackgroundAndModelTexture = targetCombinedBackgroundAndModelTexture
     }
     
     private func loadTextures(_ shaderDescriptor: ShaderDescriptor) {
-        // Create intermediate texture which stores the result from the correction step
-        if self.loadedTextures["correctionTexture"] == nil {
-            let textureDescriptor = getTextureDescriptor()
-            guard let texture = device.makeTexture(descriptor: textureDescriptor) else {
-                assertionFailure()
-                return
-            }
-            loadedTextures["correctionTexture"] = texture
-        }
-        
         for name in shaderDescriptor.textures {
             if self.loadedTextures[name] != nil {
                 continue
@@ -284,16 +308,17 @@ class MainARView: ARView {
             .concatenating(displayTransform)
             .concatenating(toViewPortTransform)
         ).cropped(to: viewPort)
-        image = image.oriented(.upMirrored)
+        //image = image.oriented(.upMirrored)
+        image = image.oriented(.down)
         
         self.ciContext.render(
             image,
             to: targetTexture,
             commandBuffer: context.commandBuffer,
             bounds: viewPort,
-            //colorSpace: CGColorSpaceCreateDeviceRGB()
+            colorSpace: CGColorSpaceCreateDeviceRGB()
             //colorSpace: CGColorSpaceCreateDeviceCMYK()
-            colorSpace: CGColorSpace(name: CGColorSpace.genericCMYK)! //CGColorSpace(name: CFStringRef(.kCGColorSpaceSRGB))
+            //colorSpace: CGColorSpace(name: CGColorSpace.genericCMYK)! //CGColorSpace(name: CFStringRef(.kCGColorSpaceSRGB))
             //colorSpace: CGColorSpaceCreateDeviceGray()
         )
         
@@ -310,8 +335,8 @@ class MainARView: ARView {
     private func combineModelAndBackground(context: ARView.PostProcessContext,
                                            background backgroundTexture: MTLTexture,
                                            model modelTexture: MTLTexture,
-                                           noise noiseTexture: MTLTexture,
-                                           noiseIntensity: Float,
+                                           //noise noiseTexture: MTLTexture,
+                                           //noiseIntensity: Float,
                                            target targetTexture: MTLTexture
     ) {
         guard let computePipelineState = globalComputePipelineStates["combineModelAndBackground"],
@@ -323,12 +348,12 @@ class MainARView: ARView {
         encoder.setComputePipelineState(computePipelineState)
         encoder.setTexture(backgroundTexture, index: 0)
         encoder.setTexture(modelTexture, index: 1)
-        encoder.setTexture(noiseTexture, index: 2)
-        encoder.setTexture(targetTexture, index: 3)
+        //encoder.setTexture(noiseTexture, index: 2)
+        encoder.setTexture(context.targetColorTexture, index: 2)
         
-        var noiseIntensityBytes: [Float] = [noiseIntensity]
-        let noiseIntensityBuffer = context.device.makeBuffer(bytes: &noiseIntensityBytes, length: MemoryLayout<Float>.size)
-        encoder.setBuffer(noiseIntensityBuffer, offset: 0, index: 0)
+        //var noiseIntensityBytes: [Float] = [noiseIntensity]
+        //let noiseIntensityBuffer = context.device.makeBuffer(bytes: &noiseIntensityBytes, length: MemoryLayout<Float>.size)
+        //encoder.setBuffer(noiseIntensityBuffer, offset: 0, index: 0)
         
         let threadsPerThreadgroup = MTLSize(width: computePipelineState.threadExecutionWidth,
                                             height: computePipelineState.maxTotalThreadsPerThreadgroup / computePipelineState.threadExecutionWidth,
@@ -340,9 +365,10 @@ class MainARView: ARView {
         encoder.endEncoding()
     }
     
-    private func createPostProcess(shaderDescriptors shaders: [ShaderDescriptor]) -> ((ARView.PostProcessContext) -> Void)? {
+    //private func createPostProcess(shaderDescriptors shaders: [ShaderDescriptor], pipelineTarget: PipelineTarget) -> ((ARView.PostProcessContext) -> Void)? {
+    private func createPostProcess(chain: ShaderChain) -> ((ARView.PostProcessContext) -> Void)? {
         var computePipelineStates: [MTLComputePipelineState?] = []
-        for shaderDescriptor in shaders {
+        for shaderDescriptor in chain.shaders {
             loadTextures(shaderDescriptor)
             
             // Metal Performance Shaders generate their own computePipelineState
@@ -366,41 +392,39 @@ class MainARView: ARView {
             var context = context
             let computePassDescriptor = MTLComputePassDescriptor()
         
-            // Background
-            self.capturedImageToMTLTexture(context, targetTexture: self.backgroundFrameTexture!)
-            guard let frame = self.session.currentFrame else { return }
             // Add model to background
-            self.combineModelAndBackground(
+            /*self.combineModelAndBackground(
                 context: context,
-                background: self.backgroundFrameTexture,
-                model: context.sourceColorTexture,
-                noise: frame.cameraGrainTexture!,
+                background: loadedTextures["backgroundTexture"],
+                model: loadedTextures["modelTexture"],
+                noise: self.rawFrame.cameraGrainTexture!,
                 noiseIntensity: frame.cameraGrainIntensity,
-                target: self.combinedBackgroundAndModelTexture
-            )
+                target: loadedTextures["combinedBackgroundAndModelTexture"]
+            )*/
             // Used for testing pipeline
             //context.sourceColorTexture = self.globalTextures["calibrationImage"]!
             //context.sourceColorTexture = self.backgroundFrameTexture
-            context.sourceColorTexture = self.combinedBackgroundAndModelTexture
+            //context.sourceColorTexture = self.combinedBackgroundAndModelTexture
             
             // Determine which texture set is to be used
-            var sourceTexture: MTLTexture
-            var destinationTexture: MTLTexture
-            guard let correctionTexture: MTLTexture = self.loadedTextures["correctionTexture"] else {
-                assertionFailure()
-                return
-            }
-            let hasCorrectionShaders = self.postProcessCallbacks[.correction] != nil
-            let hasSimulationShaders = self.postProcessCallbacks[.simulation] != nil
-            if shaders[0].pipelineTarget == .correction {
-                sourceTexture = context.sourceColorTexture
-                destinationTexture = hasSimulationShaders ? correctionTexture : context.targetColorTexture
-            } else {
-                sourceTexture = hasCorrectionShaders ? correctionTexture : context.sourceColorTexture
-                destinationTexture = context.targetColorTexture
-            }
+            var sourceTexture: MTLTexture!
+            var destinationTexture: MTLTexture!
             
-            for (i, shaderDescriptor) in shaders.enumerated() {
+            for (i, shaderDescriptor) in chain.shaders.enumerated() {
+                
+                if chain.frameMode == .combined {
+                    sourceTexture = self.globalTextures["combinedBackgroundAndModelTexture"]!
+                    destinationTexture = context.targetColorTexture
+                } else {
+                    if shaderDescriptor.frameTarget == .background {
+                        sourceTexture = self.globalTextures["backgroundTexture"]!
+                        destinationTexture = context.targetColorTexture // self.globalTextures["targetBackgroundTexture"]!
+                    } else {
+                        sourceTexture = self.globalTextures["modelTexture"]!
+                        destinationTexture = context.targetColorTexture
+                    }
+                }
+                
                 if shaderDescriptor.shader.type == .metalPerformanceShader {
                     let mps = shaderDescriptor.shader
                     if mps.mpsFunction != nil {
@@ -409,9 +433,12 @@ class MainARView: ARView {
                         mps.mpsObject?.process(
                             context: context,
                             sourceTexture: sourceTexture,
-                            destinationTexture: destinationTexture
+                            destinationTexture: context.targetColorTexture
                         )
                     }
+                    self.globalTextures["backgroundTexture"]! = context.targetColorTexture
+                    self.globalTextures["modelTexture"]! = context.targetColorTexture
+                    self.globalTextures["combinedBackgroundAndModelTexture"]! = context.targetColorTexture
                     continue
                 }
                 
@@ -444,9 +471,33 @@ class MainARView: ARView {
                                                    height: (context.targetColorTexture.height + threadsPerThreadgroup.height - 1) / threadsPerThreadgroup.height,
                                                   depth: 1)
                 encoder.dispatchThreadgroups(threadgroupsPerGrid, threadsPerThreadgroup: threadsPerThreadgroup)
+                // context.targetColorTexture must be set before endEncoding(). Otherwise nothing will be drawn...
                 encoder.endEncoding()
+                
+                if chain.frameMode == .separate {
+                    //let blitDescriptor = MTLBlitPassDescriptor()
+                    //guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { continue }
+                    if shaderDescriptor.frameTarget == .background {
+                        self.globalTextures["backgroundTexture"] = context.targetColorTexture
+                        //blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["backgroundTexture"]!)
+                    } else {
+                        self.globalTextures["modelTexture"] = context.targetColorTexture
+                        //blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["modelTexture"]!)
+                    }
+                    self.combineModelAndBackground(
+                        context: context,
+                        background: self.globalTextures["backgroundTexture"]!,
+                        model: self.globalTextures["modelTexture"]!,
+                        //noise: frame.cameraGrainTexture!,
+                        //noiseIntensity: frame.cameraGrainIntensity,
+                        target: context.targetColorTexture
+                    )
+                    self.globalTextures["combinedBackgroundAndModelTexture"] = context.targetColorTexture
+                    //blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+                } else {
+                    self.globalTextures["combinedBackgroundAndModelTexture"] = context.targetColorTexture
+                }
             }
-            
             // commited by postprocess itself
             // context.commandBuffer.commit()
             
@@ -454,16 +505,38 @@ class MainARView: ARView {
         }
     }
     
-    public func runShaders(shaders: [ShaderDescriptor]) {
-        if shaders.isEmpty {
+    private func setEnvironmentBackground(transparent: Bool = false) {
+        if transparent {
+            environment.background = Environment.Background.color(.black.withAlphaComponent(0.0))
+        } else {
+            environment.background = Environment.Background.cameraFeed()
+        }
+    }
+    
+    public func runShaders(chain: ShaderChain) {
+        if chain.shaders.isEmpty {
             return
         }
         
-        let callback = createPostProcess(shaderDescriptors: shaders)
-        postProcessCallbacks[shaders[0].pipelineTarget] = callback
+        setEnvironmentBackground(transparent: chain.frameMode == .separate)
+        // Reset global textures
+        loadGlobalTextures()
+        
+        let callback = createPostProcess(chain: chain)
+        postProcessCallbacks[chain.pipelineTarget] = callback
         
         renderCallbacks.postProcess = { context in
             var context = context
+            
+            if chain.frameMode == .separate {
+                // captured image
+                self.capturedImageToMTLTexture(context, targetTexture: self.globalTextures["backgroundTexture"]!)
+                // model only (transparent background)
+                self.globalTextures["modelTexture"] = context.sourceColorTexture
+            } else {
+                self.globalTextures["combinedBackgroundAndModelTexture"] = context.sourceColorTexture
+            }
+            
             let correctionCallback = self.postProcessCallbacks[.correction]
             let simulationCallback = self.postProcessCallbacks[.simulation]
             if correctionCallback != nil {
@@ -479,6 +552,7 @@ class MainARView: ARView {
         postProcessCallbacks[target] = nil
         if postProcessCallbacks[.simulation] == nil, postProcessCallbacks[.correction] == nil {
             renderCallbacks.postProcess = nil
+            setEnvironmentBackground(transparent: false)
         }
     }
     

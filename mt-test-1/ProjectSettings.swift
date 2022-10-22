@@ -11,7 +11,8 @@ struct ProjectSettings {
     static let authorEmail = "mail@kevinbein.de"
     
     static let globalShaders: [String] = [
-        "combineModelAndBackground"
+        "combineModelAndBackground",
+        "capturedImageColorspaceConverter"
     ]
     
     static let globalTextures: [String:String] = [

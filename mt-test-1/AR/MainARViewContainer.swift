@@ -65,6 +65,10 @@ struct MainARViewContainer: UIViewRepresentable {
         
         var activeCorrectionName: String = "none"
 
+        var argumentStorage = [
+            "hsbc": [ "hue": Float(0.0), "saturation": Float(0.5), "brightness": Float(0.5), "contrast": Float(0.5) ]
+        ]
+        
         init(frame: Binding<ARFrame?>) {
             _frame = frame
             
@@ -83,7 +87,7 @@ struct MainARViewContainer: UIViewRepresentable {
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderProtanomalyPhiChanged(_:)), name: Notification.Name("SliderProtanomalyPhiChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderDeuteranomalyPhiChanged(_:)), name: Notification.Name("SliderDeuteranomalyPhiChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderTritanomalyPhiChanged(_:)), name: Notification.Name("SliderTritanomalyPhiChanged"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleSliderContrastSaturationChanged(_:)), name: Notification.Name("SliderContrastSaturationChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleSliderHBCSChanged(_:)), name: Notification.Name("SliderHSBCChanged"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleToggle1Changed(_:)), name: Notification.Name("Toggle1Changed"), object: nil)
         }
@@ -143,31 +147,31 @@ struct MainARViewContainer: UIViewRepresentable {
             switch activeSimulationName {
                 
             case "blurring":
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()), arguments: [], textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
             case "floaters":
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "floatersDots", type: .metalShader), arguments: [], textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "floatersDots", type: .metalShader), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
             case "glaucoma":
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "glaucoma", type: .metalShader), arguments: [], textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "glaucoma", type: .metalShader), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
             case "macularDegeneration":
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader), arguments: [], textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
             case "protanomaly":
                 let type: Float = 0.0;
                 let args: [Float] = [ type, 1.0 ];
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
                 
             case "deuteranomaly":
                 let type: Float = 1.0;
                 let args: [Float] = [ type, 1.0 ];
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
                 
             case "tritanomaly":
                 let type: Float = 2.0;
                 let args: [Float] = [ type, 1.0 ];
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
                 
             case "none":
                 fallthrough
@@ -188,18 +192,36 @@ struct MainARViewContainer: UIViewRepresentable {
                 let type: Float = 1.0; // Deut
                 let args: [Float] = [ type ];
                 var shaders: [MainARView.ShaderDescriptor] = []
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep0", type: .metalShader), arguments: args, textures: []))
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep1", type: .metalShader), arguments: args, textures: ["noise", "temp1"]))
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep2", type: .metalShader), arguments: args, textures: ["temp1", "temp2"]))
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep25", type: .metalShader), arguments: args, textures: ["temp2", "temp3"]))
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep3", type: .metalShader), arguments: args, textures: ["temp3", "temp1", "temp2"]))
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep4", type: .metalShader), arguments: args, textures: ["temp2", "temp4"]))
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep5", type: .metalShader), arguments: args, textures: ["temp2", "temp4", "temp1", "temp3"]))
-                shaders.append(MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "daltonizationStep6", type: .metalShader), arguments: args, textures: ["temp3"]))
-                view.runShaders(shaders: shaders)
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep0", type: .metalShader), arguments: args, textures: []))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep1", type: .metalShader), arguments: args, textures: ["noise", "temp1"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep2", type: .metalShader), arguments: args, textures: ["temp1", "temp2"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep25", type: .metalShader), arguments: args, textures: ["temp2", "temp3"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep3", type: .metalShader), arguments: args, textures: ["temp3", "temp1", "temp2"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep4", type: .metalShader), arguments: args, textures: ["temp2", "temp4"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep5", type: .metalShader), arguments: args, textures: ["temp2", "temp4", "temp1", "temp3"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep6", type: .metalShader), arguments: args, textures: ["temp3"]))
+                view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction))
                 
             case "sobel":
-                view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .correction, shader: MainARView.Shader(name: "sobel", type: .metalPerformanceShader, mpsObject: SobelMPS()), arguments: [], textures: [])])
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "sobel", type: .metalPerformanceShader, mpsObject: SobelMPS()), arguments: [], textures: [])], pipelineTarget: .correction))
+                
+            case "hsbc":
+                guard let storage = argumentStorage["hsbc"],
+                      let hue = storage["hue"],
+                      let brightness = storage["brightness"],
+                      let saturation = storage["saturation"],
+                      let contrast = storage["contrast"]
+                else { return }
+                let args: [Float] = [ hue, brightness, saturation, contrast ]
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .correction))
+                
+            case "bgDimming":
+                let hue: Float = 0.0
+                let brightness: Float = 0.5
+                let saturation: Float = 0.5
+                let contrast: Float = 0.0
+                let args: [Float] = [ hue, brightness, saturation, contrast ]
+                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: [])], pipelineTarget: .correction, frameMode: .separate))
                 
             case "none":
                 fallthrough
@@ -211,7 +233,7 @@ struct MainARViewContainer: UIViewRepresentable {
         @objc func handleSliderBlurringSigmaChanged(_ notification: Notification) {
             guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
             let mps = GaussianBlurMPS(sigma: Float(value))
-            view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps), arguments: [], textures: [])])
+            view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps), arguments: [], textures: [])], pipelineTarget: .simulation))
             debugPrint("handleSliderBlurringSigmaChanged", value)
         }
         @objc func handleSliderProtanomalyPhiChanged(_ notification: Notification) {
@@ -219,7 +241,7 @@ struct MainARViewContainer: UIViewRepresentable {
             let type: Float = 0.0;
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
-            view!.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
+            view!.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
             debugPrint("handleSliderProtanomalyPhiChanged", Float(phi))
         }
         @objc func handleSliderDeuteranomalyPhiChanged(_ notification: Notification) {
@@ -227,7 +249,7 @@ struct MainARViewContainer: UIViewRepresentable {
             let type: Float = 1.0;
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
-            view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
+            view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
             debugPrint("handleSliderDeuteranomalyPhiChanged", Float(phi))
         }
         @objc func handleSliderTritanomalyPhiChanged(_ notification: Notification) {
@@ -235,15 +257,23 @@ struct MainARViewContainer: UIViewRepresentable {
             let type: Float = 2.0;
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
-            view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])])
+            view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
             debugPrint("handleSliderTritanomalyPhiChanged", Float(phi))
         }
-        @objc func handleSliderContrastSaturationChanged(_ notification: Notification) {
-            guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
-            let saturation = Float(value);
-            let args: [Float] = [ saturation ];
-            view.runShaders(shaders: [MainARView.ShaderDescriptor(pipelineTarget: .simulation, shader: MainARView.Shader(name: "contrast", type: .metalShader), arguments: args, textures: [])])
-            debugPrint("handleSliderContrastSaturationChanged", Float(saturation))
+        @objc func handleSliderHBCSChanged(_ notification: Notification) {
+            guard let view = self.view,
+                  let values = notification.userInfo else { return }
+            let hue = Float((values["hue"] as? Double)!)
+            let saturation = Float((values["saturation"] as? Double)!)
+            let brightness = Float((values["brightness"] as? Double)!)
+            let contrast = Float((values["contrast"] as? Double)!)
+            argumentStorage["hsbc"]!["hue"]        = hue
+            argumentStorage["hsbc"]!["saturation"] = saturation
+            argumentStorage["hsbc"]!["brightness"] = brightness
+            argumentStorage["hsbc"]!["contrast"]   = contrast
+            let args: [Float] = [ hue, saturation, brightness, contrast ]
+            view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
+            debugPrint("handleSliderHBCSChanged", args)
         }
         
         
