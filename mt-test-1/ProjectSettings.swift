@@ -10,6 +10,10 @@ struct ProjectSettings {
     static let authorName = "Kevin Bein"
     static let authorEmail = "mail@kevinbein.de"
     
+    static let initialModel = MainUIView.Model.mansion
+    static let initialCorrection = MainUIView.Correction.edgeEnhancement
+    static let initialSimulation = MainUIView.Simulation.none
+    
     static let globalShaders: [String] = [
         "combineModelAndBackground",
         "capturedImageColorspaceConverter"

@@ -55,6 +55,7 @@ class MainARView: ARView {
         var frameTarget: FrameTarget = .combined
         var arguments: [Float]
         var textures: [String]
+        var targetTexture: String? = nil
     }
     
     private var device: MTLDevice!
@@ -200,8 +201,6 @@ class MainARView: ARView {
         }
     }
     
-    private var combinedBackgroundAndModelTexture: MTLTexture!
-    private var targetCombinedBackgroundAndModelTexture: MTLTexture!
     private func loadGlobalTextures() {
         let loader = MTKTextureLoader(device: self.device)
         for (name, ext) in ProjectSettings.globalTextures {
@@ -215,16 +214,10 @@ class MainARView: ARView {
             print("Loaded global texture \(fullName)")
         }
         
-        // Special textures
-        var getTextureDescriptorTest = getTextureDescriptor()
-        guard let testTexture = device.makeTexture(descriptor: getTextureDescriptorTest) else { return }
-        self.testTexture = testTexture
-        guard let targetTestTexture = device.makeTexture(descriptor: getTextureDescriptorTest) else { return }
-        self.targetTestTexture = targetTestTexture
-        
         // Intermediate textures
         let genericTextureDescriptor = getTextureDescriptor()
         let textureNames = [
+            "startBackgroundTexture", "startModelTexture", "startCombinedBackgroundAndModelTexture",
             "backgroundTexture", "modelTexture", "combinedBackgroundAndModelTexture",
             "targetBackgroundTexture", "targetModelTexture", "targetCombinedBackgroundAndModelTexture"
         ]
@@ -246,6 +239,13 @@ class MainARView: ARView {
     }
     
     private func loadTextures(_ shaderDescriptor: ShaderDescriptor) {
+        // Special textures
+        if shaderDescriptor.targetTexture != nil {
+            let textureDescriptor = getTextureDescriptor()
+            guard let texture = device.makeTexture(descriptor: textureDescriptor) else { return }
+            loadedTextures[shaderDescriptor.targetTexture!] = texture
+        }
+        
         for name in shaderDescriptor.textures {
             if self.loadedTextures[name] != nil {
                 continue
@@ -258,9 +258,7 @@ class MainARView: ARView {
             case "temp4": fallthrough
             case "temp5":
                 let textureDescriptor = getTextureDescriptor()
-                guard let texture = device.makeTexture(descriptor: textureDescriptor) else {
-                    continue
-                }
+                guard let texture = device.makeTexture(descriptor: textureDescriptor) else { continue }
                 loadedTextures[name] = texture
                 
             case "noise":
@@ -503,10 +501,16 @@ class MainARView: ARView {
                     blitEncoder.copy(from: backgroundTexture, to: self.globalTextures["backgroundTexture"]!)
                     blitEncoder.copy(from: modelTexture, to: self.globalTextures["modelTexture"]!)
                     blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+                    if shaderDescriptor.targetTexture != nil {
+                        blitEncoder.copy(from: context.targetColorTexture, to: self.loadedTextures[shaderDescriptor.targetTexture!]!)
+                    }
                     blitEncoder.endEncoding()
                 } else {
                     guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { continue }
                     blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+                    if shaderDescriptor.targetTexture != nil {
+                        blitEncoder.copy(from: context.targetColorTexture, to: self.loadedTextures[shaderDescriptor.targetTexture!]!)
+                    }
                     blitEncoder.endEncoding()
                 }
             }
@@ -547,6 +551,9 @@ class MainARView: ARView {
             
             self.capturedImageToMTLTexture(context, targetTexture: self.globalTextures["backgroundTexture"]!)
             guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { return }
+            blitEncoder.copy(from: self.globalTextures["backgroundTexture"]!, to: self.globalTextures["startBackgroundTexture"]!)
+            blitEncoder.copy(from: context.sourceColorTexture, to: self.globalTextures["startModelTexture"]!)
+            blitEncoder.copy(from: context.sourceColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
             blitEncoder.copy(from: context.sourceColorTexture, to: self.globalTextures["modelTexture"]!)
             blitEncoder.copy(from: context.sourceColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
             blitEncoder.endEncoding()

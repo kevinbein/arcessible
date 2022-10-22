@@ -83,25 +83,24 @@ struct MainUIView: View {
     }
     
     enum Correction: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case none, daltonization, hsbc, colorRedBlue, brightness, sobel, bgDimming
+        case none, edgeEnhancement, daltonization, hsbc, sobel, bgDimming
         var id: Self { self }
         var description: String {
             switch self {
             case .none: return "-"
+            case .edgeEnhancement: return "Edge Enhancement"
             case .daltonization: return "Daltonization"
             case .hsbc: return "HSBC"
             case .bgDimming: return "BG Dimming"
-            case .colorRedBlue: return "Color Red Blue"
-            case .brightness: return "Brightness"
             case .sobel: return "Sobel"
             }
         }
     }
     
     // Defaults
-    @State private var activeModelName: Model = .mansion
-    @State private var activeSimulationName: Simulation = .none
-    @State private var activeCorrectionName: Correction = .bgDimming
+    @State private var activeModelName: Model = ProjectSettings.initialModel
+    @State private var activeSimulationName: Simulation = ProjectSettings.initialSimulation
+    @State private var activeCorrectionName: Correction = ProjectSettings.initialCorrection
     
     @State private var debugMode: Bool = false
     
@@ -349,13 +348,11 @@ struct MainUIView: View {
                                     EmptyView()
                                 case .daltonization:
                                     EmptyView()
-                                case .colorRedBlue:
-                                    EmptyView()
-                                case .brightness:
-                                    EmptyView()
                                 case .sobel:
                                     EmptyView()
                                 case .bgDimming:
+                                    EmptyView()
+                                case .edgeEnhancement:
                                     EmptyView()
                                 }
                                 

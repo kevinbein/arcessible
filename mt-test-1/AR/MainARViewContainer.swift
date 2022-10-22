@@ -188,6 +188,16 @@ struct MainARViewContainer: UIViewRepresentable {
             guard let view = self.view else { return }
             
             switch activeCorrectionName {
+            case "edgeEnhancement":
+                var shaders: [MainARView.ShaderDescriptor] = []
+                // Detect edges
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "sobel", type: .metalPerformanceShader, mpsObject: SobelMPS()), arguments: [], textures: []))
+                // grey scale
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader, mpsObject: LaplacianMPS()), arguments: [ 0.0, 0.5, 0.5, 0.0 ], textures: [], targetTexture: "detectedEdges"))
+                // mix
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "edgeEnhancement", type: .metalShader), arguments: [], textures: ["detectedEdges"]))
+                view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction))
+                
             case "daltonization":
                 let type: Float = 1.0; // Deut
                 let args: [Float] = [ type ];
