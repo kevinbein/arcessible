@@ -308,8 +308,8 @@ class MainARView: ARView {
             .concatenating(displayTransform)
             .concatenating(toViewPortTransform)
         ).cropped(to: viewPort)
-        //image = image.oriented(.upMirrored)
-        image = image.oriented(.down)
+        image = image.oriented(.upMirrored)
+        //image = image.oriented(.down)
         
         self.ciContext.render(
             image,
@@ -418,10 +418,11 @@ class MainARView: ARView {
                 } else {
                     if shaderDescriptor.frameTarget == .background {
                         sourceTexture = self.globalTextures["backgroundTexture"]!
-                        destinationTexture = context.targetColorTexture // self.globalTextures["targetBackgroundTexture"]!
+                        destinationTexture = self.globalTextures["targetBackgroundTexture"]!
                     } else {
                         sourceTexture = self.globalTextures["modelTexture"]!
-                        destinationTexture = context.targetColorTexture
+                        //destinationTexture = context.targetColorTexture
+                        destinationTexture = self.globalTextures["targetModelTexture"]!
                     }
                 }
                 
@@ -436,9 +437,13 @@ class MainARView: ARView {
                             destinationTexture: context.targetColorTexture
                         )
                     }
-                    self.globalTextures["backgroundTexture"]! = context.targetColorTexture
-                    self.globalTextures["modelTexture"]! = context.targetColorTexture
-                    self.globalTextures["combinedBackgroundAndModelTexture"]! = context.targetColorTexture
+                    
+                    guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { continue }
+                    blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["backgroundTexture"]!)
+                    blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["modelTexture"]!)
+                    blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+                    blitEncoder.endEncoding()
+                    
                     continue
                 }
                 
@@ -475,29 +480,37 @@ class MainARView: ARView {
                 encoder.endEncoding()
                 
                 if chain.frameMode == .separate {
-                    //let blitDescriptor = MTLBlitPassDescriptor()
-                    //guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { continue }
+                    let backgroundTexture: MTLTexture!
+                    let modelTexture: MTLTexture!
                     if shaderDescriptor.frameTarget == .background {
-                        self.globalTextures["backgroundTexture"] = context.targetColorTexture
-                        //blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["backgroundTexture"]!)
+                        backgroundTexture = self.globalTextures["targetBackgroundTexture"]!
+                        modelTexture = self.globalTextures["modelTexture"]!
                     } else {
-                        self.globalTextures["modelTexture"] = context.targetColorTexture
-                        //blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["modelTexture"]!)
+                        backgroundTexture = self.globalTextures["backgroundTexture"]!
+                        modelTexture = self.globalTextures["targetModelTexture"]!
                     }
+                    
                     self.combineModelAndBackground(
                         context: context,
-                        background: self.globalTextures["backgroundTexture"]!,
-                        model: self.globalTextures["modelTexture"]!,
+                        background: backgroundTexture,
+                        model: modelTexture,
                         //noise: frame.cameraGrainTexture!,
                         //noiseIntensity: frame.cameraGrainIntensity,
                         target: context.targetColorTexture
                     )
-                    self.globalTextures["combinedBackgroundAndModelTexture"] = context.targetColorTexture
-                    //blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+                    
+                    guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { continue }
+                    blitEncoder.copy(from: backgroundTexture, to: self.globalTextures["backgroundTexture"]!)
+                    blitEncoder.copy(from: modelTexture, to: self.globalTextures["modelTexture"]!)
+                    blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+                    blitEncoder.endEncoding()
                 } else {
-                    self.globalTextures["combinedBackgroundAndModelTexture"] = context.targetColorTexture
+                    guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { continue }
+                    blitEncoder.copy(from: context.targetColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+                    blitEncoder.endEncoding()
                 }
             }
+            
             // commited by postprocess itself
             // context.commandBuffer.commit()
             
@@ -525,17 +538,27 @@ class MainARView: ARView {
         let callback = createPostProcess(chain: chain)
         postProcessCallbacks[chain.pipelineTarget] = callback
         
+        if renderCallbacks.postProcess != nil {
+            return
+        }
+        
         renderCallbacks.postProcess = { context in
             var context = context
             
-            if chain.frameMode == .separate {
+            self.capturedImageToMTLTexture(context, targetTexture: self.globalTextures["backgroundTexture"]!)
+            guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { return }
+            blitEncoder.copy(from: context.sourceColorTexture, to: self.globalTextures["modelTexture"]!)
+            blitEncoder.copy(from: context.sourceColorTexture, to: self.globalTextures["combinedBackgroundAndModelTexture"]!)
+            blitEncoder.endEncoding()
+            
+            /*if chain.frameMode == .separate {
                 // captured image
                 self.capturedImageToMTLTexture(context, targetTexture: self.globalTextures["backgroundTexture"]!)
                 // model only (transparent background)
                 self.globalTextures["modelTexture"] = context.sourceColorTexture
             } else {
                 self.globalTextures["combinedBackgroundAndModelTexture"] = context.sourceColorTexture
-            }
+            }*/
             
             let correctionCallback = self.postProcessCallbacks[.correction]
             let simulationCallback = self.postProcessCallbacks[.simulation]
