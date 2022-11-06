@@ -114,7 +114,6 @@
 		44615A1F281AF02200C9A84A /* MainUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainUIView.swift; sourceTree = "<group>"; };
 		447323A729042B8A007AF202 /* LaplacianMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaplacianMPS.swift; sourceTree = "<group>"; };
 		447323A929046667007AF202 /* CannyMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CannyMPS.swift; sourceTree = "<group>"; };
-		447323AB290698B1007AF202 /* AR Session 1.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = "AR Session 1.mov"; sourceTree = "<group>"; };
 		447323AC2916A807007AF202 /* crosshair_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = crosshair_kernel.metal; sourceTree = "<group>"; };
 		447323AF29170AB5007AF202 /* depth_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = depth_kernel.metal; sourceTree = "<group>"; };
 		447323B1291715F5007AF202 /* gammaCorrection_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = gammaCorrection_kernel.metal; sourceTree = "<group>"; };
@@ -375,7 +374,6 @@
 		44EA95E22800967A0032EF81 = {
 			isa = PBXGroup;
 			children = (
-				447323AB290698B1007AF202 /* AR Session 1.mov */,
 				44EA95ED2800967A0032EF81 /* mt-test-1 */,
 				44EA96002800967D0032EF81 /* mt-test-1Tests */,
 				44EA960A2800967D0032EF81 /* mt-test-1UITests */,
