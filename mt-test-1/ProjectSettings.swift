@@ -11,7 +11,7 @@ struct ProjectSettings {
     static let authorEmail = "mail@kevinbein.de"
     
     static let initialModel = MainUIView.Model.mansion
-    static let initialCorrection = MainUIView.Correction.bgDimming
+    static let initialCorrection = MainUIView.Correction.bgGrayscale
     static let initialSimulation = MainUIView.Simulation.none
     
     static let globalShaders: [String] = [

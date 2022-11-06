@@ -192,18 +192,8 @@ class MainARView: ARView {
     
     private func getColorTextureDescriptor() -> MTLTextureDescriptor{
         let textureDescriptor = MTLTextureDescriptor()
-        //textureDescriptor.pixelFormat = .rgba32Float // context.sourceColorTexture.pixelFormat // bgra10_xr_srgb
+        // .rgba32Float works for depth data, .depth32Float does not ... the .bgra10_xr_srgb works for both
         textureDescriptor.pixelFormat = .bgra10_xr_srgb //MTLPixelFormatBGRA10_XR_sRGB
-        textureDescriptor.width = 1170
-        textureDescriptor.height = 2532// context.sourceColorTexture.height
-        textureDescriptor.usage = [ .shaderWrite, .shaderRead ]
-        return textureDescriptor
-    }
-    
-    private func getDepthTextureDescriptor() -> MTLTextureDescriptor{
-        let textureDescriptor = MTLTextureDescriptor()
-        textureDescriptor.pixelFormat = .rgba32Float // context.sourceColorTexture.pixelFormat // bgra10_xr_srgb
-        //textureDescriptor.pixelFormat = .depth32Float //MTLPixelFormatBGRA10_XR_sRGB
         textureDescriptor.width = 1170
         textureDescriptor.height = 2532// context.sourceColorTexture.height
         textureDescriptor.usage = [ .shaderWrite, .shaderRead ]
@@ -235,7 +225,6 @@ class MainARView: ARView {
         
         // Intermediate textures
         let genericTextureDescriptor = getColorTextureDescriptor()
-        let depthTextureDescriptor = getDepthTextureDescriptor()
         let textureNames = [
             "g_startBackgroundTexture", "g_startModelTexture", "g_startCombinedBackgroundAndModelTexture",
             "g_backgroundTexture", "g_modelTexture", "g_combinedBackgroundAndModelTexture",
@@ -244,16 +233,7 @@ class MainARView: ARView {
         ]
         for name in textureNames {
             if self.loadedTextures[name] == nil {
-                //guard let texture = device.makeTexture(descriptor: genericTextureDescriptor) else {
-                //    assertionFailure()
-                //    return
-                //}
-                //self.globalTextures[name] = texture
-                if name == "g_depthTexture" {
-                    self.loadedTextures[name] = device.makeTexture(descriptor: depthTextureDescriptor)
-                } else {
-                    self.loadedTextures[name] = device.makeTexture(descriptor: genericTextureDescriptor)
-                }
+                self.loadedTextures[name] = device.makeTexture(descriptor: genericTextureDescriptor)
                 print("Loaded texture \(name)")
             }
         }
@@ -360,61 +340,6 @@ class MainARView: ARView {
                                             destAlpha: .alphaIsOne,
                                             backgroundColor: nil,
                                             conversionInfo: conversionInfo)*/
-    }
-    
-    private func depthPixelBufferToMTLTexture(_ context: ARView.PostProcessContext, input: CVPixelBuffer, targetTexture: inout MTLTexture) {
-        guard let frame = self.session.currentFrame else { return }
-        let imageBuffer = input
-        let width = CVPixelBufferGetWidth(imageBuffer)
-        let height = CVPixelBufferGetHeight(imageBuffer)
-        let imageSize = CGSize(width: width, height: height)
-        var viewPort = self.bounds
-        var viewPortSize = self.bounds.size
-        viewPort.size.width *= 3
-        viewPort.size.height *= 3
-        viewPortSize.width *= 3
-        viewPortSize.height *= 3
-        let interfaceOrientation : UIInterfaceOrientation
-        interfaceOrientation = self.window!.windowScene!.interfaceOrientation
-        var image = CIImage(cvImageBuffer: imageBuffer)
-        
-        // Explanation here: https://stackoverflow.com/questions/58809070/transforming-arframecapturedimage-to-view-size
-        let normalizeTransform = CGAffineTransform(scaleX: 1.0/imageSize.width, y: 1.0/imageSize.height)
-        let displayTransform = frame.displayTransform(for: interfaceOrientation, viewportSize: viewPortSize)
-        let toViewPortTransform = CGAffineTransform(scaleX: viewPortSize.width, y: viewPortSize.height)
-        image = image.transformed(by:normalizeTransform
-            .concatenating(displayTransform)
-            .concatenating(toViewPortTransform)
-        ).cropped(to: viewPort)
-        image = image.oriented(.upMirrored)
-        //image = image.oriented(.down)
-        
-        
-        
-        //var tempBuffer: CVPixelBuffer?
-        //guard CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32RGBA, nil, &tempBuffer) == kCVReturnSuccess else { return }
-        //guard CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_OneComponent32Float, nil, &tempBuffer) == kCVReturnSuccess else { return }
-        //self.ciContext.render(image, to: input)
-        self.ciContext.render(image, to: targetTexture, commandBuffer: context.commandBuffer, bounds: viewPort, colorSpace: CGColorSpaceCreateDeviceRGB())
-        
-        //var cvtexture: CVMetalTexture?
-        //_ = CVMetalTextureCacheCreateTextureFromImage(nil, textureCache, tempBuffer!, nil, .r32Float, width, height, 0, &cvtexture)
-        //guard let buffer = tempBuffer else { return }
-        //guard let targetTexture = CVMetalTextureGetTexture(buffer) else {return}
-        
-        /*let tempTextureDescriptor = getColorTextureDescriptor()
-        let tempTexture = device.makeTexture(descriptor: tempTextureDescriptor)
-        self.ciContext.render(
-            image,
-            to: tempTexture!,
-            commandBuffer: context.commandBuffer,
-            bounds: viewPort,
-            colorSpace: CGColorSpaceCreateDeviceRGB()
-        )
-        
-        guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { return }
-        blitEncoder.copy(from: tempTexture!, to: targetTexture)
-        blitEncoder.endEncoding()*/
     }
     
     private func combineModelAndBackground(context: ARView.PostProcessContext,
@@ -550,14 +475,7 @@ class MainARView: ARView {
                 
                 for (j, name) in shaderDescriptor.textures.enumerated() {
                     if self.loadedTextures[name] != nil {
-                        if name == "g_depthTexture" {
-                            //let depthTexture = self.rawFrame?.smoothedSceneDepth?.depthMap.texture(withFormat: .r32Float, planeIndex: 0, addToCache: self.textureCache)!
-                            //encoder.setTexture(context.sourceDepthTexture, index: 2 + j)
-                            encoder.setTexture(self.loadedTextures[name], index: 2 + j)
-                        } else {
-                            //encoder.setTexture(self.loadedTextures[name], index: 2 + j)
-                            encoder.setTexture(self.loadedTextures[name], index: 2 + j)
-                        }
+                        encoder.setTexture(self.loadedTextures[name], index: 2 + j)
                     }
                 }
                 
@@ -649,8 +567,7 @@ class MainARView: ARView {
             //frame.displayTransform(for: .portrait, viewportSize: CGSizeMake(CGFloat(w), CGFloat(h)))
             self.pixelBufferToMTLTexture(context, input: frame.capturedImage, targetTexture: self.loadedTextures["g_backgroundTexture"]!)
             if frame.smoothedSceneDepth != nil {
-                self.depthPixelBufferToMTLTexture(context, input: frame.smoothedSceneDepth!.depthMap, targetTexture: &self.loadedTextures["g_depthTexture"]!)
-                //self.loadedTextures["g_depthTexture"] = frame.smoothedSceneDepth!.depthMap.texture(withFormat: .r32Float, planeIndex: 0, addToCache: self.textureCache)
+                self.pixelBufferToMTLTexture(context, input: frame.smoothedSceneDepth!.depthMap, targetTexture: self.loadedTextures["g_depthTexture"]!)
             }
             
             guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { return }
@@ -659,7 +576,6 @@ class MainARView: ARView {
             blitEncoder.copy(from: context.sourceColorTexture, to: self.loadedTextures["g_startCombinedBackgroundAndModelTexture"]!)
             blitEncoder.copy(from: context.sourceColorTexture, to: self.loadedTextures["g_modelTexture"]!)
             blitEncoder.copy(from: context.sourceColorTexture, to: self.loadedTextures["g_combinedBackgroundAndModelTexture"]!)
-            //blitEncoder.copy(from: context.sourceDepthTexture, to: self.loadedTextures["g_depthTexture"]!)
             blitEncoder.endEncoding()
             
             /*if chain.frameMode == .separate {

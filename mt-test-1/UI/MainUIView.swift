@@ -83,7 +83,7 @@ struct MainUIView: View {
     }
     
     enum Correction: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case none, edgeEnhancement, daltonization, hsbc, sobel, bgDimming
+        case none, edgeEnhancement, daltonization, hsbc, sobel, bgGrayscale, bgDepthBlurred
         var id: Self { self }
         var description: String {
             switch self {
@@ -91,7 +91,8 @@ struct MainUIView: View {
             case .edgeEnhancement: return "Edge Enhancement"
             case .daltonization: return "Daltonization"
             case .hsbc: return "HSBC"
-            case .bgDimming: return "BG Dimming"
+            case .bgGrayscale: return "Background W/B"
+            case .bgDepthBlurred: return "Background Depth Blurred"
             case .sobel: return "Sobel"
             }
         }
@@ -350,9 +351,11 @@ struct MainUIView: View {
                                     EmptyView()
                                 case .sobel:
                                     EmptyView()
-                                case .bgDimming:
+                                case .bgGrayscale:
                                     EmptyView()
                                 case .edgeEnhancement:
+                                    EmptyView()
+                                case .bgDepthBlurred:
                                     EmptyView()
                                 }
                                 

@@ -15,6 +15,10 @@ vec3 hsv2rgb(vec3 c);
 
 vec4 gammaCorrection(vec3 c);
 
+vec4 getJetColorsFromNormalizedVal(half val);
+
+float4 applyHSBCffect(float4 startColor, float4 hsbc);
+
 constant mat4 ycbcrToRGBTransform = mat4(
     vec4(+1.0000f, +1.0000f, +1.0000f, +0.0000f),
     vec4(+0.0000f, -0.3441f, +1.7720f, +0.0000f),

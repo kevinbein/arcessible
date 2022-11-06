@@ -9,24 +9,14 @@
 using namespace metal;
 
 #include "../Utils/types.h"
-
-static vec4 getJetColorsFromNormalizedVal(half val) {
-    vec4 res ;
-    if(val <= 0.01h)
-        return vec4();
-    res.r = 1.5h - fabs(4.0h * val - 3.0h);
-    res.g = 1.5h - fabs(4.0h * val - 2.0h);
-    res.b = 1.5h - fabs(4.0h * val - 1.0h);
-    res.a = 1.0h;
-    res = clamp(res,0.0h,1.0h);
-    return res;
-}
+#include "../Utils/color.h"
 
 kernel void depth_kernel(
     texture2d<float, access::read> sourceTexture [[texture(0)]],
     texture2d<float, access::write> targetTexture [[texture(1)]],
     texture2d<float, access::read> depthTexture [[texture(2)]],
-    uint2 gridPosition [[thread_position_in_grid]]
+    uint2 gridPosition [[thread_position_in_grid]],
+    constant float &coloringType [[buffer(1)]]
 ) {
     //constexpr sampler colorSampler(address::clamp_to_edge, filter::nearest);
     
@@ -44,11 +34,14 @@ kernel void depth_kernel(
     // sample app uses a value of 2.5 to better distinguish depth
     // in smaller environments.
     //half val = s.r / 2.5h;
-    float val = depthValue / 2.0;
-    vec4 col = getJetColorsFromNormalizedVal(val);
-    //res = vec4(1.0, .0, .0, .5);
-    //col = smoothstep(0.0, 0.5, res);
-    //col = s;
+    
+    vec4 col;
+    if (coloringType == 1.0) { // Jet color scheme
+        float val = depthValue;
+        col = getJetColorsFromNormalizedVal(val);
+    } else { // Black/White color scheme
+        col = vec4(vec3(1.0 - (depthValue / 2.0)), 1.0);
+    }
     
     targetTexture.write(col, gridPosition);
 }

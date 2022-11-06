@@ -28,6 +28,7 @@
 		447323B029170AB5007AF202 /* depth_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 447323AF29170AB5007AF202 /* depth_kernel.metal */; };
 		447323B2291715F5007AF202 /* gammaCorrection_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 447323B1291715F5007AF202 /* gammaCorrection_kernel.metal */; };
 		447323B429172F41007AF202 /* CVPixelBuffer+texture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447323B329172F41007AF202 /* CVPixelBuffer+texture.swift */; };
+		447323B6291867F4007AF202 /* bgwbd_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 447323B5291867F4007AF202 /* bgwbd_kernel.metal */; };
 		4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222A2823E19F00A5598D /* CGImageExtension.swift */; };
 		4475222D2823E49800A5598D /* FrameModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222C2823E49800A5598D /* FrameModel.swift */; };
 		4475323928C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */; };
@@ -118,6 +119,7 @@
 		447323AF29170AB5007AF202 /* depth_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = depth_kernel.metal; sourceTree = "<group>"; };
 		447323B1291715F5007AF202 /* gammaCorrection_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = gammaCorrection_kernel.metal; sourceTree = "<group>"; };
 		447323B329172F41007AF202 /* CVPixelBuffer+texture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+texture.swift"; sourceTree = "<group>"; };
+		447323B5291867F4007AF202 /* bgwbd_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = bgwbd_kernel.metal; sourceTree = "<group>"; };
 		4475222A2823E19F00A5598D /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		4475222C2823E49800A5598D /* FrameModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameModel.swift; sourceTree = "<group>"; };
 		4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MTLTexture+writeToSavedPhotosAlbum.swift"; sourceTree = "<group>"; };
@@ -338,6 +340,7 @@
 				44BA122328FEE4350032D68F /* hsbc_kernel.metal */,
 				44DC88C4290428D000BB8553 /* edgeEnhancement.metal */,
 				447323AF29170AB5007AF202 /* depth_kernel.metal */,
+				447323B5291867F4007AF202 /* bgwbd_kernel.metal */,
 			);
 			path = Correction;
 			sourceTree = "<group>";
@@ -612,6 +615,7 @@
 				44511956288430A2001C4822 /* MainFGContainer.swift in Sources */,
 				44BA122728FEE4B70032D68F /* color.metal in Sources */,
 				447323B429172F41007AF202 /* CVPixelBuffer+texture.swift in Sources */,
+				447323B6291867F4007AF202 /* bgwbd_kernel.metal in Sources */,
 				44AE9A5528ECA40700AA6D9B /* daltonizationStep0_kernel.metal in Sources */,
 				44EA95EF2800967A0032EF81 /* AppDelegate.swift in Sources */,
 				44935FFB28FAEC740027F4AE /* daltonizationStep2_kernel.metal in Sources */,

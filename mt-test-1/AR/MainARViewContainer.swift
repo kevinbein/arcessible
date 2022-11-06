@@ -139,41 +139,41 @@ struct MainARViewContainer: UIViewRepresentable {
         }
         @objc func handlePickerSimulationChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
-            activeSimulationName = value
+            let activeSimulation = MainUIView.Simulation(rawValue: value)
             debugPrint("handlePickerSimulationChanged", value)
             
             guard let view = self.view else { return }
             
-            switch activeSimulationName {
+            switch activeSimulation {
                 
-            case "blurring":
+            case .blurring:
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
-            case "floaters":
+            case .floaters:
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "floatersDots", type: .metalShader), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
-            case "glaucoma":
+            case .glaucoma:
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "glaucoma", type: .metalShader), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
-            case "macularDegeneration":
+            case .macularDegeneration:
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader), arguments: [], textures: [])], pipelineTarget: .simulation))
                 
-            case "protanomaly":
+            case .protanomaly:
                 let type: Float = 0.0;
                 let args: [Float] = [ type, 1.0 ];
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
                 
-            case "deuteranomaly":
+            case .deuteranomaly:
                 let type: Float = 1.0;
                 let args: [Float] = [ type, 1.0 ];
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
                 
-            case "tritanomaly":
+            case .tritanomaly:
                 let type: Float = 2.0;
                 let args: [Float] = [ type, 1.0 ];
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
                 
-            case "none":
+            case .none?:
                 fallthrough
             default:
                 view.stopShaders(target: .simulation)
@@ -182,13 +182,13 @@ struct MainARViewContainer: UIViewRepresentable {
         
         @objc func handlePickerCorrectionChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
-            activeCorrectionName = value
+            let activeCorrection = MainUIView.Correction(rawValue: value)
             debugPrint("handlePickerCorrectionlChanged", value)
             
             guard let view = self.view else { return }
             
-            switch activeCorrectionName {
-            case "edgeEnhancement":
+            switch activeCorrection {
+            case .edgeEnhancement:
                 var shaders: [MainARView.ShaderDescriptor] = []
                 // Detect edges
                 shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "sobel", type: .metalPerformanceShader, mpsObject: SobelMPS()), arguments: [], textures: []))
@@ -198,7 +198,7 @@ struct MainARViewContainer: UIViewRepresentable {
                 shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "edgeEnhancement", type: .metalShader), arguments: [], textures: ["detectedEdges", "g_startCombinedBackgroundAndModelTexture"]))
                 view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction))
                 
-            case "daltonization":
+            case .daltonization:
                 let type: Float = 1.0; // Deut
                 let args: [Float] = [ type ];
                 var shaders: [MainARView.ShaderDescriptor] = []
@@ -212,10 +212,10 @@ struct MainARViewContainer: UIViewRepresentable {
                 shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "daltonizationStep6", type: .metalShader), arguments: args, textures: ["temp3"]))
                 view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction))
                 
-            case "sobel":
+            case .sobel:
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "sobel", type: .metalPerformanceShader, mpsObject: SobelMPS()), arguments: [], textures: [])], pipelineTarget: .correction))
                 
-            case "hsbc":
+            case .hsbc:
                 guard let storage = argumentStorage["hsbc"],
                       let hue = storage["hue"],
                       let brightness = storage["brightness"],
@@ -225,7 +225,17 @@ struct MainARViewContainer: UIViewRepresentable {
                 let args: [Float] = [ hue, brightness, saturation, contrast, 0.0 ]
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .correction))
                 
-            case "bgDimming":
+            case .bgGrayscale:
+                let hue: Float = 0.0
+                let brightness: Float = 0.5
+                let saturation: Float = 0.5
+                let contrast: Float = 0.0
+                let args: [Float] = [ hue, brightness, saturation, contrast, 1.0 ]
+                var shaders: [MainARView.ShaderDescriptor] = []
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
+                view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction, frameMode: .separate))
+                
+            case .bgDepthBlurred:
                 let hue: Float = 0.0
                 let brightness: Float = 0.5
                 let saturation: Float = 0.5
@@ -235,11 +245,11 @@ struct MainARViewContainer: UIViewRepresentable {
                 //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
                 
                 //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gammaCorrection", type: .metalShader), frameTarget: .background, arguments: [], textures: []))
-                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "depth", type: .metalShader), frameTarget: .background, arguments: [], textures: ["g_depthTexture"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "depth", type: .metalShader), frameTarget: .background, arguments: [ 0.0 ], textures: ["g_depthTexture"]))
                 //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), arguments: [], textures: []))
                 view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction, frameMode: .separate))
                 
-            case "none":
+            case .none?:
                 fallthrough
             default:
                 view.stopShaders(target: .correction)

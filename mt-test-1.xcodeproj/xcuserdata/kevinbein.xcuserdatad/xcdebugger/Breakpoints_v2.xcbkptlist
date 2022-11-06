@@ -14,8 +14,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "427"
-            endingLineNumber = "427"
+            startingLineNumber = "352"
+            endingLineNumber = "352"
             landmarkName = "combineModelAndBackground(context:background:model:target:)"
             landmarkType = "7">
             <Locations>
@@ -62,8 +62,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "428"
-            endingLineNumber = "428"
+            startingLineNumber = "353"
+            endingLineNumber = "353"
             landmarkName = "combineModelAndBackground(context:background:model:target:)"
             landmarkType = "7">
             <Locations>
@@ -110,8 +110,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "632"
-            endingLineNumber = "632"
+            startingLineNumber = "550"
+            endingLineNumber = "550"
             landmarkName = "runShaders(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -126,8 +126,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "449"
-            endingLineNumber = "449"
+            startingLineNumber = "374"
+            endingLineNumber = "374"
             landmarkName = "combineModelAndBackground(context:background:model:target:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -142,8 +142,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "433"
-            endingLineNumber = "433"
+            startingLineNumber = "358"
+            endingLineNumber = "358"
             landmarkName = "combineModelAndBackground(context:background:model:target:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -158,8 +158,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "570"
-            endingLineNumber = "570"
+            startingLineNumber = "488"
+            endingLineNumber = "488"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -174,8 +174,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "628"
-            endingLineNumber = "628"
+            startingLineNumber = "546"
+            endingLineNumber = "546"
             landmarkName = "runShaders(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -190,8 +190,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "686"
-            endingLineNumber = "686"
+            startingLineNumber = "602"
+            endingLineNumber = "602"
             landmarkName = "stopShaders(target:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -206,8 +206,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "685"
-            endingLineNumber = "685"
+            startingLineNumber = "601"
+            endingLineNumber = "601"
             landmarkName = "stopShaders(target:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -222,8 +222,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "603"
-            endingLineNumber = "603"
+            startingLineNumber = "521"
+            endingLineNumber = "521"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -238,8 +238,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "594"
-            endingLineNumber = "594"
+            startingLineNumber = "512"
+            endingLineNumber = "512"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -254,8 +254,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "564"
-            endingLineNumber = "564"
+            startingLineNumber = "482"
+            endingLineNumber = "482"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -270,8 +270,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "455"
-            endingLineNumber = "455"
+            startingLineNumber = "380"
+            endingLineNumber = "380"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -286,8 +286,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "456"
-            endingLineNumber = "456"
+            startingLineNumber = "381"
+            endingLineNumber = "381"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -302,8 +302,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "671"
-            endingLineNumber = "671"
+            startingLineNumber = "587"
+            endingLineNumber = "587"
             landmarkName = "runShaders(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -318,8 +318,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "674"
-            endingLineNumber = "674"
+            startingLineNumber = "590"
+            endingLineNumber = "590"
             landmarkName = "runShaders(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -334,8 +334,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "644"
-            endingLineNumber = "644"
+            startingLineNumber = "562"
+            endingLineNumber = "562"
             landmarkName = "runShaders(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -350,8 +350,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "515"
-            endingLineNumber = "515"
+            startingLineNumber = "440"
+            endingLineNumber = "440"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -366,8 +366,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "516"
-            endingLineNumber = "516"
+            startingLineNumber = "441"
+            endingLineNumber = "441"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -382,8 +382,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "636"
-            endingLineNumber = "636"
+            startingLineNumber = "554"
+            endingLineNumber = "554"
             landmarkName = "runShaders(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -398,8 +398,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "277"
-            endingLineNumber = "277"
+            startingLineNumber = "257"
+            endingLineNumber = "257"
             landmarkName = "loadTextures(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -414,8 +414,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "457"
-            endingLineNumber = "457"
+            startingLineNumber = "382"
+            endingLineNumber = "382"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -442,8 +442,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "416"
-            endingLineNumber = "416"
+            startingLineNumber = "426"
+            endingLineNumber = "426"
             landmarkName = "handleTapDetectModel(from:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -458,8 +458,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "245"
-            endingLineNumber = "245"
+            startingLineNumber = "234"
+            endingLineNumber = "234"
             landmarkName = "loadGlobalTextures()"
             landmarkType = "7">
          </BreakpointContent>
@@ -474,8 +474,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "259"
-            endingLineNumber = "259"
+            startingLineNumber = "239"
+            endingLineNumber = "239"
             landmarkName = "loadGlobalTextures()"
             landmarkType = "7">
          </BreakpointContent>
@@ -490,40 +490,8 @@
             filePath = "mt-test-1/AR/MainARViewContainer.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "245"
-            endingLineNumber = "245"
-            landmarkName = "handlePickerCorrectionChanged(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "63015CFD-FDB2-460C-96EA-5CEFC1EA34DB"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "mt-test-1/AR/MainARViewContainer.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "240"
-            endingLineNumber = "240"
-            landmarkName = "handlePickerCorrectionChanged(_:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "ECFB0EBB-3746-498C-BB5D-223D754AC85C"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "mt-test-1/AR/MainARViewContainer.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "238"
-            endingLineNumber = "238"
+            startingLineNumber = "255"
+            endingLineNumber = "255"
             landmarkName = "handlePickerCorrectionChanged(_:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -538,8 +506,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "540"
-            endingLineNumber = "540"
+            startingLineNumber = "465"
+            endingLineNumber = "465"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -554,24 +522,8 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "552"
-            endingLineNumber = "552"
-            landmarkName = "createPostProcess(chain:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "DF30F4F7-36BD-4F45-B3C6-61BF7038247D"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "mt-test-1/AR/MainARView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "555"
-            endingLineNumber = "555"
+            startingLineNumber = "477"
+            endingLineNumber = "477"
             landmarkName = "createPostProcess(chain:)"
             landmarkType = "7">
          </BreakpointContent>
@@ -586,25 +538,9 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "650"
-            endingLineNumber = "650"
+            startingLineNumber = "568"
+            endingLineNumber = "568"
             landmarkName = "runShaders(chain:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "12C91A71-E46F-4771-BFEC-F0A91E82C551"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "mt-test-1/AR/MainARView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "204"
-            endingLineNumber = "204"
-            landmarkName = "getDepthTextureDescriptor()"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
@@ -618,25 +554,9 @@
             filePath = "mt-test-1/AR/MainARView.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "327"
-            endingLineNumber = "327"
+            startingLineNumber = "307"
+            endingLineNumber = "307"
             landmarkName = "pixelBufferToMTLTexture(_:input:targetTexture:)"
-            landmarkType = "7">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            uuid = "C90F5D6C-AB9F-4545-9A2D-0B1D08EF7E01"
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "mt-test-1/AR/MainARView.swift"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "652"
-            endingLineNumber = "652"
-            landmarkName = "runShaders(chain:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
