@@ -8,7 +8,7 @@
 #include <metal_stdlib>
 using namespace metal;
 
-#include "colorConversion.h"
+#include "color.h"
 
 vec3 rgb2hsv(vec3 c)
 {
@@ -26,4 +26,8 @@ vec3 hsv2rgb(vec3 c)
     vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec4 gammaCorrection(vec3 c) {
+    return vec4(mix(c.rgb, pow(c.rgb * 0.9479 + 0.05213, 2.4), step(0.04045, c.rgb)), 1.0);
 }

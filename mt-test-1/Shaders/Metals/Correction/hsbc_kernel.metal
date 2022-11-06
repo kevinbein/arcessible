@@ -9,7 +9,7 @@
 using namespace metal;
 
 #include "../Utils/types.h"
-#include "../Utils/colorConversion.h"
+#include "../Utils/color.h"
 
 // Credits: https://forum.unity.com/threads/hue-saturation-brightness-contrast-shader.260649/
 
@@ -50,9 +50,6 @@ inline float4 applyHSBEffect(float4 startColor, float4 hsbc)
     return outputColor;
 }
 
-
-
-
 kernel void hsbc_kernel(
     texture2d<float, access::read> sourceTexture [[texture(0)]],
     texture2d<float, access::write> targetTexture [[texture(1)]],
@@ -60,7 +57,8 @@ kernel void hsbc_kernel(
     constant float &hue [[buffer(1)]],
     constant float &saturation [[buffer(2)]],
     constant float &brightness [[buffer(3)]],
-    constant float &contrast [[buffer(4)]]
+    constant float &contrast [[buffer(4)]],
+    constant float &correctGamma [[buffer(5)]]
 ) {
     
     // float4 pixelColor = tex2D(Texture1Sampler, uv);
@@ -76,8 +74,11 @@ kernel void hsbc_kernel(
 
     vec4 sourceColor = sourceTexture.read(gridPosition);
     
-    // Gamma correction
-    vec4 rgba = vec4(mix(sourceColor.rgb, pow(sourceColor.rgb * 0.9479 + 0.05213, 2.4), step(0.04045, sourceColor.rgb)), 1.0);
+    vec4 rgba = sourceColor;
+    if (correctGamma == 1.0) {
+        rgba = gammaCorrection(sourceColor.rgb);
+    }
+    
     //vec4 rgba = float4(pow(sourceColor.rgb, float3(2,2,2)), sourceColor.a);
 
     float4 hsbc = vec4(hue, saturation, brightness, contrast);

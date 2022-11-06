@@ -112,7 +112,7 @@ struct MainARViewContainer: UIViewRepresentable {
         func session(_ session: ARSession, didUpdate frame: ARFrame) {
             self.frame = frame
             guard let view = self.view else { return }
-            view.updateRawFrame(frame: frame)
+            view.updateFrameData(frame: frame)
         }
         
         @objc func handleARViewInitialized(_ notification: Notification) {
@@ -193,9 +193,9 @@ struct MainARViewContainer: UIViewRepresentable {
                 // Detect edges
                 shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "sobel", type: .metalPerformanceShader, mpsObject: SobelMPS()), arguments: [], textures: []))
                 // grey scale
-                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader, mpsObject: LaplacianMPS()), arguments: [ 0.0, 0.5, 0.5, 0.0 ], textures: [], targetTexture: "detectedEdges"))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader, mpsObject: LaplacianMPS()), arguments: [ 0.0, 0.5, 0.5, 0.0, 0.0 ], textures: [], targetTexture: "detectedEdges"))
                 // mix
-                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "edgeEnhancement", type: .metalShader), arguments: [], textures: ["detectedEdges"]))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "edgeEnhancement", type: .metalShader), arguments: [], textures: ["detectedEdges", "g_startCombinedBackgroundAndModelTexture"]))
                 view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction))
                 
             case "daltonization":
@@ -222,7 +222,7 @@ struct MainARViewContainer: UIViewRepresentable {
                       let saturation = storage["saturation"],
                       let contrast = storage["contrast"]
                 else { return }
-                let args: [Float] = [ hue, brightness, saturation, contrast ]
+                let args: [Float] = [ hue, brightness, saturation, contrast, 0.0 ]
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .correction))
                 
             case "bgDimming":
@@ -230,8 +230,14 @@ struct MainARViewContainer: UIViewRepresentable {
                 let brightness: Float = 0.5
                 let saturation: Float = 0.5
                 let contrast: Float = 0.0
-                let args: [Float] = [ hue, brightness, saturation, contrast ]
-                view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: [])], pipelineTarget: .correction, frameMode: .separate))
+                let args: [Float] = [ hue, brightness, saturation, contrast, 1.0 ]
+                var shaders: [MainARView.ShaderDescriptor] = []
+                //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
+                
+                //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gammaCorrection", type: .metalShader), frameTarget: .background, arguments: [], textures: []))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "depth", type: .metalShader), frameTarget: .background, arguments: [], textures: ["g_depthTexture"]))
+                //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), arguments: [], textures: []))
+                view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction, frameMode: .separate))
                 
             case "none":
                 fallthrough
@@ -281,7 +287,7 @@ struct MainARViewContainer: UIViewRepresentable {
             argumentStorage["hsbc"]!["saturation"] = saturation
             argumentStorage["hsbc"]!["brightness"] = brightness
             argumentStorage["hsbc"]!["contrast"]   = contrast
-            let args: [Float] = [ hue, saturation, brightness, contrast ]
+            let args: [Float] = [ hue, saturation, brightness, contrast, 0.0 ]
             view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
             debugPrint("handleSliderHBCSChanged", args)
         }
@@ -367,7 +373,7 @@ struct MainARViewContainer: UIViewRepresentable {
         
         // User Controls
         
-        @objc func handleTap() {
+        fileprivate func handleTapPlaceModel() {
             guard let view = self.view, let focusEntity = self.focusEntity else { return }
             
             if self.addedModel {
@@ -403,6 +409,25 @@ struct MainARViewContainer: UIViewRepresentable {
                 debugPrint("Placed model")
 #endif
             }
+        }
+        
+        fileprivate func handleTapDetectModel(from sender: UITapGestureRecognizer) {
+            guard let view = self.view else { return }
+            
+            let tapLocation: CGPoint = view.center // sender.location(in: view)
+            var result: [CollisionCastHit]
+            result = view.hitTest(tapLocation, query: .all)
+            if result.first != nil {
+                let entity: ModelEntity = result.first!.entity as! ModelEntity
+                let newColorMaterial = SimpleMaterial(color: .red, isMetallic: false)
+                entity.model?.materials = [newColorMaterial]
+                print(entity.name)
+            }
+        }
+        
+        @objc func handleTap(sender: UITapGestureRecognizer) {
+            //handleTapPlaceModel()
+            handleTapDetectModel(from: sender)
         }
         
         var panTranslation: CGPoint?

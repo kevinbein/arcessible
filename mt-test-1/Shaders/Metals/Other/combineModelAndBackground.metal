@@ -9,7 +9,7 @@
 using namespace metal;
 
 #include "../Utils/types.h"
-#include "../Utils/colorConversion.h"
+#include "../Utils/color.h"
 
 // https://developer.apple.com/documentation/arkit/displaying_an_ar_experience_with_metal
 // https://github.com/Stinkstudios/arkit-web/blob/87b9dbafc3c1afc02d2483cd83c4a0fe04294324/ARKitWeb/Renderer.swift

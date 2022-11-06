@@ -13,6 +13,8 @@
 vec3 rgb2hsv(vec3 c);
 vec3 hsv2rgb(vec3 c);
 
+vec4 gammaCorrection(vec3 c);
+
 constant mat4 ycbcrToRGBTransform = mat4(
     vec4(+1.0000f, +1.0000f, +1.0000f, +0.0000f),
     vec4(+0.0000f, -0.3441f, +1.7720f, +0.0000f),
