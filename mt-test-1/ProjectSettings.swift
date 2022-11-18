@@ -10,9 +10,12 @@ struct ProjectSettings {
     static let authorName = "Kevin Bein"
     static let authorEmail = "mail@kevinbein.de"
     
+    static let uiBackgroundOpacity = 0.2
+    
     static let initialModel = MainUIView.Model.mansion
-    static let initialCorrection = MainUIView.Correction.bgGrayscale
+    static let initialCorrection = MainUIView.Correction.none //bgGrayscale
     static let initialSimulation = MainUIView.Simulation.none
+    static let initialEvaluationPreset = MainUIView.EvaluationPreset.spatialAwareness
     
     static let globalShaders: [String] = [
         "combineModelAndBackground",

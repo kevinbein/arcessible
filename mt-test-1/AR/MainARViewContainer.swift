@@ -64,6 +64,8 @@ struct MainARViewContainer: UIViewRepresentable {
         var activeSimulationName: String = "none"
         
         var activeCorrectionName: String = "none"
+        
+        var activeEvaluationPreset: String = "none"
 
         var argumentStorage = [
             "hsbc": [ "hue": Float(0.0), "saturation": Float(0.5), "brightness": Float(0.5), "contrast": Float(0.5) ]
@@ -78,10 +80,12 @@ struct MainARViewContainer: UIViewRepresentable {
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleButtonResetSessionPressed(_:)), name: Notification.Name("ButtonResetSessionPressed"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleButtonScreenshotPressed(_:)), name: Notification.Name("ButtonScreenshotPressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButtonStartEvaluationPressed(_:)), name: Notification.Name("ButtonStartEvaluationPressed"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerModelChanged(_:)), name: Notification.Name("PickerModelChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerSimulationChanged(_:)), name: Notification.Name("PickerSimulationChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerCorrectionChanged(_:)), name: Notification.Name("PickerCorrectionChanged"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handlePickerEvaluationPresetChanged(_:)), name: Notification.Name("PickerEvaluationPresetChanged"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderBlurringSigmaChanged(_:)), name: Notification.Name("SliderBlurringSigmaChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderProtanomalyPhiChanged(_:)), name: Notification.Name("SliderProtanomalyPhiChanged"), object: nil)
@@ -132,6 +136,28 @@ struct MainARViewContainer: UIViewRepresentable {
             debugPrint("handleButtonScreenshotPressed")
         }
         
+        var evaluationCount = 10
+        var evaluationTimer: Timer?
+        
+        @objc func updateEvaluationCounter() {
+            evaluationCount -= 1
+            
+            if (evaluationCount <= 0) {
+                evaluationTimer?.invalidate()
+            }
+            debugPrint("Updated evaluation counter: \(evaluationCount)")
+        }
+        
+        @objc func handleButtonStartEvaluationPressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            
+            evaluationTimer?.invalidate()
+            evaluationCount = 10 + 1
+            evaluationTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateEvaluationCounter), userInfo: nil, repeats: true)
+            
+            debugPrint("handleButtonStartEvaluationPressed")
+        }
+        
         @objc func handlePickerModelChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
             activeModelName = value
@@ -172,6 +198,13 @@ struct MainARViewContainer: UIViewRepresentable {
                 let type: Float = 2.0;
                 let args: [Float] = [ type, 1.0 ];
                 view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
+            
+            // Not working! Needs full implementation
+            //case .contrastCheck:
+                //var shaders: [MainARView.ShaderDescriptor] = []
+                
+                // shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "imageMedian", type: .metalPerformanceShader, mpsObject: ImageMedianMPS()), arguments: [], textures: []))
+                //view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .simulation, frameMode: .combined))
                 
             case .none?:
                 fallthrough
@@ -235,6 +268,16 @@ struct MainARViewContainer: UIViewRepresentable {
                 shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
                 view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction, frameMode: .separate))
                 
+            case .bgDepth:
+                let hue: Float = 0.0
+                let brightness: Float = 0.5
+                let saturation: Float = 0.5
+                let contrast: Float = 0.0
+                let args: [Float] = [ hue, brightness, saturation, contrast, 1.0 ]
+                var shaders: [MainARView.ShaderDescriptor] = []
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "depth", type: .metalShader), frameTarget: .background, arguments: [ 0.0 ], textures: ["g_depthTexture"]))
+                view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction, frameMode: .separate))
+                
             case .bgDepthBlurred:
                 let hue: Float = 0.0
                 let brightness: Float = 0.5
@@ -242,17 +285,28 @@ struct MainARViewContainer: UIViewRepresentable {
                 let contrast: Float = 0.0
                 let args: [Float] = [ hue, brightness, saturation, contrast, 1.0 ]
                 var shaders: [MainARView.ShaderDescriptor] = []
-                //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
-                
-                //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gammaCorrection", type: .metalShader), frameTarget: .background, arguments: [], textures: []))
-                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "depth", type: .metalShader), frameTarget: .background, arguments: [ 0.0 ], textures: ["g_depthTexture"]))
-                //shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), arguments: [], textures: []))
+                shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "backgroundBlur", type: .metalShader), frameTarget: .background, arguments: [], textures: ["g_depthTexture"]))
                 view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .correction, frameMode: .separate))
                 
             case .none?:
                 fallthrough
             default:
                 view.stopShaders(target: .correction)
+            }
+        }
+        
+        @objc func handlePickerEvaluationPresetChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? String else { return }
+            let activeEvaluationPreset = MainUIView.EvaluationPreset(rawValue: value)
+            debugPrint("handlePickerEvaluationPresetChanged", value)
+            
+            guard let view = self.view else { return }
+            
+            switch activeEvaluationPreset {
+            case .spatialAwareness:
+                debugPrint("start evaluation of spatial awareness")
+            default:
+                break
             }
         }
         

@@ -28,6 +28,7 @@ vec3 hsv2rgb(vec3 c)
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
+// https://developer.apple.com/library/archive/documentation/GraphicsImaging/Conceptual/CoreImaging/ci_performance/ci_performance.html
 vec4 gammaCorrection(vec3 c) {
     return vec4(mix(c.rgb, pow(c.rgb * 0.9479 + 0.05213, 2.4), step(0.04045, c.rgb)), 1.0);
 }
@@ -52,8 +53,7 @@ float radians(float in) {
     return in * (PI / 180);
 }
 
-float3 applyHue(float3 aColor, float aHue)
-{
+float3 applyHue(float3 aColor, float aHue) {
     float angle = radians(aHue);
     float3 k = float3(0.57735, 0.57735, 0.57735);
     float cosAngle = cos(angle);
@@ -66,8 +66,7 @@ float3 applyHue(float3 aColor, float aHue)
 // brightness = 0.5
 // contrast   = 0.5
 // saturation = 0.5
-float4 applyHSBCffect(float4 startColor, float4 hsbc)
-{
+float4 applyHSBCffect(float4 startColor, float4 hsbc) {
     float hue = 360 * hsbc.r;
     float brightness = hsbc.g * 2 - 1;
     float contrast = hsbc.b * 2;

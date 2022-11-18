@@ -83,7 +83,7 @@ struct MainUIView: View {
     }
     
     enum Correction: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case none, edgeEnhancement, daltonization, hsbc, sobel, bgGrayscale, bgDepthBlurred
+        case none, edgeEnhancement, daltonization, hsbc, sobel, bgGrayscale, bgDepth, bgDepthBlurred
         var id: Self { self }
         var description: String {
             switch self {
@@ -92,8 +92,19 @@ struct MainUIView: View {
             case .daltonization: return "Daltonization"
             case .hsbc: return "HSBC"
             case .bgGrayscale: return "Background W/B"
+            case .bgDepth: return "Depth Visualization"
             case .bgDepthBlurred: return "Background Depth Blurred"
             case .sobel: return "Sobel"
+            }
+        }
+    }
+    
+    enum EvaluationPreset: String, CaseIterable, Identifiable, CustomStringConvertible {
+        case spatialAwareness
+        var id: Self { self }
+        var description: String {
+            switch self {
+            case .spatialAwareness: return "spatialAwareness"
             }
         }
     }
@@ -102,11 +113,16 @@ struct MainUIView: View {
     @State private var activeModelName: Model = ProjectSettings.initialModel
     @State private var activeSimulationName: Simulation = ProjectSettings.initialSimulation
     @State private var activeCorrectionName: Correction = ProjectSettings.initialCorrection
+    @State private var activeEvaluationPreset: EvaluationPreset = ProjectSettings.initialEvaluationPreset
     
     @State private var debugMode: Bool = false
     
     @State private var showAbout = false
     @State private var showFooter = true
+    enum FooterMode {
+        case debug, evaluation
+    }
+    @State private var footerMode: FooterMode = .debug
     
     @State private var blurringSigma = 10.0
     @State private var protanomalyPhi = 1.0
@@ -124,6 +140,7 @@ struct MainUIView: View {
     
     func onButtonResetSession() { NotificationCenter.default.post(name: Notification.Name("ButtonResetSessionPressed"), object: self) }
     func onButtonScreenshot() { NotificationCenter.default.post(name: Notification.Name("ButtonScreenshotPressed"), object: self) }
+    func onButtonStartEvaluation() { NotificationCenter.default.post(name: Notification.Name("ButtonStartEvaluationPressed"), object: self) }
     
     // Old
     func onButton1() { NotificationCenter.default.post(name: Notification.Name("Button1Pressed"), object: self) }
@@ -148,6 +165,7 @@ struct MainUIView: View {
     func onPickerModel(_ value: Model) { NotificationCenter.default.post(name: Notification.Name("PickerModelChanged"), object: self, userInfo: ["value": value.rawValue]) }
     func onPickerSimulation(_ value: Simulation) { NotificationCenter.default.post(name: Notification.Name("PickerSimulationChanged"), object: self, userInfo: ["value": value.rawValue]) }
     func onPickerCorrection(_ value: Correction) { NotificationCenter.default.post(name: Notification.Name("PickerCorrectionChanged"), object: self, userInfo: ["value": value.rawValue]) }
+    func onPickerEvaluationPreset(_ value: EvaluationPreset) { NotificationCenter.default.post(name: Notification.Name("PickerEvaluationPresetChanged"), object: self, userInfo: ["value": value.rawValue]) }
     
     func onToggle1(_ value: Bool) { NotificationCenter.default.post(name: Notification.Name("Toggle1Changed"), object: self, userInfo: ["value": value]) }
     
@@ -162,7 +180,6 @@ struct MainUIView: View {
         
         let content = EmptyView()
         
-        let blackOpacity = 0.2
         let safeAreaHeightTop = UIApplication.shared.keyWindow?.safeAreaInsets.top
         let safeAreaHeightBottom = UIApplication.shared.keyWindow?.safeAreaInsets.bottom
         
@@ -213,7 +230,7 @@ struct MainUIView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.all)
-                .background(.black.opacity(blackOpacity))
+                .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
                 
                 Spacer()
                 
@@ -222,7 +239,7 @@ struct MainUIView: View {
                     content
                         .padding()
                 }
-                .background(.black.opacity(blackOpacity))
+                .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
                 
                 Spacer()
                 
@@ -230,7 +247,59 @@ struct MainUIView: View {
                 Group {
                     
                     VStack {
-                        if !showFooter {
+                        // Tab selection
+                        Group {
+                            // Evaluation
+                            HStack {
+                                Spacer()
+                                PrimaryButton(title: "Debug", action: {
+                                    footerMode = .debug
+                                })
+                                PrimaryButton(title: "Evaluation", action: {
+                                    footerMode = .evaluation
+                                })
+                                Spacer()
+                            }
+                            //.padding([.bottom], 50)
+                            //.padding([.top], 50)
+                            .frame(height: 20)
+                            .aspectRatio(contentMode: .fit)
+                            .padding()
+                            .foregroundColor(.white)
+                            
+                            Rectangle()
+                                .foregroundColor(.black.opacity(0.0))
+                                .frame(height: 20)
+                        }
+                        
+                        if footerMode == .evaluation {
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    PrimaryButton(title: "Start Evaluation", action: onButtonStartEvaluation)
+                                    Spacer()
+                                }
+                                //.padding([.bottom], 50)
+                                //.padding([.top], 50)
+                                .frame(height: 20)
+                                .aspectRatio(contentMode: .fit)
+                                .padding()
+                                .foregroundColor(.white)
+                                
+                                
+                                HStack {
+                                    Text("Preset")
+                                    Picker("Correction (C)", selection: $activeEvaluationPreset) {
+                                        ForEach(EvaluationPreset.allCases.reversed(), id: \.id) { value in
+                                            Text("E: \(value.description)")
+                                        }
+                                    }
+                                    .accentColor(.blue)
+                                    .onChange(of: activeEvaluationPreset, perform: onPickerEvaluationPreset)
+                                }
+                            }
+                        }
+                        else if !showFooter, footerMode == .debug {
 
                             // Footer Open - Controls
                             VStack {
@@ -250,7 +319,7 @@ struct MainUIView: View {
                             
                         }
                         // Footer Open - Top margin
-                        else {
+                        else if footerMode == .debug {
                             
                             // Footer - Controls
                             VStack {
@@ -355,6 +424,8 @@ struct MainUIView: View {
                                     EmptyView()
                                 case .edgeEnhancement:
                                     EmptyView()
+                                case .bgDepth:
+                                    EmptyView()
                                 case .bgDepthBlurred:
                                     EmptyView()
                                 }
@@ -406,7 +477,7 @@ struct MainUIView: View {
                     }
                     .padding()
                     .foregroundColor(.white)
-                    .background(.black.opacity(blackOpacity))
+                    .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
 
                     // Footer - Bottom margin
                     Rectangle()
