@@ -30,8 +30,8 @@
 		447323B429172F41007AF202 /* CVPixelBuffer+texture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447323B329172F41007AF202 /* CVPixelBuffer+texture.swift */; };
 		447323B6291867F4007AF202 /* backgroundBlur_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 447323B5291867F4007AF202 /* backgroundBlur_kernel.metal */; };
 		447323B829280AB0007AF202 /* convolution3x3_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 447323B729280AB0007AF202 /* convolution3x3_kernel.metal */; };
-		447323BE2928176D007AF202 /* EvaluationGameUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447323BD2928176D007AF202 /* EvaluationGameUI.swift */; };
-		4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222A2823E19F00A5598D /* CGImageExtension.swift */; };
+		447323BE2928176D007AF202 /* EvaluationUIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447323BD2928176D007AF202 /* EvaluationUIViewController.swift */; };
+		4475222B2823E19F00A5598D /* CGImage+create.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222A2823E19F00A5598D /* CGImage+create.swift */; };
 		4475222D2823E49800A5598D /* FrameModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475222C2823E49800A5598D /* FrameModel.swift */; };
 		4475323928C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */; };
 		4486C40328AA55A80040A654 /* macularDegeneration_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 4486C40228AA55A80040A654 /* macularDegeneration_kernel.metal */; };
@@ -48,6 +48,8 @@
 		44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44981EA22861D44200D34D10 /* braunbaer.rcproject */; };
 		44A12E362815B4C800285324 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A12E352815B4C800285324 /* HeaderView.swift */; };
 		44A47DFD284E356900D00FFF /* turm.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44A47DFC284E356900D00FFF /* turm.rcproject */; };
+		44A57662292E855300AD1C1A /* ARVideoKit in Frameworks */ = {isa = PBXBuildFile; productRef = 44A57661292E855300AD1C1A /* ARVideoKit */; };
+		44A57664292EDF0300AD1C1A /* Log.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44A57663292EDF0300AD1C1A /* Log.swift */; };
 		44AE9A5328EC55F600AA6D9B /* SobelMPS.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44AE9A5228EC55F600AA6D9B /* SobelMPS.swift */; };
 		44AE9A5528ECA40700AA6D9B /* daltonizationStep0_kernel.metal in Sources */ = {isa = PBXBuildFile; fileRef = 44AE9A5428ECA40700AA6D9B /* daltonizationStep0_kernel.metal */; };
 		44BA122028FDFEF70032D68F /* newYorkDowntown.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BA121F28FDFEF70032D68F /* newYorkDowntown.rcproject */; };
@@ -67,6 +69,11 @@
 		44BD60B228C6194F0058413C /* decorativeLightPole.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60B128C6194F0058413C /* decorativeLightPole.rcproject */; };
 		44BD60B428C619BA0058413C /* bathroomInterior.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60B328C619BA0058413C /* bathroomInterior.rcproject */; };
 		44BD60B628C61A000058413C /* scaffold.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44BD60B528C61A000058413C /* scaffold.rcproject */; };
+		44C3A85B292867E900C8AFC4 /* EvaluationUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C3A85A292867E900C8AFC4 /* EvaluationUIView.swift */; };
+		44C3A85F29295F9D00C8AFC4 /* EvaluationSceneModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C3A85E29295F9D00C8AFC4 /* EvaluationSceneModel.swift */; };
+		44C3A8622929629B00C8AFC4 /* evaluation.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44C3A8612929629B00C8AFC4 /* evaluation.rcproject */; };
+		44C3A86429296C1C00C8AFC4 /* EvaluationSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C3A86329296C1C00C8AFC4 /* EvaluationSession.swift */; };
+		44C3A8672929867C00C8AFC4 /* piano.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44C3A8662929867C00C8AFC4 /* piano.usdz */; };
 		44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44C821D82816BABA0017AE57 /* AccessibleModel.swift */; };
 		44C821DF2816FB380017AE57 /* boxgreen.usdz in Resources */ = {isa = PBXBuildFile; fileRef = 44C821DE2816FB380017AE57 /* boxgreen.usdz */; };
 		44C821E12816FB930017AE57 /* boxgreen.rcproject in Sources */ = {isa = PBXBuildFile; fileRef = 44C821E02816FB930017AE57 /* boxgreen.rcproject */; };
@@ -123,8 +130,8 @@
 		447323B329172F41007AF202 /* CVPixelBuffer+texture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CVPixelBuffer+texture.swift"; sourceTree = "<group>"; };
 		447323B5291867F4007AF202 /* backgroundBlur_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = backgroundBlur_kernel.metal; sourceTree = "<group>"; };
 		447323B729280AB0007AF202 /* convolution3x3_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = convolution3x3_kernel.metal; sourceTree = "<group>"; };
-		447323BD2928176D007AF202 /* EvaluationGameUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluationGameUI.swift; sourceTree = "<group>"; };
-		4475222A2823E19F00A5598D /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
+		447323BD2928176D007AF202 /* EvaluationUIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluationUIViewController.swift; sourceTree = "<group>"; };
+		4475222A2823E19F00A5598D /* CGImage+create.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CGImage+create.swift"; sourceTree = "<group>"; };
 		4475222C2823E49800A5598D /* FrameModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameModel.swift; sourceTree = "<group>"; };
 		4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MTLTexture+writeToSavedPhotosAlbum.swift"; sourceTree = "<group>"; };
 		4486C40228AA55A80040A654 /* macularDegeneration_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = macularDegeneration_kernel.metal; sourceTree = "<group>"; };
@@ -143,6 +150,8 @@
 		44981EA22861D44200D34D10 /* braunbaer.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = braunbaer.rcproject; sourceTree = "<group>"; };
 		44A12E352815B4C800285324 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		44A47DFC284E356900D00FFF /* turm.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = turm.rcproject; sourceTree = "<group>"; };
+		44A5765F292A8EEF00AD1C1A /* piano-placing-test.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = "piano-placing-test.mov"; sourceTree = "<group>"; };
+		44A57663292EDF0300AD1C1A /* Log.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Log.swift; sourceTree = "<group>"; };
 		44AE9A5228EC55F600AA6D9B /* SobelMPS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SobelMPS.swift; sourceTree = "<group>"; };
 		44AE9A5428ECA40700AA6D9B /* daltonizationStep0_kernel.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = daltonizationStep0_kernel.metal; sourceTree = "<group>"; };
 		44BA121F28FDFEF70032D68F /* newYorkDowntown.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = newYorkDowntown.rcproject; sourceTree = "<group>"; };
@@ -165,6 +174,12 @@
 		44BD60B328C619BA0058413C /* bathroomInterior.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = bathroomInterior.rcproject; sourceTree = "<group>"; };
 		44BD60B528C61A000058413C /* scaffold.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = scaffold.rcproject; sourceTree = "<group>"; };
 		44BD60B828C66C3A0058413C /* braunbaerVertical.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = braunbaerVertical.rcproject; sourceTree = "<group>"; };
+		44C3A85A292867E900C8AFC4 /* EvaluationUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluationUIView.swift; sourceTree = "<group>"; };
+		44C3A85D2929489D00C8AFC4 /* AR Session 2.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = "AR Session 2.mov"; sourceTree = "<group>"; };
+		44C3A85E29295F9D00C8AFC4 /* EvaluationSceneModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluationSceneModel.swift; sourceTree = "<group>"; };
+		44C3A8612929629B00C8AFC4 /* evaluation.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = evaluation.rcproject; sourceTree = "<group>"; };
+		44C3A86329296C1C00C8AFC4 /* EvaluationSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EvaluationSession.swift; sourceTree = "<group>"; };
+		44C3A8662929867C00C8AFC4 /* piano.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = piano.usdz; sourceTree = "<group>"; };
 		44C821D82816BABA0017AE57 /* AccessibleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleModel.swift; sourceTree = "<group>"; };
 		44C821DE2816FB380017AE57 /* boxgreen.usdz */ = {isa = PBXFileReference; lastKnownFileType = file.usdz; path = boxgreen.usdz; sourceTree = "<group>"; };
 		44C821E02816FB930017AE57 /* boxgreen.rcproject */ = {isa = PBXFileReference; lastKnownFileType = file.rcproject; path = boxgreen.rcproject; sourceTree = "<group>"; };
@@ -189,6 +204,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44A57662292E855300AD1C1A /* ARVideoKit in Frameworks */,
 				44522A08281EAA0B00C7ADD5 /* FocusEntity in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -271,7 +287,7 @@
 		447522292823E18E00A5598D /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				4475222A2823E19F00A5598D /* CGImageExtension.swift */,
+				4475222A2823E19F00A5598D /* CGImage+create.swift */,
 				4475323828C794EC00923BC7 /* MTLTexture+writeToSavedPhotosAlbum.swift */,
 				44BA12352900B22E0032D68F /* View+onLoad.swift */,
 				447323B329172F41007AF202 /* CVPixelBuffer+texture.swift */,
@@ -297,13 +313,6 @@
 				44BA122928FEE5990032D68F /* types.h */,
 			);
 			path = Utils;
-			sourceTree = "<group>";
-		};
-		44BA122E290002B50032D68F /* Ressources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Ressources;
 			sourceTree = "<group>";
 		};
 		44BA12392901641E0032D68F /* Other */ = {
@@ -371,10 +380,12 @@
 				44BD60B328C619BA0058413C /* bathroomInterior.rcproject */,
 				44BD60B528C61A000058413C /* scaffold.rcproject */,
 				44BA122128FED6FF0032D68F /* loft.rcproject */,
+				44C3A8662929867C00C8AFC4 /* piano.usdz */,
 				44BD609928B4F49B0058413C /* wuschel1.usdz */,
 				4451194628804291001C4822 /* kokuraCastle.usdz */,
 				44981EA02861D15300D34D10 /* braunbaer.usdz */,
 				44C821DE2816FB380017AE57 /* boxgreen.usdz */,
+				44C3A8612929629B00C8AFC4 /* evaluation.rcproject */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -382,6 +393,8 @@
 		44EA95E22800967A0032EF81 = {
 			isa = PBXGroup;
 			children = (
+				44A5765F292A8EEF00AD1C1A /* piano-placing-test.mov */,
+				44C3A85D2929489D00C8AFC4 /* AR Session 2.mov */,
 				44EA95ED2800967A0032EF81 /* mt-test-1 */,
 				44EA96002800967D0032EF81 /* mt-test-1Tests */,
 				44EA960A2800967D0032EF81 /* mt-test-1UITests */,
@@ -411,8 +424,9 @@
 				44F5EA422803512F00399303 /* UI */,
 				44EA95F02800967A0032EF81 /* ContentView.swift */,
 				44EA95EE2800967A0032EF81 /* AppDelegate.swift */,
+				44C3A86329296C1C00C8AFC4 /* EvaluationSession.swift */,
 				442F9E032815AB7800B87229 /* ProjectSettings.swift */,
-				44BA122E290002B50032D68F /* Ressources */,
+				44A57663292EDF0300AD1C1A /* Log.swift */,
 				44BD60B728C66C350058413C /* Assets */,
 				44EA95F42800967D0032EF81 /* Assets.xcassets */,
 				449145C428156F2C0088946B /* Info.plist */,
@@ -451,7 +465,8 @@
 			children = (
 				44522A10281ED04300C7ADD5 /* Components */,
 				44615A1F281AF02200C9A84A /* MainUIView.swift */,
-				447323BD2928176D007AF202 /* EvaluationGameUI.swift */,
+				44C3A85A292867E900C8AFC4 /* EvaluationUIView.swift */,
+				447323BD2928176D007AF202 /* EvaluationUIViewController.swift */,
 			);
 			path = UI;
 			sourceTree = "<group>";
@@ -461,6 +476,7 @@
 			children = (
 				44C821D82816BABA0017AE57 /* AccessibleModel.swift */,
 				4475222C2823E49800A5598D /* FrameModel.swift */,
+				44C3A85E29295F9D00C8AFC4 /* EvaluationSceneModel.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -483,6 +499,7 @@
 			name = "mt-test-1";
 			packageProductDependencies = (
 				44522A07281EAA0B00C7ADD5 /* FocusEntity */,
+				44A57661292E855300AD1C1A /* ARVideoKit */,
 			);
 			productName = "mt-test-1";
 			productReference = 44EA95EB2800967A0032EF81 /* mt-test-1.app */;
@@ -558,6 +575,7 @@
 			mainGroup = 44EA95E22800967A0032EF81;
 			packageReferences = (
 				44522A06281EAA0B00C7ADD5 /* XCRemoteSwiftPackageReference "FocusEntity" */,
+				44A57660292E855300AD1C1A /* XCRemoteSwiftPackageReference "ARVideoKit" */,
 			);
 			productRefGroup = 44EA95EC2800967A0032EF81 /* Products */;
 			projectDirPath = "";
@@ -578,6 +596,7 @@
 				4451194728804291001C4822 /* kokuraCastle.usdz in Resources */,
 				44981EA12861D15300D34D10 /* braunbaer.usdz in Resources */,
 				44EA95F82800967D0032EF81 /* Preview Assets.xcassets in Resources */,
+				44C3A8672929867C00C8AFC4 /* piano.usdz in Resources */,
 				44C821DF2816FB380017AE57 /* boxgreen.usdz in Resources */,
 				44EA95F52800967D0032EF81 /* Assets.xcassets in Resources */,
 				4422B08228F3006D00D5C732 /* noise.png in Resources */,
@@ -616,11 +635,12 @@
 				44BD60AE28C617970058413C /* realisticEuropanTree.rcproject in Sources */,
 				4451195A288AAD5E001C4822 /* floatersDots_kernel.metal in Sources */,
 				44EA95F12800967A0032EF81 /* ContentView.swift in Sources */,
+				44C3A86429296C1C00C8AFC4 /* EvaluationSession.swift in Sources */,
 				4451194F28831F92001C4822 /* GaussianBlurMPS.swift in Sources */,
 				44BD609628B3AFE80058413C /* colorVisionDeficiency_kernel.metal in Sources */,
 				44511956288430A2001C4822 /* MainFGContainer.swift in Sources */,
 				44BA122728FEE4B70032D68F /* color.metal in Sources */,
-				447323BE2928176D007AF202 /* EvaluationGameUI.swift in Sources */,
+				447323BE2928176D007AF202 /* EvaluationUIViewController.swift in Sources */,
 				447323B429172F41007AF202 /* CVPixelBuffer+texture.swift in Sources */,
 				447323B6291867F4007AF202 /* backgroundBlur_kernel.metal in Sources */,
 				44AE9A5528ECA40700AA6D9B /* daltonizationStep0_kernel.metal in Sources */,
@@ -639,7 +659,9 @@
 				447323AA29046667007AF202 /* CannyMPS.swift in Sources */,
 				44BA122028FDFEF70032D68F /* newYorkDowntown.rcproject in Sources */,
 				442F9E042815AB7800B87229 /* ProjectSettings.swift in Sources */,
-				4475222B2823E19F00A5598D /* CGImageExtension.swift in Sources */,
+				44C3A8622929629B00C8AFC4 /* evaluation.rcproject in Sources */,
+				4475222B2823E19F00A5598D /* CGImage+create.swift in Sources */,
+				44C3A85B292867E900C8AFC4 /* EvaluationUIView.swift in Sources */,
 				44AE9A5328EC55F600AA6D9B /* SobelMPS.swift in Sources */,
 				44615A20281AF02200C9A84A /* MainUIView.swift in Sources */,
 				44BD60B628C61A000058413C /* scaffold.rcproject in Sources */,
@@ -650,6 +672,7 @@
 				4486C40828AA66260040A654 /* glaucoma_kernel.metal in Sources */,
 				44BD60B428C619BA0058413C /* bathroomInterior.rcproject in Sources */,
 				44981EA32861D44200D34D10 /* braunbaer.rcproject in Sources */,
+				44C3A85F29295F9D00C8AFC4 /* EvaluationSceneModel.swift in Sources */,
 				447323B829280AB0007AF202 /* convolution3x3_kernel.metal in Sources */,
 				44935FFF28FAF16F0027F4AE /* daltonizationStep3_kernel.metal in Sources */,
 				44BD609E28C603420058413C /* ninetydegreebracket.rcproject in Sources */,
@@ -662,6 +685,7 @@
 				4493600528FAFB0E0027F4AE /* daltonizationStep6_kernel.metal in Sources */,
 				44C821D92816BABA0017AE57 /* AccessibleModel.swift in Sources */,
 				44206BDA289008B5007F7463 /* BloomMPS.swift in Sources */,
+				44A57664292EDF0300AD1C1A /* Log.swift in Sources */,
 				44971B242843A275007C8279 /* pipe.rcproject in Sources */,
 				4486C40328AA55A80040A654 /* macularDegeneration_kernel.metal in Sources */,
 				4451195328833A76001C4822 /* ObjectMPS.swift in Sources */,
@@ -1011,6 +1035,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		44A57660292E855300AD1C1A /* XCRemoteSwiftPackageReference "ARVideoKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AFathi/ARVideoKit";
+			requirement = {
+				branch = swift_5;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1018,6 +1050,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 44522A06281EAA0B00C7ADD5 /* XCRemoteSwiftPackageReference "FocusEntity" */;
 			productName = FocusEntity;
+		};
+		44A57661292E855300AD1C1A /* ARVideoKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 44A57660292E855300AD1C1A /* XCRemoteSwiftPackageReference "ARVideoKit" */;
+			productName = ARVideoKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -100,29 +100,35 @@ struct MainUIView: View {
     }
     
     enum EvaluationPreset: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case spatialAwareness
+        case game, gameTight, anchorTest, depthTest, piano, spatialAwareness, mansion
         var id: Self { self }
         var description: String {
-            switch self {
-            case .spatialAwareness: return "spatialAwareness"
-            }
+            return self.rawValue
+        }
+    }
+    
+    enum WorkMode: String, CaseIterable, Identifiable, CustomStringConvertible {
+        case debug, evaluation
+        var id: Self { self }
+        var description: String {
+            return self.rawValue
         }
     }
     
     // Defaults
+    @State private var activeWorkMode: WorkMode = ProjectSettings.initialWorkMode
     @State private var activeModelName: Model = ProjectSettings.initialModel
     @State private var activeSimulationName: Simulation = ProjectSettings.initialSimulation
     @State private var activeCorrectionName: Correction = ProjectSettings.initialCorrection
     @State private var activeEvaluationPreset: EvaluationPreset = ProjectSettings.initialEvaluationPreset
     
+    @State private var evaluationCandidateName: String = "debug_kevin"
+    
     @State private var debugMode: Bool = false
     
     @State private var showAbout = false
-    @State private var showFooter = true
-    enum FooterMode {
-        case debug, evaluation
-    }
-    @State private var footerMode: FooterMode = .debug
+    @State private var showFooterDebugSettings = true
+    @State private var showCandidateName = false
     
     @State private var blurringSigma = 10.0
     @State private var protanomalyPhi = 1.0
@@ -141,16 +147,11 @@ struct MainUIView: View {
     func onButtonResetSession() { NotificationCenter.default.post(name: Notification.Name("ButtonResetSessionPressed"), object: self) }
     func onButtonScreenshot() { NotificationCenter.default.post(name: Notification.Name("ButtonScreenshotPressed"), object: self) }
     func onButtonStartEvaluation() { NotificationCenter.default.post(name: Notification.Name("ButtonStartEvaluationPressed"), object: self) }
+    func onButtonAbortEvaluation() { NotificationCenter.default.post(name: Notification.Name("ButtonAbortEvaluationPressed"), object: self) }
     
-    // Old
-    func onButton1() { NotificationCenter.default.post(name: Notification.Name("Button1Pressed"), object: self) }
-    func onButton2() { NotificationCenter.default.post(name: Notification.Name("Button2Pressed"), object: self) }
-    func onButton3() { NotificationCenter.default.post(name: Notification.Name("Button3Pressed"), object: self) }
-    func onButton4() { NotificationCenter.default.post(name: Notification.Name("Button4Pressed"), object: self) }
-    func onButton5() { NotificationCenter.default.post(name: Notification.Name("Button5Pressed"), object: self) }
-    func onButton6() { NotificationCenter.default.post(name: Notification.Name("Button6Pressed"), object: self) }
-    func onButton7() { NotificationCenter.default.post(name: Notification.Name("Button7Pressed"), object: self) }
-    func onButton8() { NotificationCenter.default.post(name: Notification.Name("Button8Pressed"), object: self) }
+    func onButtonPrintLog() {
+        NotificationCenter.default.post(name: Notification.Name("ButtonPrintEvaluationLogPressed"), object: self)
+    }
     
     func onSliderBlurringSigma(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderBlurringSigmaChanged"), object: self, userInfo: ["value": value]) }
     func onSliderProtanomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderProtanomalyPhiChanged"), object: self, userInfo: ["value": value]) }
@@ -159,340 +160,485 @@ struct MainUIView: View {
     func onSliderHSBC(_ value: Double) {
         let hsbc = [ "hue": hue, "saturation": saturation, "brightness": brightness, "contrast": contrast ]
         NotificationCenter.default.post(name: Notification.Name("SliderHSBCChanged"), object: self, userInfo: hsbc)
-        debugPrint("HSBC: ", hsbc)
+        Log.print("HSBC: ", hsbc)
     }
     
     func onPickerModel(_ value: Model) { NotificationCenter.default.post(name: Notification.Name("PickerModelChanged"), object: self, userInfo: ["value": value.rawValue]) }
     func onPickerSimulation(_ value: Simulation) { NotificationCenter.default.post(name: Notification.Name("PickerSimulationChanged"), object: self, userInfo: ["value": value.rawValue]) }
     func onPickerCorrection(_ value: Correction) { NotificationCenter.default.post(name: Notification.Name("PickerCorrectionChanged"), object: self, userInfo: ["value": value.rawValue]) }
     func onPickerEvaluationPreset(_ value: EvaluationPreset) { NotificationCenter.default.post(name: Notification.Name("PickerEvaluationPresetChanged"), object: self, userInfo: ["value": value.rawValue]) }
+    func onButtonWorkMode(_ value: WorkMode) { NotificationCenter.default.post(name: Notification.Name("WorkModeChange"), object: self, userInfo: ["value": value.rawValue ]) }
     
     func onToggle1(_ value: Bool) { NotificationCenter.default.post(name: Notification.Name("Toggle1Changed"), object: self, userInfo: ["value": value]) }
     
-    let arViewLoaded = NotificationCenter.default.publisher(for: NSNotification.Name("ARViewInitialized"))
-    func onARViewLoaded() {
-        debugPrint("onARViewLoaded")
+    let reloadPipeline = NotificationCenter.default.publisher(for: NSNotification.Name("PipelineReload"))
+    func onReloadPipeline() {
         onPickerSimulation(activeSimulationName)
         onPickerCorrection(activeCorrectionName)
+        onPickerEvaluationPreset(activeEvaluationPreset)
+        Log.print("Pipeline reloaded")
+    }
+    
+    let arViewLoaded = NotificationCenter.default.publisher(for: NSNotification.Name("ARViewInitialized"))
+    func onARViewLoaded() {
+        Log.print("onARViewLoaded")
+        onReloadPipeline()
+        onButtonWorkMode(activeWorkMode)
+    }
+    
+    fileprivate func HorizontalSpacingView(height: CGFloat = 20) -> some View {
+        Rectangle()
+            .foregroundColor(.black.opacity(0.0))
+            .frame(height: height)
+    }
+    
+    fileprivate func HeaderIconButton(systemImage: String, action: @escaping () -> ()) -> Button<some View> {
+        return Button(action: action) {
+            Label("", systemImage: systemImage)
+                .font(.title)
+                .foregroundColor(.blue)
+        }
+    }
+    
+    fileprivate func Header() -> some View {
+        return // Header - Title
+        HStack {
+            Text(ProjectSettings.appName)
+                .font(.largeTitle)
+                .bold()
+                .foregroundColor(.white)
+                .padding([ .leading ], 20)
+            
+            Spacer()
+            
+            HeaderIconButton(systemImage: "arrow.clockwise.circle", action: onButtonResetSession)
+            HeaderIconButton(systemImage: "info.circle", action: {
+                showAbout = true
+            })
+            .alert(isPresented: $showAbout) {
+                Alert(
+                    title: Text("About"),
+                    message: Text("\n\(ProjectSettings.authorName)\n\(ProjectSettings.authorEmail)")
+                )
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.all)
+        .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
+    }
+    
+    fileprivate func FooterTabSelection() -> some View {
+        return // Tab selection
+        Group {
+            // Evaluation
+            HStack {
+                Spacer()
+                PrimaryButton(title: "Debug", action: {
+                    activeWorkMode = .debug
+                    onButtonWorkMode(activeWorkMode)
+                })
+                PrimaryButton(title: "Evaluation", action: {
+                    activeWorkMode = .evaluation
+                    onButtonWorkMode(activeWorkMode)
+                })
+                Spacer()
+            }
+            //.padding([.bottom], 50)
+            //.padding([.top], 50)
+            .frame(height: 20)
+            .aspectRatio(contentMode: .fit)
+            .padding()
+            .foregroundColor(.white)
+        }
+    }
+    
+    @State var countdownIsActive = false
+    @State var evaluationIsInProgress = false
+    @State var countdown = ProjectSettings.evaluationStartCountdown
+    
+    fileprivate func CountdownView() -> some View {
+        let countdownTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+        return Group {
+            if countdownIsActive {
+                VStack {
+                    Text("Start in \(countdown)").font(.largeTitle)
+                }
+                .padding(50)
+                .foregroundColor(.white)
+                .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
+            } else {
+                EmptyView()
+            }
+        }
+        /*.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("PickerEvaluationPresetChanged"))) { object in
+            countdownIsActive = false
+            evaluationIsInProgress = false
+            countdown = 10
+        }*/
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ButtonStartEvaluationPressed"))) { object in
+            if evaluationCandidateName.count > 0 {
+                countdownIsActive = true
+                NotificationCenter.default.post(name: Notification.Name("EvaluationInit"), object: self, userInfo: ["value": [activeEvaluationPreset.rawValue, evaluationCandidateName]])
+            }
+        }
+        .onReceive(countdownTimer) { _ in
+            if countdownIsActive {
+                countdown -= 1
+                if countdown <= 0 {
+                    NotificationCenter.default.post(name: Notification.Name("EvaluationStart"), object: self)
+                    countdownIsActive = false
+                    evaluationIsInProgress = true
+                    countdown = ProjectSettings.evaluationStartCountdown
+                    countdownTimer.upstream.connect().cancel()
+                }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationAborted"))) { object in
+            countdownIsActive = false
+            countdown = ProjectSettings.evaluationStartCountdown
+            evaluationIsInProgress = false
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationEnded"))) { object in
+            countdownIsActive = false
+            countdown = ProjectSettings.evaluationStartCountdown
+            evaluationIsInProgress = false
+        }
+    }
+    
+    fileprivate func FooterTabEvaluation() -> some View {
+        return Group {
+            VStack {
+                HStack {
+                    Spacer()
+                    if !evaluationIsInProgress {
+                        PrimaryButton(title: "Start Evaluation", action: onButtonStartEvaluation)
+                        PrimaryButton(title: "Print Log", action: onButtonPrintLog)
+                    } else {
+                        PrimaryButton(title: "Abort Evaluation", action: onButtonAbortEvaluation)
+                    }
+                    Spacer()
+                }
+                .frame(height: 20)
+                .aspectRatio(contentMode: .fit)
+                .padding()
+                .foregroundColor(.white)
+                
+                if !evaluationIsInProgress {
+                    HStack {
+                        //TextField("Candidate name", text: $evaluationCandidateName)
+                        Spacer()
+                        
+                        PrimaryButton(title: "Set candidate name") {
+                            showCandidateName = true
+                        }
+                        /*Button("Show Alert") {
+                            showCandidateName = true
+                        }*/
+                        .alert("Candidate Name", isPresented: $showCandidateName, actions: {
+                            TextField("Candidate Name", text: $evaluationCandidateName).foregroundColor(.black)
+                            Button("OK", action: {})
+                        }, message: {
+                            Text("Please specify the candidate name.")
+                        })
+                        let name = evaluationCandidateName.count > 0 ? evaluationCandidateName : "<empty>"
+                        Text(name)
+                        Spacer()
+                    }
+                    .frame(height: 20)
+                    .aspectRatio(contentMode: .fit)
+                    .padding()
+                    
+                    HStack {
+                        Text("Preset")
+                        Picker("Correction (C)", selection: $activeEvaluationPreset) {
+                            ForEach(EvaluationPreset.allCases.reversed(), id: \.id) { value in
+                                Text("E: \(value.description)")
+                            }
+                        }
+                        .accentColor(.blue)
+                        .onChange(of: activeEvaluationPreset, perform: onPickerEvaluationPreset)
+                    }
+                }
+            }
+        }
+    }
+    
+    @State var hitResponseOpacity: Double = 0.0
+    @State var hitResponseColor: Color = .red
+    fileprivate func EvaluationHitResponseView() -> some View {
+        let countdownTimer = Timer.publish(every: 0.002, on: .main, in: .common).autoconnect()
+        return Group {
+            if self.hitResponseOpacity > 0.0 {
+                RoundedRectangle(cornerRadius: 50)
+                //.border(.red, width: 4)
+                    .stroke(hitResponseColor, lineWidth: 10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .opacity(hitResponseOpacity)
+            } else {
+                EmptyView()
+            }
+        }
+        .onReceive(countdownTimer) { timer in
+            hitResponseOpacity = max(0.0, hitResponseOpacity - 0.05)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitFailure"))) { _ in
+            hitResponseColor = .red
+            hitResponseOpacity = 1.0
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitSuccess"))) { _ in
+            hitResponseColor = .green
+            hitResponseOpacity = 1.0
+        }
+    }
+    
+    @State var showEvaluationResult = true
+    @State var evaluationResult: EvaluationSession.SessionData?
+    fileprivate func EvaluationResultView() -> some View {
+        return
+        Group {
+            if evaluationResult != nil {
+                HStack{}.alert("Results", isPresented: $showEvaluationResult, actions: {
+                    Button("OK", action: {})
+                }, message: {
+                    let intermediateTimesStr: String = evaluationResult!.intermediateTimes.reduce("", {
+                        "\($0)\($0.count > 0 ? ", " : "")\(String(format: "%.2f", $1.format(differenceTo: evaluationResult!.startTime)))"
+                    })
+                    let output: String = """
+                    Candidate name: \(evaluationResult!.candidateName)
+                    Preset: \(evaluationResult!.evaluationPreset)
+                    Min distance: \(evaluationResult!.evaluationMinDistance)
+                    Intermediate Times:
+                    [ \(intermediateTimesStr) ]
+                    Total time: \(String(format: "%.2f", evaluationResult!.duration))
+                    """
+                    Text(output).multilineTextAlignment(.leading)
+                })
+            } else {
+                EmptyView()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationEnded"))) { notification in
+            guard let evaluationResult = notification.userInfo?["sessionData"] as? EvaluationSession.SessionData else { return }
+            self.showEvaluationResult = true
+            self.evaluationResult = evaluationResult
+        }
+    }
+    
+    fileprivate func Footer() -> some View {
+        return // Footer
+        Group {
+            VStack {
+                if !evaluationIsInProgress {
+                    FooterTabSelection()
+                    //HorizontalSpacingView(height: 10)
+                }
+                
+                if activeWorkMode == .evaluation {
+                    FooterTabEvaluation()
+                }
+                else if !showFooterDebugSettings, activeWorkMode == .debug {
+                    // Footer Open - Controls
+                        // Show Footer
+                    HStack {
+                        Button {
+                            showFooterDebugSettings = true
+                        } label: {
+                            Label("Options", systemImage: "chevron.up")
+                                .labelStyle(.iconOnly)
+                                .font(.headline)
+                        }
+                        .frame(width: UIScreen.main.bounds.width)
+                    }
+                    .padding([.top], 20)
+                }
+                // Footer Open - Top margin
+                else if activeWorkMode == .debug {
+                    // Footer - Controls
+                        // Hide Footer
+                        HStack {
+                            Button {
+                                showFooterDebugSettings = false
+                            } label: {
+                                Label("Hide", systemImage: "chevron.down")
+                                    .labelStyle(.iconOnly)
+                                    .font(.headline)
+                            }
+                        }
+                        .padding([.bottom], 30)
+                        .padding([.top], 20)
+                        
+                        // Picker - Model
+                        HStack {
+                            Image(systemName: "house")
+                            Picker("Model (M)", selection: $activeModelName) {
+                                ForEach(Model.allCases.reversed(), id: \.id) { value in
+                                    Text("M: \(value.description)")
+                                }
+                            }
+                            .accentColor(.blue)
+                            .onChange(of: activeModelName, perform: onPickerModel)
+                        }
+                        
+                        // Picker - Correction
+                        HStack {
+                            Image(systemName: "checkmark")
+                            Picker("Correction (C)", selection: $activeCorrectionName) {
+                                ForEach(Correction.allCases.reversed(), id: \.id) { value in
+                                    Text("C: \(value.description)")
+                                }
+                            }
+                            .accentColor(.blue)
+                            .onChange(of: activeCorrectionName, perform: onPickerCorrection)
+                            
+                        }
+                        .aspectRatio(contentMode: .fit)
+                        
+                        // Picker - Simulation
+                        HStack {
+                            Image(systemName: "bolt")
+                            Picker("Simulation (S)", selection: $activeSimulationName) {
+                                ForEach(Simulation.allCases.reversed(), id: \.id) { value in
+                                    Text("S: \(value.description)")
+                                }
+                            }
+                            .accentColor(.blue)
+                            .onChange(of: activeSimulationName, perform: onPickerSimulation)
+                            
+                        }
+                        .aspectRatio(contentMode: .fit)
+                        
+                        HorizontalSpacingView()
+                        
+                        // Options label
+                        
+                        HStack {
+                            Text("Options:")
+                                .font(.headline)
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        // Options:
+                        switch activeCorrectionName {
+                        case .hsbc:
+                            VStack {
+                                HStack {
+                                    Spacer()
+                                    Text("H")
+                                    Slider(value: $hue, in: 0.0...1.0, step: 0.05).onChange(of: hue, perform: onSliderHSBC)
+                                    Text("\(String(format: "%.1f", hue))")
+                                    Spacer()
+                                    Text("S")
+                                    Slider(value: $saturation, in: 0.0...1.0, step: 0.05).onChange(of: saturation, perform: onSliderHSBC)
+                                    Text("\(String(format: "%.1f", saturation))")
+                                    Spacer()
+                                }
+                                HStack {
+                                    Spacer()
+                                    Text("B")
+                                    Slider(value: $brightness, in: 0.0...1.0, step: 0.05).onChange(of: brightness, perform: onSliderHSBC)
+                                    Text("\(String(format: "%.1f", brightness))")
+                                    Spacer()
+                                    Text("C")
+                                    Slider(value: $contrast, in: 0.0...1.0, step: 0.05).onChange(of: contrast, perform: onSliderHSBC)
+                                    Text("\(String(format: "%.1f", contrast))")
+                                    Spacer()
+                                }
+                            }
+                        case .none:
+                            EmptyView()
+                        case .daltonization:
+                            EmptyView()
+                        case .sobel:
+                            EmptyView()
+                        case .bgGrayscale:
+                            EmptyView()
+                        case .edgeEnhancement:
+                            EmptyView()
+                        case .bgDepth:
+                            EmptyView()
+                        case .bgDepthBlurred:
+                            EmptyView()
+                        }
+                        
+                        switch activeSimulationName {
+                        case .blurring:
+                            HStack {
+                                Spacer()
+                                Text("S: Blurring Σ")
+                                Slider(value: $blurringSigma, in: 1...50, step: 1).onChange(of: blurringSigma, perform: onSliderBlurringSigma)
+                                Text("\(String(format: "%d", Int(blurringSigma)))")
+                                Spacer()
+                            }
+                        case .floaters:
+                            EmptyView()
+                        case .macularDegeneration:
+                            EmptyView()
+                        case .glaucoma:
+                            EmptyView()
+                        case .protanomaly:
+                            HStack {
+                                Spacer()
+                                Text("S: Severity Φ")
+                                Slider(value: $protanomalyPhi, in: 0.0...1.0, step: 0.1).onChange(of: protanomalyPhi, perform: onSliderProtanomalyPhi)
+                                Text("\(String(format: "%.1f", protanomalyPhi))")
+                                Spacer()
+                            }
+                        case .deuteranomaly:
+                            HStack {
+                                Spacer()
+                                Text("S: Severity Φ")
+                                Slider(value: $deuteranomalyPhi, in: 0.0...1.0, step: 0.1).onChange(of: deuteranomalyPhi, perform: onSliderDeuteranomalyPhi)
+                                Text("\(String(format: "%.1f", deuteranomalyPhi))")
+                                Spacer()
+                            }
+                        case .tritanomaly:
+                            HStack {
+                                Spacer()
+                                Text("S: Severity Φ")
+                                Slider(value: $tritanomalyPhi, in: 0.0...1.0, step: 0.1).onChange(of: tritanomalyPhi, perform: onSliderTritanomalyPhi)
+                                Text("\(String(format: "%.1f", tritanomalyPhi))")
+                                Spacer()
+                            }
+                        case .none:
+                            EmptyView()
+                        }
+                    }
+                
+            }
+            .padding()
+            .foregroundColor(.white)
+            .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
+        }
     }
     
     var body: some View {
-        
-        let content = EmptyView()
-        
         let safeAreaHeightTop = UIApplication.shared.keyWindow?.safeAreaInsets.top
         let safeAreaHeightBottom = UIApplication.shared.keyWindow?.safeAreaInsets.bottom
         
         Group {
-            VStack(spacing: 0) {
-                // Header - Top margin
-                Rectangle()
-                    .foregroundColor(.black.opacity(0))
-                    .frame(height: safeAreaHeightTop)
-                
-                // Header - Title
-                HStack {
-                    
-                    Text(ProjectSettings.appName)
-                        .font(.largeTitle)
-                        .bold()
-                        .foregroundColor(.white)
-                        .padding([ .leading ], 20)
-                    
+            ZStack {
+                VStack(spacing: 0) {
+                    HorizontalSpacingView(height: safeAreaHeightTop!)
+                    Header()
                     Spacer()
-                    
-                    Button(action: onButtonScreenshot) {
-                        Label("", systemImage: "camera.viewfinder")
-                            .font(.title)
-                            .foregroundColor(.blue)
-                    }
-                    
-                    Button(action: onButtonResetSession) {
-                        Label("", systemImage: "arrow.clockwise.circle")
-                            .font(.title)
-                            .foregroundColor(.blue)
-                    }
-                    
-                    Button(action: {
-                        showAbout = true
-                    }) {
-                        Label("", systemImage: "info.circle")
-                            .font(.title)
-                            .foregroundColor(.blue)
-                    }
-                    .alert(isPresented: $showAbout) {
-                        Alert(
-                           title: Text("About"),
-                           message: Text("\n\(ProjectSettings.authorName)\n\(ProjectSettings.authorEmail)")
-                       )
-                    }
-                    
+                    CountdownView()
+                    Spacer()
+                    Footer()
+                    HorizontalSpacingView(height: safeAreaHeightBottom!)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.all)
-                .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
-                
+                EvaluationHitResponseView()
+                EvaluationResultView()
                 Spacer()
-                
-                // Content
-                Group {
-                    content
-                        .padding()
-                }
-                .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
-                
-                Spacer()
-                
-                // Footer
-                Group {
-                    
-                    VStack {
-                        // Tab selection
-                        Group {
-                            // Evaluation
-                            HStack {
-                                Spacer()
-                                PrimaryButton(title: "Debug", action: {
-                                    footerMode = .debug
-                                })
-                                PrimaryButton(title: "Evaluation", action: {
-                                    footerMode = .evaluation
-                                })
-                                Spacer()
-                            }
-                            //.padding([.bottom], 50)
-                            //.padding([.top], 50)
-                            .frame(height: 20)
-                            .aspectRatio(contentMode: .fit)
-                            .padding()
-                            .foregroundColor(.white)
-                            
-                            Rectangle()
-                                .foregroundColor(.black.opacity(0.0))
-                                .frame(height: 20)
-                        }
-                        
-                        if footerMode == .evaluation {
-                            VStack {
-                                HStack {
-                                    Spacer()
-                                    PrimaryButton(title: "Start Evaluation", action: onButtonStartEvaluation)
-                                    Spacer()
-                                }
-                                //.padding([.bottom], 50)
-                                //.padding([.top], 50)
-                                .frame(height: 20)
-                                .aspectRatio(contentMode: .fit)
-                                .padding()
-                                .foregroundColor(.white)
-                                
-                                
-                                HStack {
-                                    Text("Preset")
-                                    Picker("Correction (C)", selection: $activeEvaluationPreset) {
-                                        ForEach(EvaluationPreset.allCases.reversed(), id: \.id) { value in
-                                            Text("E: \(value.description)")
-                                        }
-                                    }
-                                    .accentColor(.blue)
-                                    .onChange(of: activeEvaluationPreset, perform: onPickerEvaluationPreset)
-                                }
-                            }
-                        }
-                        else if !showFooter, footerMode == .debug {
-
-                            // Footer Open - Controls
-                            VStack {
-                                // Show Footer
-                                HStack {
-                                    Button {
-                                        showFooter = true
-                                    } label: {
-                                        Label("Options", systemImage: "chevron.up")
-                                            .labelStyle(.iconOnly)
-                                            .font(.headline)
-                                    }
-                                    .frame(width: UIScreen.main.bounds.width)
-                                }
-                                .padding([.top], 20)
-                            }
-                            
-                        }
-                        // Footer Open - Top margin
-                        else if footerMode == .debug {
-                            
-                            // Footer - Controls
-                            VStack {
-                                
-                                // Hide Footer
-                                HStack {
-                                    Button {
-                                        showFooter = false
-                                    } label: {
-                                        Label("Hide", systemImage: "chevron.down")
-                                            .labelStyle(.iconOnly)
-                                            .font(.headline)
-                                    }
-                                }
-                                .padding([.bottom], 30)
-                                .padding([.top], 20)
-                                
-                                // Model
-                                HStack {
-                                    Image(systemName: "house")
-                                    Picker("Model (M)", selection: $activeModelName) {
-                                        ForEach(Model.allCases.reversed(), id: \.id) { value in
-                                            Text("M: \(value.description)")
-                                        }
-                                    }
-                                    .accentColor(.blue)
-                                    .onChange(of: activeModelName, perform: onPickerModel)
-                                }
-                                
-                                // Correction - Single
-                                HStack {
-                                    Image(systemName: "checkmark")
-                                    Picker("Correction (C)", selection: $activeCorrectionName) {
-                                        ForEach(Correction.allCases.reversed(), id: \.id) { value in
-                                            Text("C: \(value.description)")
-                                        }
-                                    }
-                                    .accentColor(.blue)
-                                    .onChange(of: activeCorrectionName, perform: onPickerCorrection)
-                                    
-                                }
-                                .aspectRatio(contentMode: .fit)
-                                
-                                // Simulation
-                                HStack {
-                                    Image(systemName: "bolt")
-                                    Picker("Simulation (S)", selection: $activeSimulationName) {
-                                        ForEach(Simulation.allCases.reversed(), id: \.id) { value in
-                                            Text("S: \(value.description)")
-                                        }
-                                    }
-                                    .accentColor(.blue)
-                                    .onChange(of: activeSimulationName, perform: onPickerSimulation)
-                                    
-                                }
-                                .aspectRatio(contentMode: .fit)
-                                
-                                Rectangle()
-                                    .foregroundColor(.black.opacity(0.0))
-                                    .frame(height: 20)
-                                
-                                HStack {
-                                    Text("Options:")
-                                        .font(.headline)
-                                        .multilineTextAlignment(.leading)
-                                }
-                                
-                                // Options:
-                                switch activeCorrectionName {
-                                case .hsbc:
-                                    VStack {
-                                        HStack {
-                                            Spacer()
-                                            Text("H")
-                                            Slider(value: $hue, in: 0.0...1.0, step: 0.05).onChange(of: hue, perform: onSliderHSBC)
-                                            Text("\(String(format: "%.1f", hue))")
-                                            Spacer()
-                                            Text("S")
-                                            Slider(value: $saturation, in: 0.0...1.0, step: 0.05).onChange(of: saturation, perform: onSliderHSBC)
-                                            Text("\(String(format: "%.1f", saturation))")
-                                            Spacer()
-                                        }
-                                        HStack {
-                                            Spacer()
-                                            Text("B")
-                                            Slider(value: $brightness, in: 0.0...1.0, step: 0.05).onChange(of: brightness, perform: onSliderHSBC)
-                                            Text("\(String(format: "%.1f", brightness))")
-                                            Spacer()
-                                            Text("C")
-                                            Slider(value: $contrast, in: 0.0...1.0, step: 0.05).onChange(of: contrast, perform: onSliderHSBC)
-                                            Text("\(String(format: "%.1f", contrast))")
-                                            Spacer()
-                                        }
-                                    }
-                                case .none:
-                                    EmptyView()
-                                case .daltonization:
-                                    EmptyView()
-                                case .sobel:
-                                    EmptyView()
-                                case .bgGrayscale:
-                                    EmptyView()
-                                case .edgeEnhancement:
-                                    EmptyView()
-                                case .bgDepth:
-                                    EmptyView()
-                                case .bgDepthBlurred:
-                                    EmptyView()
-                                }
-                                
-                                switch activeSimulationName {
-                                case .blurring:
-                                    HStack {
-                                        Spacer()
-                                        Text("S: Blurring Σ")
-                                        Slider(value: $blurringSigma, in: 1...50, step: 1).onChange(of: blurringSigma, perform: onSliderBlurringSigma)
-                                        Text("\(String(format: "%d", Int(blurringSigma)))")
-                                        Spacer()
-                                    }
-                                case .floaters:
-                                    EmptyView()
-                                case .macularDegeneration:
-                                    EmptyView()
-                                case .glaucoma:
-                                    EmptyView()
-                                case .protanomaly:
-                                    HStack {
-                                        Spacer()
-                                        Text("S: Severity Φ")
-                                        Slider(value: $protanomalyPhi, in: 0.0...1.0, step: 0.1).onChange(of: protanomalyPhi, perform: onSliderProtanomalyPhi)
-                                        Text("\(String(format: "%.1f", protanomalyPhi))")
-                                        Spacer()
-                                    }
-                                case .deuteranomaly:
-                                    HStack {
-                                        Spacer()
-                                        Text("S: Severity Φ")
-                                        Slider(value: $deuteranomalyPhi, in: 0.0...1.0, step: 0.1).onChange(of: deuteranomalyPhi, perform: onSliderDeuteranomalyPhi)
-                                        Text("\(String(format: "%.1f", deuteranomalyPhi))")
-                                        Spacer()
-                                    }
-                                case .tritanomaly:
-                                    HStack {
-                                        Spacer()
-                                        Text("S: Severity Φ")
-                                        Slider(value: $tritanomalyPhi, in: 0.0...1.0, step: 0.1).onChange(of: tritanomalyPhi, perform: onSliderTritanomalyPhi)
-                                        Text("\(String(format: "%.1f", tritanomalyPhi))")
-                                        Spacer()
-                                    }
-                                case .none:
-                                    EmptyView()
-                                }
-                            }
-                        }
-                    }
-                    .padding()
-                    .foregroundColor(.white)
-                    .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
-
-                    // Footer - Bottom margin
-                    Rectangle()
-                        .foregroundColor(.black.opacity(0))
-                        .frame(height: safeAreaHeightBottom)
-                }
             }
-            Spacer()
         }
-        .edgesIgnoringSafeArea(.all)
         .onLoad {
             self.onLoad()
         }
-        .onReceive(arViewLoaded) { (output) in 
+        .onReceive(arViewLoaded) { (output) in
             self.onARViewLoaded()
+        }
+        .onReceive(reloadPipeline) { (output) in
+            self.onReloadPipeline()
         }
     }
 }

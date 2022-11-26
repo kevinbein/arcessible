@@ -60,12 +60,7 @@ struct MainARViewContainer: UIViewRepresentable {
         var anchor: AnchorEntity?
         var addedModel = false
         var focusEntity: FocusEntity?
-        
-        var activeSimulationName: String = "none"
-        
-        var activeCorrectionName: String = "none"
-        
-        var activeEvaluationPreset: String = "none"
+        var workMode: MainUIView.WorkMode = ProjectSettings.initialWorkMode
 
         var argumentStorage = [
             "hsbc": [ "hue": Float(0.0), "saturation": Float(0.5), "brightness": Float(0.5), "contrast": Float(0.5) ]
@@ -78,9 +73,17 @@ struct MainARViewContainer: UIViewRepresentable {
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleARViewInitialized(_:)), name: Notification.Name("ARViewInitialized"), object: nil)
             
+            NotificationCenter.default.addObserver(self, selector: #selector(handleInitEvaluation(_:)), name: Notification.Name("EvaluationInit"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleStartEvaluation(_:)), name: Notification.Name("EvaluationStart"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleEndedEvaluation(_:)), name: Notification.Name("EvaluationEnded"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleAbortedEvaluation(_:)), name: Notification.Name("EvaluationAborted"), object: nil)
+            
             NotificationCenter.default.addObserver(self, selector: #selector(handleButtonResetSessionPressed(_:)), name: Notification.Name("ButtonResetSessionPressed"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handleButtonScreenshotPressed(_:)), name: Notification.Name("ButtonScreenshotPressed"), object: nil)
-            NotificationCenter.default.addObserver(self, selector: #selector(handleButtonStartEvaluationPressed(_:)), name: Notification.Name("ButtonStartEvaluationPressed"), object: nil)
+            // NotificationCenter.default.addObserver(self, selector: #selector(handleButtonStartEvaluationPressed(_:)), name: Notification.Name("ButtonStartEvaluationPressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButtonAbortEvaluationPressed(_:)), name: Notification.Name("ButtonAbortEvaluationPressed"), object: nil)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButtonPrintEvaluationLogPressed(_:)), name: Notification.Name("ButtonPrintEvaluationLogPressed"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerModelChanged(_:)), name: Notification.Name("PickerModelChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerSimulationChanged(_:)), name: Notification.Name("PickerSimulationChanged"), object: nil)
@@ -94,6 +97,8 @@ struct MainARViewContainer: UIViewRepresentable {
             NotificationCenter.default.addObserver(self, selector: #selector(handleSliderHBCSChanged(_:)), name: Notification.Name("SliderHSBCChanged"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleToggle1Changed(_:)), name: Notification.Name("Toggle1Changed"), object: nil)
+            
+            NotificationCenter.default.addObserver(self, selector: #selector(handleWorkModeChanged(_:)), name: Notification.Name("WorkModeChange"), object: nil)
         }
         
         private func loadFocusEntity() {
@@ -109,7 +114,9 @@ struct MainARViewContainer: UIViewRepresentable {
         }
         
         func session(_ session: ARSession, didAdd anchors: [ARAnchor]) {
-            loadFocusEntity()
+            if workMode == .debug {
+                //loadFocusEntity()
+            }
         }
         
         let context = CIContext()
@@ -120,53 +127,38 @@ struct MainARViewContainer: UIViewRepresentable {
         }
         
         @objc func handleARViewInitialized(_ notification: Notification) {
-            debugPrint("arview init controller")
+            loadFocusEntity()
+            Log.print("arview init controller")
         }
         
         @objc func handleButtonResetSessionPressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.resetSession()
-            debugPrint("handleButtonResetSessionPressed")
+            Log.print("handleButtonResetSessionPressed")
         }
         
         @objc func handleButtonScreenshotPressed(_ notification: Notification) {
             guard let view = self.view else { return }
             //view.currentContext!.targetColorTexture.writeToSavedPhotosAlbum()
             view.currentContext!.targetColorTexture.saveImage()
-            debugPrint("handleButtonScreenshotPressed")
+            Log.print("handleButtonScreenshotPressed")
         }
         
-        var evaluationCount = 10
-        var evaluationTimer: Timer?
-        
-        @objc func updateEvaluationCounter() {
-            evaluationCount -= 1
-            
-            if (evaluationCount <= 0) {
-                evaluationTimer?.invalidate()
-            }
-            debugPrint("Updated evaluation counter: \(evaluationCount)")
-        }
-        
-        @objc func handleButtonStartEvaluationPressed(_ notification: Notification) {
-            guard let view = self.view else { return }
-            
-            evaluationTimer?.invalidate()
-            evaluationCount = 10 + 1
-            evaluationTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(updateEvaluationCounter), userInfo: nil, repeats: true)
-            
-            debugPrint("handleButtonStartEvaluationPressed")
+        @objc func handlePickerEvaluationPresetChanged(_ notification: Notification) {
+            guard let value = notification.userInfo?["value"] as? String else { return }
+            let activeEvaluationPreset = MainUIView.EvaluationPreset(rawValue: value)
+            Log.print("MainARViewContainer: handlePickerEvaluationPresetChanged", value)
         }
         
         @objc func handlePickerModelChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
             activeModelName = value
-            debugPrint("handlePickerModelChanged", value)
+            Log.print("handlePickerModelChanged", value)
         }
         @objc func handlePickerSimulationChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
             let activeSimulation = MainUIView.Simulation(rawValue: value)
-            debugPrint("handlePickerSimulationChanged", value)
+            Log.print("handlePickerSimulationChanged", value)
             
             guard let view = self.view else { return }
             
@@ -216,7 +208,7 @@ struct MainARViewContainer: UIViewRepresentable {
         @objc func handlePickerCorrectionChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? String else { return }
             let activeCorrection = MainUIView.Correction(rawValue: value)
-            debugPrint("handlePickerCorrectionlChanged", value)
+            Log.print("handlePickerCorrectionlChanged", value)
             
             guard let view = self.view else { return }
             
@@ -295,26 +287,11 @@ struct MainARViewContainer: UIViewRepresentable {
             }
         }
         
-        @objc func handlePickerEvaluationPresetChanged(_ notification: Notification) {
-            guard let value = notification.userInfo?["value"] as? String else { return }
-            let activeEvaluationPreset = MainUIView.EvaluationPreset(rawValue: value)
-            debugPrint("handlePickerEvaluationPresetChanged", value)
-            
-            guard let view = self.view else { return }
-            
-            switch activeEvaluationPreset {
-            case .spatialAwareness:
-                debugPrint("start evaluation of spatial awareness")
-            default:
-                break
-            }
-        }
-        
         @objc func handleSliderBlurringSigmaChanged(_ notification: Notification) {
             guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
             let mps = GaussianBlurMPS(sigma: Float(value))
             view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: mps), arguments: [], textures: [])], pipelineTarget: .simulation))
-            debugPrint("handleSliderBlurringSigmaChanged", value)
+            Log.print("handleSliderBlurringSigmaChanged", value)
         }
         @objc func handleSliderProtanomalyPhiChanged(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? Double else { return }
@@ -322,7 +299,7 @@ struct MainARViewContainer: UIViewRepresentable {
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
             view!.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
-            debugPrint("handleSliderProtanomalyPhiChanged", Float(phi))
+            Log.print("handleSliderProtanomalyPhiChanged", Float(phi))
         }
         @objc func handleSliderDeuteranomalyPhiChanged(_ notification: Notification) {
             guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
@@ -330,7 +307,7 @@ struct MainARViewContainer: UIViewRepresentable {
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
             view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
-            debugPrint("handleSliderDeuteranomalyPhiChanged", Float(phi))
+            Log.print("handleSliderDeuteranomalyPhiChanged", Float(phi))
         }
         @objc func handleSliderTritanomalyPhiChanged(_ notification: Notification) {
             guard let view = self.view, let value = notification.userInfo?["value"] as? Double else { return }
@@ -338,7 +315,7 @@ struct MainARViewContainer: UIViewRepresentable {
             let phi = Float(value);
             let args: [Float] = [ type, phi ];
             view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
-            debugPrint("handleSliderTritanomalyPhiChanged", Float(phi))
+            Log.print("handleSliderTritanomalyPhiChanged", Float(phi))
         }
         @objc func handleSliderHBCSChanged(_ notification: Notification) {
             guard let view = self.view,
@@ -353,7 +330,7 @@ struct MainARViewContainer: UIViewRepresentable {
             argumentStorage["hsbc"]!["contrast"]   = contrast
             let args: [Float] = [ hue, saturation, brightness, contrast, 0.0 ]
             view.runShaders(chain: MainARView.ShaderChain(shaders: [MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), arguments: args, textures: [])], pipelineTarget: .simulation))
-            debugPrint("handleSliderHBCSChanged", args)
+            Log.print("handleSliderHBCSChanged", args)
         }
         
         
@@ -362,59 +339,59 @@ struct MainARViewContainer: UIViewRepresentable {
             guard let view = self.view else { return }
             view.environment.background = ARView.Environment.Background.cameraFeed()
             view.runShaders(enabled: false)
-            debugPrint("handleButton1Pressed")
+            Log.print("handleButton1Pressed")
         }
         
         @objc func handleButton2Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.environment.background = ARView.Environment.Background.color(.black.withAlphaComponent(0.0))
             view.runShaders(enabled: false)
-            debugPrint("handleButton2Pressed")
+            Log.print("handleButton2Pressed")
         }
         
         @objc func handleButton3Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.environment.background = ARView.Environment.Background.cameraFeed()
             view.runShaders(enabled: true, shader: MainARView.Shader(name: "inverseColor", type: .metalShader))
-            debugPrint("handleButton3Pressed")
+            Log.print("handleButton3Pressed")
         }
         
         @objc func handleButton4Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.resetSession()
-            debugPrint("handleButton4Pressed")
+            Log.print("handleButton4Pressed")
         }
         
         // Blurring
         @objc func handleButton5Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.runShaders(enabled: true, shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()))
-            debugPrint("handleButton5Pressed")
+            Log.print("handleButton5Pressed")
         }
         
         @objc func handleButton6Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.runShaders(enabled: true, shader: MainARView.Shader(name: "floatersDots", type: .metalShader))
-            debugPrint("handleButton6Pressed")
+            Log.print("handleButton6Pressed")
         }
         
         @objc func handleButton7Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             view.runShaders(enabled: true, shader: MainARView.Shader(name: "floaters", type: .metalShader))
-            debugPrint("handleButton7Pressed")
+            Log.print("handleButton7Pressed")
         }
         
         @objc func handleButton8Pressed(_ notification: Notification) {
             guard let view = self.view else { return }
             //view.runShaders(enabled: true, shader: MainARView.Shader(name: "macularDegeneration", type: .metalShader))
             view.runShaders(enabled: true, shader: MainARView.Shader(name: "glaucoma", type: .metalShader))
-            debugPrint("handleButton8Pressed")
+            Log.print("handleButton8Pressed")
         }
         */
         
         @objc func handleSlider3Changed(_ notification: Notification) {
             guard let value = notification.userInfo?["value"] as? Double else { return }
-            debugPrint("handleSlider3Changed", value)
+            Log.print("handleSlider3Changed", value)
         }
         
         @objc func handleToggle1Changed(_ notification: Notification) {
@@ -432,7 +409,78 @@ struct MainARViewContainer: UIViewRepresentable {
                 .showSceneUnderstanding,
                 .showWorldOrigin
             ]
-            debugPrint("handleToggle1Changed", value)
+            Log.print("handleToggle1Changed", value)
+        }
+        
+        var evaluationSession: EvaluationSession?
+        @objc func handleInitEvaluation(_ notification: Notification) {
+            guard let view = self.view,
+                  let values = notification.userInfo?["value"] as? [String]
+            else {
+                fatalError("Could not start evaluation session because view was empty or evaluationPreset or evaluationCandidateName is missing")
+            }
+            if values[1].count == 0 {
+                return
+            }
+            evaluationSession = EvaluationSession.create(view: view, evaluationPreset: values[0], candidateName: values[1])
+            Log.print("Evaluation initialized with scene '\(values[0])' for user '\(values[1])'")
+        }
+        
+        @objc func handleStartEvaluation(_ notification: Notification) {
+            guard let evaluationSession = self.evaluationSession else {
+                fatalError("Starting evaluation session failed because evaluationSession object is not initialized")
+            }
+            evaluationSession.start(atPosition: focusEntity?.position ?? [0,0,0])
+            destroyFocusEntity()
+            Log.print("Evaluation of started")
+        }
+        
+        @objc func handleEndedEvaluation(_ notification: Notification) {
+            guard let evaluationSession = self.evaluationSession else {
+                fatalError("Evaluation session ended but the object is nil")
+            }
+            evaluationSession.printEvaluationSession()
+            loadFocusEntity()
+            Log.print("Evaluation ended successfully")
+        }
+        
+        @objc func handleAbortedEvaluation(_ notification: Notification) {
+            guard let evaluationSession = self.evaluationSession else {
+                fatalError("Evaluation session aborted but the object is nil")
+            }
+            loadFocusEntity()
+            Log.print("Evaluation was aborted")
+        }
+        
+        @objc func handleButtonAbortEvaluationPressed(_ notification: Notification) {
+            guard let view = self.view,
+                  let evaluationSession = self.evaluationSession
+            else { return }
+            
+            evaluationSession.abort()
+            self.evaluationSession = nil
+            Log.print("Evaluation was aborted. Scene was removed.")
+        }
+        
+        @objc func handleButtonPrintEvaluationLogPressed(_ notification: Notification) {
+            EvaluationSession.printCompleteStorage()
+        }
+        
+        @objc func handleWorkModeChanged(_ notification: Notification) {
+            guard let view = self.view, let value = notification.userInfo?["value"] as? String else { return }
+            self.workMode = MainUIView.WorkMode(rawValue: value)!
+            
+            //view.stopShaders(target: .correction)
+            //view.stopShaders(target: .simulation)
+            
+            if self.workMode == .debug {
+                loadFocusEntity()
+                NotificationCenter.default.post(name: Notification.Name("PipelineReload"), object: self)
+            }
+            else if self.workMode == .evaluation {
+                view.stopShaders(target: .correction)
+                view.stopShaders(target: .simulation)
+            }
         }
         
         // User Controls
@@ -445,7 +493,7 @@ struct MainARViewContainer: UIViewRepresentable {
                 loadFocusEntity()
                 model.reset()
                 self.addedModel = false
-                debugPrint("Removed model")
+                Log.print("Removed model")
             } else {
                 if (self.anchor != nil) {
                     view.scene.removeAnchor(self.anchor!)
@@ -461,6 +509,7 @@ struct MainARViewContainer: UIViewRepresentable {
                     activeModelName = "wuschel1.usdz"
                 }
                 anchor.position = focusEntity.position
+                UserDefaults.standard.set("\(focusEntity.position)", forKey: "LastModelPosition")
                 guard let model = AccessibleModel.load(named: activeModelName) else {
                     fatalError("Failed loading model '\(activeModelName)'")
                 }
@@ -470,28 +519,32 @@ struct MainARViewContainer: UIViewRepresentable {
                 self.model = model
                 self.addedModel = true
                 self.anchor = anchor
-                debugPrint("Placed model")
+                Log.print("Placed model")
 #endif
             }
         }
         
         fileprivate func handleTapDetectModel(from sender: UITapGestureRecognizer) {
-            guard let view = self.view else { return }
+            guard let view = self.view, let evaluationSession = self.evaluationSession else { return }
             
             let tapLocation: CGPoint = view.center // sender.location(in: view)
-            var result: [CollisionCastHit]
-            result = view.hitTest(tapLocation, query: .all)
-            if result.first != nil {
-                let entity: ModelEntity = result.first!.entity as! ModelEntity
-                let newColorMaterial = SimpleMaterial(color: .red, isMetallic: false)
-                entity.model?.materials = [newColorMaterial]
-                print(entity.name)
+            var results: [CollisionCastHit]
+            results = view.hitTest(tapLocation, query: .all)
+            if results.first != nil { //, results.first?.entity.name != "Ground Plane" {
+                let result = results.first!
+                evaluationSession.hit(result)
+            } else {
+                NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self)
             }
         }
         
         @objc func handleTap(sender: UITapGestureRecognizer) {
-            //handleTapPlaceModel()
-            handleTapDetectModel(from: sender)
+            if workMode == .debug {
+                handleTapPlaceModel()
+            }
+            else if workMode == .evaluation {
+                handleTapDetectModel(from: sender)
+            }
         }
         
         var panTranslation: CGPoint?

@@ -12,10 +12,14 @@ struct ProjectSettings {
     
     static let uiBackgroundOpacity = 0.2
     
+    static let evaluationStartCountdown = 1 //10
+    static let evaluationStorageKey = "EvaluationStorage"
+    
+    static let initialWorkMode = MainUIView.WorkMode.evaluation
     static let initialModel = MainUIView.Model.mansion
     static let initialCorrection = MainUIView.Correction.none //bgGrayscale
     static let initialSimulation = MainUIView.Simulation.none
-    static let initialEvaluationPreset = MainUIView.EvaluationPreset.spatialAwareness
+    static let initialEvaluationPreset = MainUIView.EvaluationPreset.game
     
     static let globalShaders: [String] = [
         "combineModelAndBackground",

@@ -27,7 +27,9 @@ struct ContentView : View {
 //            MainFGContainer()
 //                .edgesIgnoringSafeArea(.all)
 #endif
+            
             MainUIView()
+                .edgesIgnoringSafeArea(.all)
         }
     }
 }

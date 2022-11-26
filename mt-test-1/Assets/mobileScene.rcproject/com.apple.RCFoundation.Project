@@ -299,6 +299,89 @@
                         1
                       ]
                     }
+                  },
+                  "A389FA1F-11CF-48F3-8B4C-399D75E718EC" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Aloe Plant"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Stylized"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "iconicItem" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "E7907A71-D69D-4DA5-95F1-B9E8EBABFFA8"
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "F56AB9C9-808D-4371-AFD9-0A3F00368A40"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.AloePlant.b0dce952-17ca-477f-ac37-8b98daafca68",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "685A1F9B-B0F4-4042-83F5-7CA50B74C0E7"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0.28787636756896973,
+                        0,
+                        0.23368000984191895,
+                        1
+                      ]
+                    }
                   }
                 },
                 "factory" : null,
@@ -328,9 +411,9 @@
                   0.47996196150779724,
                   0.26161506772041321,
                   0,
-                  3.8995254039764404,
-                  2.1638755798339844,
-                  0.6282660961151123,
+                  1.2773687839508057,
+                  0.62442696094512939,
+                  0.065573364496231079,
                   1
                 ],
                 "sceneTransform" : [

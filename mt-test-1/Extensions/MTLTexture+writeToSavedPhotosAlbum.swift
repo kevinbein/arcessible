@@ -14,8 +14,8 @@ import UIKit
 
 extension MTLTexture {
     fileprivate func makeImage(for texture: MTLTexture) -> CGImage? {
-        debugPrint(texture.pixelFormat)
-        debugPrint(texture.pixelFormat.rawValue)
+        Log.print(texture.pixelFormat)
+        Log.print(texture.pixelFormat.rawValue)
         //assert(texture.pixelFormat == .bgra8Unorm)
         assert(texture.pixelFormat == .bgra8Unorm_srgb)
 

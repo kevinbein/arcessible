@@ -15,9 +15,6 @@ class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
     
     required init() {
         super.init()
-        
-        // Will generate collision boxes automatically also for children
-        self.generateCollisionShapes(recursive: true)
     }
     
     func rotate(degrees: Float) {
@@ -47,7 +44,7 @@ class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
         self.transform = Transform()
     }
     
-    static public func load(named: String, scene: String? = "") -> AccessibleModel? {
+    static public func load(named: String, scene: String? = "", generateCollisions: Bool = false) -> AccessibleModel? {
         let range = NSRange(location: 0, length: named.count)
         let regex = try! NSRegularExpression(pattern: "([a-zA-Z0-9]+)([.]usdz)")
         var ext = "reality"
@@ -76,6 +73,27 @@ class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
         let model = AccessibleModel()
         model.anchoring = anchorEntity.anchoring
         model.addChild(anchorEntity)
+        
+        if generateCollisions {
+            model.generateCollisionShapes(recursive: true)
+            Log.print("Contains children:", anchorEntity.children[0].children.count)
+            for child in anchorEntity.children[0].children {
+                let entity = child.children[0] as Entity
+                var modelEntity = entity as? ModelEntity
+                if modelEntity == nil {
+                    // This is fucking stupid ...
+                    modelEntity = entity.children[0].children[0].children[0].children[0].children[0].children[0] as? ModelEntity
+                }
+                //let collision = modelEntity?.components[CollisionComponent.self] as? CollisionComponent
+                //Log.print("Model Entity: ", collision?.shapes.first!)
+            }
+            //let collisionBox = MeshResource.generateBox(size: 0.4)
+            //let collisionColor = UIColor(white: 1.0, alpha: 0.15)
+            //let collisionColliderMaterial = UnlitMaterial(color: collisionColor)
+            //let collisionModel = ModelEntity(mesh: collisionBox, materials: [collisionColliderMaterial])
+            //anchorEntity.addChild(collisionModel)
+        }
+        
         return model
     }
 }

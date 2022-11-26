@@ -74,7 +74,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <DeviceSensorReplayFileReference
-         identifier = "../../AR Session 1.mov">
+         identifier = "../../piano-placing-test.mov">
       </DeviceSensorReplayFileReference>
    </LaunchAction>
    <ProfileAction

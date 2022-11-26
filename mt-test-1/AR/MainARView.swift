@@ -90,7 +90,7 @@ class MainARView: ARView {
         setupConfiguration()
         setupRenderingProcess()
         
-        generateEvaluationScene()
+        // renderEvaluationScene()
     }
     
     public func updateFrameData(frame: ARFrame) {
@@ -114,23 +114,23 @@ class MainARView: ARView {
             CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device, nil, &self.textureCache)
             
             NotificationCenter.default.post(name: Notification.Name("ARViewInitialized"), object: nil)
-            print("renderCallbacks.prepareWithDevice: Finished")
+            Log.print("renderCallbacks.prepareWithDevice: Finished")
         }
     }
     
     func setupConfiguration() {
         environment.sceneUnderstanding.options = []
-        //environment.sceneUnderstanding.options.insert(.physics)
+        environment.sceneUnderstanding.options.insert(.physics)
         //environment.sceneUnderstanding.options.insert(.occlusion)
         environment.background = Environment.Background.color(.black.withAlphaComponent(0.0))
         
         debugOptions = [
-//            .showFeaturePoints,
-//            .showAnchorOrigins,
-//            .showAnchorGeometry,
-//            .showPhysics,
+            //.showFeaturePoints,
+            //.showAnchorOrigins,
+            //.showAnchorGeometry,
+            //.showPhysics,
 //            .showSceneUnderstanding,
-//            .showWorldOrigin
+            .showWorldOrigin,
         ]
         
         // For performance, disable render options that are not required for this app.
@@ -157,7 +157,7 @@ class MainARView: ARView {
 
         session.run(configuration)
         
-        print("Loaded session configuration")
+        Log.print("Loaded session configuration")
     }
     
     private func generateNoiseTextureBuffer(width: Int, height: Int) -> [Float] {
@@ -206,7 +206,7 @@ class MainARView: ARView {
                   let computePipelineState = try? device.makeComputePipelineState(function: kernelFunction)
             else { continue }
             globalComputePipelineStates[shaderName] = computePipelineState
-            print("Loaded global kernel function \(shaderName)")
+            Log.print("Loaded global kernel function \(shaderName)")
         }
     }
     
@@ -220,7 +220,7 @@ class MainARView: ARView {
             }
             let texture = try! loader.newTexture(URL: textureUrl!)
             loadedTextures[name] = texture
-            print("Loaded global texture \(fullName)")
+            Log.print("Loaded global texture \(fullName)")
         }
         
         // Intermediate textures
@@ -234,7 +234,7 @@ class MainARView: ARView {
         for name in textureNames {
             if self.loadedTextures[name] == nil {
                 self.loadedTextures[name] = device.makeTexture(descriptor: genericTextureDescriptor)
-                print("Loaded texture \(name)")
+                Log.print("Loaded texture \(name)")
             }
         }
 
@@ -394,7 +394,7 @@ class MainARView: ARView {
                 return nil
             }
             computePipelineStates.append(computePipelineState)
-            print("Loaded kernel function \(shaderDescriptor.shader.name)")
+            Log.print("Loaded kernel function \(shaderDescriptor.shader.name)")
         }
         
         let initialTime = Date().timeIntervalSince1970
@@ -626,7 +626,12 @@ class MainARView: ARView {
         let material: SimpleMaterial?
     }
     
-    func generateEvaluationScene() {
+    func renderEvaluationScene() {
+        let evaluationScene = EvaluationScene()
+        //evaluationScene.load(scene)
+        //evaluationScene.unload()
+        //evaluationScene.resetCollisions()
+        
         /*let colors: [UIColor] = [.red, .blue, .green ]
         for i in 0..<10 {
             let material = SimpleMaterial(color: colors.randomElement(), isMetallic: false)
