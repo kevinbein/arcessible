@@ -84,6 +84,8 @@ struct MainARViewContainer: UIViewRepresentable {
             NotificationCenter.default.addObserver(self, selector: #selector(handleButtonAbortEvaluationPressed(_:)), name: Notification.Name("ButtonAbortEvaluationPressed"), object: nil)
             
             NotificationCenter.default.addObserver(self, selector: #selector(handleButtonPrintEvaluationLogPressed(_:)), name: Notification.Name("ButtonPrintEvaluationLogPressed"), object: nil)
+            NotificationCenter.default.addObserver(self, selector: #selector(handleButtonTestPressed(_:)), name: Notification.Name("ButtonTestPressed"), object: nil)
+
             
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerModelChanged(_:)), name: Notification.Name("PickerModelChanged"), object: nil)
             NotificationCenter.default.addObserver(self, selector: #selector(handlePickerSimulationChanged(_:)), name: Notification.Name("PickerSimulationChanged"), object: nil)
@@ -124,6 +126,25 @@ struct MainARViewContainer: UIViewRepresentable {
             self.frame = frame
             guard let view = self.view else { return }
             view.updateFrameData(frame: frame)
+            
+            let worldMappingStatus: String = { (_ status: ARFrame.WorldMappingStatus) -> String in
+                switch status {
+                case .extending: return "extending"
+                case .limited: return "limited"
+                case .mapped: return "mapped"
+                case .notAvailable: return "notAvailable"
+                default: return "<invalid value>"
+                }
+            }(frame.worldMappingStatus)
+            
+            let output = " WMP=\(worldMappingStatus), FP=\(String(describing: frame.rawFeaturePoints?.points.count))"
+            let information = [
+                "WMP": worldMappingStatus,
+                "FP": frame.rawFeaturePoints?.points.count, // gives Optional(n)
+                "FN": view.currentFrameNumber
+            ] as [String : Any]
+            
+            Log.uiPrint(key: "frameInformation", value: information)
         }
         
         @objc func handleARViewInitialized(_ notification: Notification) {
@@ -422,7 +443,8 @@ struct MainARViewContainer: UIViewRepresentable {
             if values[1].count == 0 {
                 return
             }
-            evaluationSession = EvaluationSession.create(view: view, evaluationPreset: values[0], candidateName: values[1])
+            let position = focusEntity?.position ?? [0,0,0]
+            evaluationSession = EvaluationSession.create(view: view, atPosition: position, evaluationPreset: values[0], candidateName: values[1])
             Log.print("Evaluation initialized with scene '\(values[0])' for user '\(values[1])'")
         }
         
@@ -430,9 +452,9 @@ struct MainARViewContainer: UIViewRepresentable {
             guard let evaluationSession = self.evaluationSession else {
                 fatalError("Starting evaluation session failed because evaluationSession object is not initialized")
             }
-            evaluationSession.start(atPosition: focusEntity?.position ?? [0,0,0])
+            evaluationSession.start()
             destroyFocusEntity()
-            Log.print("Evaluation of started")
+            Log.print("Evaluation started")
         }
         
         @objc func handleEndedEvaluation(_ notification: Notification) {
@@ -466,6 +488,17 @@ struct MainARViewContainer: UIViewRepresentable {
             EvaluationSession.printCompleteStorage()
         }
         
+        @objc func handleButtonTestPressed(_ notification: Notification) {
+            guard let view = self.view else { return }
+            evaluationSession = EvaluationSession.create(
+                view: view,
+                atPosition: [0,0,0],
+                evaluationPreset: MainUIView.EvaluationPreset.gameTight.rawValue,
+                candidateName: "__test"
+            )
+            evaluationSession!.test()
+        }
+        
         @objc func handleWorkModeChanged(_ notification: Notification) {
             guard let view = self.view, let value = notification.userInfo?["value"] as? String else { return }
             self.workMode = MainUIView.WorkMode(rawValue: value)!
@@ -474,12 +507,17 @@ struct MainARViewContainer: UIViewRepresentable {
             //view.stopShaders(target: .simulation)
             
             if self.workMode == .debug {
+                view.debugOptions.remove(.showStatistics)
                 loadFocusEntity()
                 NotificationCenter.default.post(name: Notification.Name("PipelineReload"), object: self)
             }
             else if self.workMode == .evaluation {
+                view.debugOptions.remove(.showStatistics)
                 view.stopShaders(target: .correction)
                 view.stopShaders(target: .simulation)
+            }
+            else if self.workMode == .statistics {
+                view.debugOptions.insert(.showStatistics)
             }
         }
         
@@ -534,8 +572,15 @@ struct MainARViewContainer: UIViewRepresentable {
                 let result = results.first!
                 evaluationSession.hit(result)
             } else {
-                NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self)
+                NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": "failure", "distance": -1.0])
             }
+        }
+        
+        fileprivate func handleTapPopulateScene(from sender: UITapGestureRecognizer) {
+            Log.print("Populate scene", saveTo: "populateScene")
+            
+            // Just to show some response
+            NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.blue])
         }
         
         @objc func handleTap(sender: UITapGestureRecognizer) {
@@ -544,6 +589,9 @@ struct MainARViewContainer: UIViewRepresentable {
             }
             else if workMode == .evaluation {
                 handleTapDetectModel(from: sender)
+            }
+            else if workMode == .populateScene {
+                handleTapPopulateScene(from: sender)
             }
         }
         

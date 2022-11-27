@@ -9,28 +9,17 @@ import Foundation
 import Dispatch
 import RealityKit
 import ARKit
-import ARVideoKit
-
-extension DispatchTime: Identifiable {
-    public var id: UInt64 { self.uptimeNanoseconds }
-    
-    func format(differenceTo: DispatchTime? = nil) -> Double {
-        var nanoTime = self.uptimeNanoseconds
-        if differenceTo != nil {
-            nanoTime = max(differenceTo!.uptimeNanoseconds, self.uptimeNanoseconds)
-                     - min(differenceTo!.uptimeNanoseconds, self.uptimeNanoseconds)
-        }
-        return Double(nanoTime) / 1_000_000_000
-    }
-}
+// import ARVideoKit
+import Combine
 
 class EvaluationSession {
     struct SessionData {
         var activeModel: AccessibleModel?
         var activeAnchor: AnchorEntity?
+        var modelEntities: [ModelEntity]?
         
         enum SessionState {
-            case unInitialized, started, ended, aborted
+            case unInitialized, started, inProgress, ended, aborted
             var id: Self { self }
         }
         var sessionState: SessionState = .unInitialized
@@ -38,7 +27,7 @@ class EvaluationSession {
         var startTime: DispatchTime?
         var endTime: DispatchTime?
         var intermediateTimes: [DispatchTime] = []
-        var currentChildIndex: Int = 0
+        var activeModelIndex: Int = 0
         let id: String = UUID().uuidString
         var candidateName: String = ""
         var evaluationPreset: String = ""
@@ -71,13 +60,16 @@ class EvaluationSession {
         }
         
         func print() {
-            Log.print("Evaluation Results for (\(id)):")
+            Log.print("EvaluationSession: Evaluation Results for (\(id)):")
             Swift.print("")
-            Swift.print("\tCandidate name:", candidateName) 
-            Swift.print("\t", "Duration:", duration)
+            Swift.print("\tCandidate name:", candidateName)
+            Swift.print("\tPreset:", evaluationPreset)
+            Swift.print("\tMin distance:", evaluationMinDistance)
+            Swift.print("\tIntermediate Times:")
             for time in self.intermediateTimes {
-                Swift.print("\t\t", "Intermediate timestamps:", time.format(differenceTo: startTime))
+                Swift.print("\t\t", time.format(differenceTo: startTime))
             }
+            Swift.print("\tTotal time:", duration)
             Swift.print("")
         }
     }
@@ -85,96 +77,140 @@ class EvaluationSession {
     
     var view: MainARView?
 
-    public static func create(view: MainARView, evaluationPreset: String, candidateName: String) -> EvaluationSession? {
+    public static func create(view: MainARView, atPosition position: SIMD3<Float>, evaluationPreset: String, candidateName: String) -> EvaluationSession? {
         if evaluationPreset.count > 0, candidateName.count > 0 {
-            return EvaluationSession(view: view, evaluationPreset: evaluationPreset, candidateName: candidateName)
+            return EvaluationSession(view: view, atPosition: position, evaluationPreset: evaluationPreset, candidateName: candidateName)
         }
         return nil
     }
     
-    fileprivate init(view: MainARView, evaluationPreset: String, candidateName: String) {
+    fileprivate init(view: MainARView, atPosition: SIMD3<Float> = [0, 0, 0], evaluationPreset: String, candidateName: String) {
         self.view = view
         self.sessionData = SessionData()
         self.sessionData?.evaluationPreset = evaluationPreset
         self.sessionData?.candidateName = candidateName
+        self.sessionData?.sessionState = .started
+        
+        setupOptions()
+        loadScene(atPosition: atPosition)
+        loadShaders()
     }
     
-    fileprivate func loadScene_procedual() {
-        let coords = [
-            SIMD3<Float>(0.0, 0.0, 1.0),
-            SIMD3<Float>(1.0, 0.0, 0.0),
-            SIMD3<Float>(-1.0, 0.0, 0.0),
-            SIMD3<Float>(0.0, 0.0, -1.0),
-        ]
-        for (i, coord) in coords.enumerated() {
-            let box = MeshResource.generateBox(size: 0.2)
-            //let material = SimpleMaterial(color: .green, isMetallic: true)
-            let material = SimpleMaterial(color: .green, isMetallic: false)
-            let entity = ModelEntity(mesh: box, materials: [material])
-            entity.generateCollisionShapes(recursive: true)
-            entity.name = "Cube \(i)"
-            let ar = AnchorEntity()
-            ar.position = coord
-            Log.print("Model collision data: ", entity.collision?.shapes)
-            ar.addChild(entity)
-            view?.scene.addAnchor(ar)
+    private func showModelEntities(_ show: Bool = true, entity: ModelEntity? = nil) {
+        return 
+        let factor: Float = 1000.0
+        let scale = show ? SIMD3<Float>(repeating: factor) : SIMD3<Float>(repeating: 1 / factor)
+        if entity != nil {
+            entity!.scale *= scale
+            //debugPrint("\(show ? "show" : "hide") model \(entity!.name)", show, scale)
+            //debugPrint(entity!)
+        } else {
+            self.sessionData?.modelEntities?.forEach { modelEntity in
+                modelEntity.scale *= scale
+                //debugPrint("\(show ? "show" : "hide") model \(modelEntity.name)", show, scale)
+                //debugPrint(modelEntity)
+            }
         }
     }
     
-    fileprivate func loadScene_game() {
-        let coords = [
-            SIMD3<Float>(0.0, 0.0, 1.0),
-            SIMD3<Float>(1.0, 0.0, 0.0),
-            SIMD3<Float>(-1.0, 0.0, 0.0),
-            SIMD3<Float>(0.0, 0.0, -1.0),
-        ]
-        for (i, coord) in coords.enumerated() {
-            let box = MeshResource.generateBox(size: 0.2)
-            //let material = SimpleMaterial(color: .green, isMetallic: true)
-            let material = SimpleMaterial(color: .green, isMetallic: false)
-            let entity = ModelEntity(mesh: box, materials: [material])
-            entity.generateCollisionShapes(recursive: true)
-            entity.name = "Cube \(i)"
-            let ar = AnchorEntity()
-            ar.position = coord
-            ar.addChild(entity)
-            view?.scene.addAnchor(ar)
+    var collisionSubscriptions: [Cancellable] =  []
+    var calibratedModelCount = 0
+    private func calibrate() {
+        guard let view = self.view,
+              let modelEntities = self.sessionData?.modelEntities
+        else { return }
+        
+        let timeNow = DispatchTime.now()
+        Log.print("EvaluationSession: Calibration started")
+        
+        collisionSubscriptions.forEach { sub in sub.cancel() }
+        collisionSubscriptions = []
+        
+        modelEntities.enumerated().forEach { (index, modelEntity)  in
+            // Add physic parameters
+            let physicsResource = PhysicsMaterialResource.generate(friction: 0, restitution: 0)
+            let physicsComponent = PhysicsBodyComponent(
+                shapes: [.generateBox(size: (modelEntity.model?.mesh.bounds.extents)!)],
+                  mass: 20,         // in kilograms
+              material: physicsResource,
+                  mode: .dynamic
+            )
+            modelEntity.components[PhysicsBodyComponent.self] = physicsComponent
+            
+            // Register collision feedback handler
+            collisionSubscriptions.append(view.scene.subscribe(to: CollisionEvents.Began.self, on: modelEntity) { event in
+                let groundPlane = event.entityB
+                if groundPlane.name != "Ground Plane" {
+                    return
+                }
+                
+                // Stop once an item touches the ground plane (gravity pulls it down to have the objects correctly anchored
+                let modelEntity = event.entityA
+                //Log.print(modelEntity, modelEntity.components[PhysicsBodyComponent.self])
+                if modelEntity.components.has(PhysicsBodyComponent.self) {
+                    // This throws a critical thread exception??
+                    //modelEntity.components.remove(PhysicsBodyComponent.self)
+                    // Let's do it this way then ... might be cleaner anyway
+                    var component = modelEntity.components[PhysicsBodyComponent.self] as! PhysicsBodyComponent
+                    component.mode = .static
+                    modelEntity.components[PhysicsBodyComponent.self] = component
+                }
+                
+                Log.print("EvaluationSession: Calibrated (\(self.calibratedModelCount + 1) / \(modelEntities.count)", modelEntity.name)
+                
+                self.calibratedModelCount += 1
+                if self.calibratedModelCount >= modelEntities.count {
+                    Log.print("EvaluationSession: Calibration ended", timeNow.format(differenceTo: DispatchTime.now()))
+                    self.collisionSubscriptions.removeAll()
+                }
+            })
         }
-    }
-    
-    fileprivate func loadGeneratedScene() {
-    }
-    
-    fileprivate func loadExistingScene() {
-    }
-    
-    private func loadScene(generatorName: String) {
     }
     
     private func loadScene(atPosition position: SIMD3<Float>) {
         guard var sessionData = self.sessionData else { return }
         
-        var anchor: AnchorEntity
-        
-        // ARWorldTrackingConfiguration.PlaneDetection
-        // anchor = AnchorEntity(target: .horizontal)
-        anchor = AnchorEntity()
-        
+        var anchor = AnchorEntity()
         anchor.position = position
-        //anchor.position = [-0.74054515, -0.23813684, -0.7312187]
+        self.sessionData?.activeAnchor = anchor
+        
         guard let allModels = AccessibleModel.load(named: "evaluation", scene: sessionData.evaluationPreset, generateCollisions: true)
         else {
             fatalError("EvaluationSession: Failed loading existing scene '\(sessionData.evaluationPreset)'")
         }
+        self.sessionData?.activeModel = allModels
+        
+        // Find all models
+        self.sessionData?.modelEntities = []
+        for index in 0..<50 {
+            // Find the model Entity
+            guard let entity = allModels.findEntity(named: "evaluationModel\(index)") else { continue }
+            var modelEntity = entity.findEntity(named: "simpBld_root") as? ModelEntity
+            if modelEntity == nil {
+                if let stylizedEntity = entity.findEntity(named: "stylized_lod0") {
+                    modelEntity = stylizedEntity.children[0] as? ModelEntity
+                    if modelEntity == nil {
+                        continue
+                    }
+                } else {
+                    continue
+                }
+            }
+            self.sessionData?.modelEntities?.append(modelEntity!)
+        }
+        
+        // Hide all of them (scale extremly down) so the user cannot see them
+        showModelEntities(false)
+        
+        // Add them to the scene
         anchor.addChild(allModels)
         view?.scene.addAnchor(anchor)
         
-        self.sessionData?.activeModel = allModels
-        self.sessionData?.activeAnchor = anchor
-        
         Log.print("EvaluationSession: Loaded existing scene '\(sessionData.evaluationPreset)'")
         
-        let cameraTransform = view?.session.currentFrame?.camera.transform
+        calibrate()
+        
+        /*let cameraTransform = view?.session.currentFrame?.camera.transform
         let cameraPosition = SIMD3<Float>(
             (cameraTransform?.columns.3.x)!,
             (cameraTransform?.columns.3.y)!,
@@ -190,7 +226,7 @@ class EvaluationSession {
             print("\tEntity position:", entityPosition)
             print("\t\tDistance to camera", entityCameraDistance)
             print("\t\tDistance to scene", entitySceneDistance)
-        }
+        }*/
     }
     
     private func loadShaders() {
@@ -223,7 +259,7 @@ class EvaluationSession {
     private func setupOptions() {
         switch self.sessionData?.evaluationPreset {
         case "game":
-            fallthrough
+            self.sessionData?.evaluationMinDistance = 1.0
             
         case .none:
             fallthrough
@@ -232,33 +268,39 @@ class EvaluationSession {
         }
     }
     
-    public func start(atPosition: SIMD3<Float> = [0, 0, 0]) {
-        self.sessionData?.startTime = DispatchTime.now()
-        self.sessionData?.sessionState = .started
+    public func test() {
+        Log.print("EvaluationSession: === Calibration Test START ===")
         
-        setupOptions()
-        loadScene(atPosition: atPosition)
-        loadShaders()
+        //loadScene(atPosition: [0,0,0])
+        
+        Log.print("EvaluationSession: === Calibration Test END ===")
+    }
+    
+    public func start() {
+        self.sessionData?.startTime = DispatchTime.now()
+        self.sessionData?.sessionState = .inProgress
+        
+        Log.print("EvaluationSession: start()")
         
         displayNext()
     }
     
     public func hit(_ hit: CollisionCastHit) {
         guard let entity = hit.entity as? ModelEntity else {
-            NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self)
+            NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": "missed", "distance": hit.distance])
             return
         }
         
         let timeNow = DispatchTime.now()
         
-        Log.print("Hit model '\(entity.name)' in distance \(hit.distance) after : \(self.sessionData?.startTime?.format(differenceTo: timeNow))")
+        Log.print("EvaluationSession: Hit model '\(entity.name)' in distance \(hit.distance) after : \(self.sessionData?.startTime?.format(differenceTo: timeNow))")
         
         if hit.distance > self.sessionData!.evaluationMinDistance {
-            NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self)
+            NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": "out-of-bounds", "distance": hit.distance])
             return
         }
         
-        NotificationCenter.default.post(name: Notification.Name("EvaluationHitSuccess"), object: self)
+        NotificationCenter.default.post(name: Notification.Name("EvaluationHitSuccess"), object: self, userInfo: ["status": "hit", "distance": hit.distance])
         
         self.sessionData?.intermediateTimes.append(timeNow)
         
@@ -283,24 +325,49 @@ class EvaluationSession {
     private func displayNext() {
         guard let sessionData = self.sessionData else { return }
         
-        let children = sessionData.activeModel?.anchor?.children[0].children[0].children
-        if sessionData.currentChildIndex >= children!.count {
-        //if sessionData.currentChildIndex >= 1 {
-            self.sessionData?.currentChildIndex = 0
+        if sessionData.activeModelIndex >= sessionData.modelEntities!.count {
+            self.sessionData?.activeModelIndex = 0
             end()
             return
         }
+            
+        // Hide all (during calibration, everything is already hidden)
+        //if sessionData.activeModelIndex > 0 {
+        //    showModelEntities(false)
+        //}
+        
+        // Show the next active one
+        showModelEntities(true, entity: sessionData.modelEntities![sessionData.activeModelIndex])
+        
+        Log.print("EvaluationSession: Display next child \(sessionData.activeModelIndex + 1) of \(sessionData.modelEntities!.count)")
+        self.sessionData?.activeModelIndex += 1
+        NotificationCenter.default.post(name: Notification.Name("EvaluationNext"), object: self)
+        
+        //let children = sessionData.activeModel?.anchor?.children[0].children[0].children
+        //if sessionData.currentChildIndex >= children!.count {
+        //if sessionData.currentChildIndex >= 1 {
+            //self.sessionData?.currentChildIndex = 0
+            //end()
+            //return
+        //}
         
         // Hide all
-        for i in 0..<children!.count {
-            children![i].isEnabled = false
-        }
+        //if sessionData.currentChildIndex > 0 {
+        //    showModelEntities(false)
+        //}
+        /*for i in 0..<children!.count {
+            //children![i].isEnabled = false
+            children![i].setScale(SIMD3<Float>(repeating: 0.0001), relativeTo: children![i])
+        }*/
         
-        children![sessionData.currentChildIndex].isEnabled = true
-        Log.print("Display next child \(sessionData.currentChildIndex + 1) of \(children!.count)")
-        self.sessionData?.currentChildIndex += 1
+        //children![sessionData.currentChildIndex].isEnabled = true
+        //showModelEntities(true, entity: children![sessionData.currentChildIndex])
+        //children![sessionData.currentChildIndex].setScale(SIMD3<Float>(repeating: 10000), relativeTo: children![sessionData.currentChildIndex])
         
-        NotificationCenter.default.post(name: Notification.Name("EvaluationNext"), object: self)
+        //Log.print("Display next child \(sessionData.currentChildIndex + 1) of \(children!.count)")
+        //self.sessionData?.currentChildIndex += 1
+        
+        //NotificationCenter.default.post(name: Notification.Name("EvaluationNext"), object: self)
     }
     
     private func end() {

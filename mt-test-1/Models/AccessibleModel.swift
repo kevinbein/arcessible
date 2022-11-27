@@ -11,7 +11,7 @@ import SceneKit
 
 //class AccessibleAnchor: AnchorEntity {
 
-class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring {
+class AccessibleModel: Entity, HasModel, HasCollision, HasAnchoring, HasPhysics {
     
     required init() {
         super.init()

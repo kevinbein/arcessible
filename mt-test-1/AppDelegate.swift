@@ -16,7 +16,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
-        Log.print("LastModelPosition", UserDefaults.standard.string(forKey: "LastModelPosition"))
+        //Log.print("LastModelPosition", UserDefaults.standard.string(forKey: "LastModelPosition"))
+        
+        UserDefaults.standard.set(UUID().uuidString, forKey: "lastRunSessionId")
         
         // Create the SwiftUI view that provides the window contents.
         let contentView = ContentView()

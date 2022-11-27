@@ -100,7 +100,7 @@ struct MainUIView: View {
     }
     
     enum EvaluationPreset: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case game, gameTight, anchorTest, depthTest, piano, spatialAwareness, mansion
+        case game, gameTight, downproject, anchorTest, depthTest, piano, spatialAwareness, mansion
         var id: Self { self }
         var description: String {
             return self.rawValue
@@ -108,7 +108,7 @@ struct MainUIView: View {
     }
     
     enum WorkMode: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case debug, evaluation
+        case debug, evaluation, statistics, populateScene
         var id: Self { self }
         var description: String {
             return self.rawValue
@@ -149,9 +149,8 @@ struct MainUIView: View {
     func onButtonStartEvaluation() { NotificationCenter.default.post(name: Notification.Name("ButtonStartEvaluationPressed"), object: self) }
     func onButtonAbortEvaluation() { NotificationCenter.default.post(name: Notification.Name("ButtonAbortEvaluationPressed"), object: self) }
     
-    func onButtonPrintLog() {
-        NotificationCenter.default.post(name: Notification.Name("ButtonPrintEvaluationLogPressed"), object: self)
-    }
+    func onButtonPrintLog() { NotificationCenter.default.post(name: Notification.Name("ButtonPrintEvaluationLogPressed"), object: self) }
+    func onButtonTest() { NotificationCenter.default.post(name: Notification.Name("ButtonTestPressed"), object: self) }
     
     func onSliderBlurringSigma(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderBlurringSigmaChanged"), object: self, userInfo: ["value": value]) }
     func onSliderProtanomalyPhi(_ value: Double) { NotificationCenter.default.post(name: Notification.Name("SliderProtanomalyPhiChanged"), object: self, userInfo: ["value": value]) }
@@ -233,14 +232,22 @@ struct MainUIView: View {
             // Evaluation
             HStack {
                 Spacer()
-                PrimaryButton(title: "Debug", action: {
-                    activeWorkMode = .debug
-                    onButtonWorkMode(activeWorkMode)
-                })
                 PrimaryButton(title: "Evaluation", action: {
                     activeWorkMode = .evaluation
                     onButtonWorkMode(activeWorkMode)
                 })
+                PrimaryButton(title: "Debug", action: {
+                    activeWorkMode = .debug
+                    onButtonWorkMode(activeWorkMode)
+                })
+                PrimaryButton(title: "Populate", action: {
+                    activeWorkMode = .populateScene
+                    onButtonWorkMode(activeWorkMode)
+                })
+                /*PrimaryButton(title: "St.", action: {
+                    activeWorkMode = .statistics
+                    onButtonWorkMode(activeWorkMode)
+                })*/
                 Spacer()
             }
             //.padding([.bottom], 50)
@@ -255,7 +262,6 @@ struct MainUIView: View {
     @State var countdownIsActive = false
     @State var evaluationIsInProgress = false
     @State var countdown = ProjectSettings.evaluationStartCountdown
-    
     fileprivate func CountdownView() -> some View {
         let countdownTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         return Group {
@@ -270,18 +276,8 @@ struct MainUIView: View {
                 EmptyView()
             }
         }
-        /*.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("PickerEvaluationPresetChanged"))) { object in
-            countdownIsActive = false
-            evaluationIsInProgress = false
-            countdown = 10
-        }*/
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ButtonStartEvaluationPressed"))) { object in
-            if evaluationCandidateName.count > 0 {
-                countdownIsActive = true
-                NotificationCenter.default.post(name: Notification.Name("EvaluationInit"), object: self, userInfo: ["value": [activeEvaluationPreset.rawValue, evaluationCandidateName]])
-            }
-        }
         .onReceive(countdownTimer) { _ in
+            Log.print("countdown timer received", countdownIsActive, countdown)
             if countdownIsActive {
                 countdown -= 1
                 if countdown <= 0 {
@@ -289,8 +285,14 @@ struct MainUIView: View {
                     countdownIsActive = false
                     evaluationIsInProgress = true
                     countdown = ProjectSettings.evaluationStartCountdown
-                    countdownTimer.upstream.connect().cancel()
+                    //countdownTimer.upstream.connect().cancel()
                 }
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ButtonStartEvaluationPressed"))) { object in
+            if evaluationCandidateName.count > 0 {
+                countdownIsActive = true
+                NotificationCenter.default.post(name: Notification.Name("EvaluationInit"), object: self, userInfo: ["value": [activeEvaluationPreset.rawValue, evaluationCandidateName]])
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationAborted"))) { object in
@@ -311,8 +313,9 @@ struct MainUIView: View {
                 HStack {
                     Spacer()
                     if !evaluationIsInProgress {
-                        PrimaryButton(title: "Start Evaluation", action: onButtonStartEvaluation)
-                        PrimaryButton(title: "Print Log", action: onButtonPrintLog)
+                        PrimaryButton(title: "Start", action: onButtonStartEvaluation)
+                        PrimaryButton(title: "Test", action: onButtonTest)
+                        PrimaryButton(title: "Log", action: onButtonPrintLog)
                     } else {
                         PrimaryButton(title: "Abort Evaluation", action: onButtonAbortEvaluation)
                     }
@@ -325,15 +328,10 @@ struct MainUIView: View {
                 
                 if !evaluationIsInProgress {
                     HStack {
-                        //TextField("Candidate name", text: $evaluationCandidateName)
                         Spacer()
-                        
                         PrimaryButton(title: "Set candidate name") {
                             showCandidateName = true
                         }
-                        /*Button("Show Alert") {
-                            showCandidateName = true
-                        }*/
                         .alert("Candidate Name", isPresented: $showCandidateName, actions: {
                             TextField("Candidate Name", text: $evaluationCandidateName).foregroundColor(.black)
                             Button("OK", action: {})
@@ -363,31 +361,71 @@ struct MainUIView: View {
         }
     }
     
-    @State var hitResponseOpacity: Double = 0.0
-    @State var hitResponseColor: Color = .red
-    fileprivate func EvaluationHitResponseView() -> some View {
+    @State var visualNotificationOpacity: Double = 0.0
+    @State var visualNotificationColor: Color = .red
+    fileprivate func VisualNotificationView() -> some View {
         let countdownTimer = Timer.publish(every: 0.002, on: .main, in: .common).autoconnect()
         return Group {
-            if self.hitResponseOpacity > 0.0 {
+            if self.visualNotificationOpacity > 0.0 {
                 RoundedRectangle(cornerRadius: 50)
                 //.border(.red, width: 4)
-                    .stroke(hitResponseColor, lineWidth: 10)
+                    .stroke(visualNotificationColor, lineWidth: 10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .opacity(hitResponseOpacity)
+                    .opacity(visualNotificationOpacity)
             } else {
                 EmptyView()
             }
         }
         .onReceive(countdownTimer) { timer in
-            hitResponseOpacity = max(0.0, hitResponseOpacity - 0.05)
+            visualNotificationOpacity = max(0.0, visualNotificationOpacity - 0.05)
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitFailure"))) { _ in
-            hitResponseColor = .red
-            hitResponseOpacity = 1.0
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("VisualNotification"))) { notification in
+            visualNotificationColor = notification.userInfo?["color"] as? Color ?? .red
+            visualNotificationOpacity = 1.0
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitSuccess"))) { _ in
-            hitResponseColor = .green
-            hitResponseOpacity = 1.0
+    }
+    
+    @State var evaluationHitStatus: String = ""
+    @State var evaluationHitDistance: Float = -1.0
+    @State var debugFrameInformation: String = ""
+    fileprivate func InformationBar() -> some View {
+        return
+        Group {
+            VStack(alignment: .leading) {
+                HStack {
+                    Text("WMP: \(MainARView.shared.session.currentFrame?.worldMappingStatus.rawValue ?? -1)").padding([.trailing], 10)
+                    Text("FP: \(MainARView.shared.session.currentFrame?.rawFeaturePoints?.points.count ?? -1)").padding([.trailing], 10)
+                    Text("EHS: \(evaluationHitStatus)").padding([.trailing], 10)
+                    Text("ED: \(evaluationHitDistance)")
+                }
+                HStack {
+                    Text("Frame: \(debugFrameInformation)")
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding([.horizontal], 20)
+            .padding([.vertical], 10)
+            .background(.black.opacity(ProjectSettings.uiBackgroundOpacity))
+            .font(.caption)
+            .foregroundColor(.yellow)
+            .fontWeight(.bold)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitFailure"))) { notification in
+            evaluationHitStatus = notification.userInfo?["status"] as? String ?? "failure"
+            evaluationHitDistance = notification.userInfo?["distance"] as? Float ?? -1.0
+            NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.red])
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitSuccess"))) { notification in
+            evaluationHitStatus = notification.userInfo?["status"] as? String ?? "failure"
+            evaluationHitDistance = notification.userInfo?["distance"] as? Float ?? -1.0
+            NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.green])
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LogUIPrint"))) { notification in
+            let key = notification.userInfo?["key"] as? String ?? "failure"
+            if key == "frameInformation" {
+                guard let information = notification.userInfo?["value"] as? [String : Any] else { return }
+                debugFrameInformation = "WMP: \(information["WMP"]!), FN: \(information["FN"]!)"
+            }
         }
     }
     
@@ -401,7 +439,8 @@ struct MainUIView: View {
                     Button("OK", action: {})
                 }, message: {
                     let intermediateTimesStr: String = evaluationResult!.intermediateTimes.reduce("", {
-                        "\($0)\($0.count > 0 ? ", " : "")\(String(format: "%.2f", $1.format(differenceTo: evaluationResult!.startTime)))"
+                        //"\($0)\($0.count > 0 ? ", " : "")\(String(format: "%.2f", $1.format(differenceTo: evaluationResult!.startTime)))"
+                        "\($0)\($0.count > 0 ? ", " : "")\($1.format(differenceTo: evaluationResult!.startTime).formatDigits(2))"
                     })
                     let output: String = """
                     Candidate name: \(evaluationResult!.candidateName)
@@ -409,7 +448,7 @@ struct MainUIView: View {
                     Min distance: \(evaluationResult!.evaluationMinDistance)
                     Intermediate Times:
                     [ \(intermediateTimesStr) ]
-                    Total time: \(String(format: "%.2f", evaluationResult!.duration))
+                    Total time: \(evaluationResult!.duration.formatDigits(2))
                     """
                     Text(output).multilineTextAlignment(.leading)
                 })
@@ -611,22 +650,31 @@ struct MainUIView: View {
         }
     }
     
+    @State var testVar = 0
     var body: some View {
         let safeAreaHeightTop = UIApplication.shared.keyWindow?.safeAreaInsets.top
         let safeAreaHeightBottom = UIApplication.shared.keyWindow?.safeAreaInsets.bottom
+        
+        let testTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         
         Group {
             ZStack {
                 VStack(spacing: 0) {
                     HorizontalSpacingView(height: safeAreaHeightTop!)
                     Header()
+                    InformationBar()
                     Spacer()
                     CountdownView()
+                    VStack {
+                        Text("ASDF: \(testVar)").onReceive(testTimer) {  _ in
+                            testVar += 1
+                        }
+                    }
                     Spacer()
                     Footer()
                     HorizontalSpacingView(height: safeAreaHeightBottom!)
                 }
-                EvaluationHitResponseView()
+                VisualNotificationView()
                 EvaluationResultView()
                 Spacer()
             }

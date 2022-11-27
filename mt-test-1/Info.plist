@@ -2,7 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Support for Gimbal Devices</string>
+	<key>NSCameraUsageDescription</key>
+	<string>AR Camera</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string></string>
+	<string>Export AR Media</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Export AR Media</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Audiovisual Recording</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Location for replays</string>
 </dict>
 </plist>

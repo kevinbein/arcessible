@@ -73,15 +73,11 @@ class MainARView: ARView {
     private var testTexture: MTLTexture!
     private var targetTestTexture: MTLTexture!
     
-    private var rawFrame: ARFrame?
     private var depthImage: ARDepthData?
     private var depthSmoothImage: ARDepthData?
-    //private var backgroundTexture: MTLTexture!
-    //private var modelTexture: MTLTexture!
-    //private var combinedBackgroundAndModelTexture: MTLTexture!
     
     public var currentContext: PostProcessContext?
-    
+    public var currentFrameNumber = 0
     
     required init() {
         super.init(frame: .zero)
@@ -96,7 +92,7 @@ class MainARView: ARView {
     public func updateFrameData(frame: ARFrame) {
         self.depthImage = frame.sceneDepth
         self.depthSmoothImage = frame.smoothedSceneDepth
-        self.rawFrame = frame
+        currentFrameNumber += 1
     }
     
     private func setupRenderingProcess() {
@@ -130,7 +126,7 @@ class MainARView: ARView {
             //.showAnchorGeometry,
             //.showPhysics,
 //            .showSceneUnderstanding,
-            .showWorldOrigin,
+            .showWorldOrigin
         ]
         
         // For performance, disable render options that are not required for this app.
@@ -153,6 +149,9 @@ class MainARView: ARView {
         configuration.planeDetection = [.horizontal, .vertical]
         configuration.frameSemantics = [ .sceneDepth, .smoothedSceneDepth ]
         configuration.sceneReconstruction = .meshWithClassification
+        // Default video format 1920x1080, 60 FPS
+        //configuration.videoFormat = ARWorldTrackingConfiguration.supportedVideoFormats[0]
+        //print(ARWorldTrackingConfiguration.supportedVideoFormats)
         //configuration.environmentTexturing = .automatic
 
         session.run(configuration)
