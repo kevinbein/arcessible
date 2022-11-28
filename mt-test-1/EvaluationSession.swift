@@ -17,6 +17,7 @@ class EvaluationSession {
         var activeModel: AccessibleModel?
         var activeAnchor: AnchorEntity?
         var modelEntities: [ModelEntity]?
+        var modelEntitiesOptions: [[Any]] = []
         
         enum SessionState {
             case unInitialized, started, inProgress, ended, aborted
@@ -97,7 +98,7 @@ class EvaluationSession {
     }
     
     private func showModelEntities(_ show: Bool = true, entity: ModelEntity? = nil) {
-        return 
+        return
         let factor: Float = 1000.0
         let scale = show ? SIMD3<Float>(repeating: factor) : SIMD3<Float>(repeating: 1 / factor)
         if entity != nil {
@@ -117,7 +118,8 @@ class EvaluationSession {
     var calibratedModelCount = 0
     private func calibrate() {
         guard let view = self.view,
-              let modelEntities = self.sessionData?.modelEntities
+              let modelEntities = self.sessionData?.modelEntities,
+              let modelEntitiesOptions = self.sessionData?.modelEntitiesOptions
         else { return }
         
         let timeNow = DispatchTime.now()
@@ -126,7 +128,15 @@ class EvaluationSession {
         collisionSubscriptions.forEach { sub in sub.cancel() }
         collisionSubscriptions = []
         
+        Log.print("modelEntitiesOptions", modelEntitiesOptions)
         modelEntities.enumerated().forEach { (index, modelEntity)  in
+            
+            if modelEntitiesOptions[index][0] as! Bool {
+                self.calibratedModelCount += 1
+                Log.print("EvaluationSession: Model \(modelEntity.name) is fixed and stays in position.")
+                return
+            }
+            
             // Add physic parameters
             let physicsResource = PhysicsMaterialResource.generate(friction: 0, restitution: 0)
             let physicsComponent = PhysicsBodyComponent(
@@ -156,7 +166,7 @@ class EvaluationSession {
                     modelEntity.components[PhysicsBodyComponent.self] = component
                 }
                 
-                Log.print("EvaluationSession: Calibrated (\(self.calibratedModelCount + 1) / \(modelEntities.count)", modelEntity.name)
+                Log.print("EvaluationSession: Calibrated (\(self.calibratedModelCount + 1) / \(modelEntities.count))", modelEntity.name)
                 
                 self.calibratedModelCount += 1
                 if self.calibratedModelCount >= modelEntities.count {
@@ -183,8 +193,20 @@ class EvaluationSession {
         // Find all models
         self.sessionData?.modelEntities = []
         for index in 0..<50 {
-            // Find the model Entity
-            guard let entity = allModels.findEntity(named: "evaluationModel\(index)") else { continue }
+            // Find the model Entity ... and possible variations with options
+            var tmpEntity: Entity?
+            var fixed = false
+            tmpEntity = allModels.findEntity(named: "evaluationModel\(index)")
+            if tmpEntity == nil {
+                tmpEntity = allModels.findEntity(named: "evaluationModel\(index)_f")
+                if tmpEntity == nil {
+                    continue
+                }
+                Log.print("EvaluationSession: Set fixed=true for model evaluationModel\(index)_f")
+                fixed = true
+            }
+            let entity = tmpEntity!
+            
             var modelEntity = entity.findEntity(named: "simpBld_root") as? ModelEntity
             if modelEntity == nil {
                 if let stylizedEntity = entity.findEntity(named: "stylized_lod0") {
@@ -197,6 +219,15 @@ class EvaluationSession {
                 }
             }
             self.sessionData?.modelEntities?.append(modelEntity!)
+            self.sessionData?.modelEntitiesOptions.append([fixed])
+            Log.print("DEADBEEF", self.sessionData?.modelEntities, self.sessionData?.modelEntitiesOptions)
+            // Storing information in scale does only work for simple meshes. Then they are encrypted in scale directly in the model entity
+            // For other objects we need to do the following:
+            // Log.print(modelEntity!.name, modelEntity!.scale, modelEntity!.parent?.scale, modelEntity!.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.parent?.parent?.parent?.scale)
+        }
+        
+        if self.sessionData?.modelEntities?.count == 0 {
+            fatalError("No model entities found. Did you name all models within a scene like this: 'evaluationModelN' where N is a number from 0 to 49?")
         }
         
         // Hide all of them (scale extremly down) so the user cannot see them
@@ -259,7 +290,7 @@ class EvaluationSession {
     private func setupOptions() {
         switch self.sessionData?.evaluationPreset {
         case "game":
-            self.sessionData?.evaluationMinDistance = 1.0
+            self.sessionData?.evaluationMinDistance = 0.7
             
         case .none:
             fallthrough
@@ -293,7 +324,7 @@ class EvaluationSession {
         
         let timeNow = DispatchTime.now()
         
-        Log.print("EvaluationSession: Hit model '\(entity.name)' in distance \(hit.distance) after : \(self.sessionData?.startTime?.format(differenceTo: timeNow))")
+        Log.print("EvaluationSession: Hit model '\(entity.name)' in distance \(hit.distance) after : \(self.sessionData!.startTime!.format(differenceTo: timeNow))")
         
         if hit.distance > self.sessionData!.evaluationMinDistance {
             NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": "out-of-bounds", "distance": hit.distance])
@@ -327,6 +358,7 @@ class EvaluationSession {
         
         if sessionData.activeModelIndex >= sessionData.modelEntities!.count {
             self.sessionData?.activeModelIndex = 0
+            debugPrint("DEADBEEF", sessionData.activeModelIndex, sessionData.modelEntities!.count)
             end()
             return
         }
@@ -411,6 +443,6 @@ class EvaluationSession {
     
     static func printCompleteStorage() {
         guard let storage = UserDefaults.standard.array(forKey: ProjectSettings.evaluationStorageKey) as? [[String : Any]] else { return }
-        print(storage)
+        Log.print(storage)
     }
 }

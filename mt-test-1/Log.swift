@@ -46,7 +46,7 @@ class Log {
         let date = Date()
         let timestamp = dateFormatter.string(from: date)
         
-        Swift.print( "[ARcessible][\(timestamp)]", separator: separator, terminator: " ")
+        Swift.print( "[ARcessible] [\(timestamp)]", separator: separator, terminator: " ")
         for item in items {
             Swift.print(item, separator: separator, terminator: " ")
         }

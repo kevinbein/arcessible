@@ -15,10 +15,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-
-        //Log.print("LastModelPosition", UserDefaults.standard.string(forKey: "LastModelPosition"))
-        
         UserDefaults.standard.set(UUID().uuidString, forKey: "lastRunSessionId")
+        
+        // UserDefaults.standard.set(nil, forKey: "sceneSetup")
+        
+        let savedLogsLastSession = Log.getSaved(from: "sceneSetup", lastSessionOnly: true)
+        Log.print("Last Session:")
+        for row in savedLogsLastSession {
+            Log.print("\"\(row[2])\": [\"\(row[3])\", \(row[4]), \"\(row[5])\"],")
+        }
         
         // Create the SwiftUI view that provides the window contents.
         let contentView = ContentView()

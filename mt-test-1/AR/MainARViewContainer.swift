@@ -15,6 +15,8 @@ struct MainARViewContainer: UIViewRepresentable {
     
     @Binding var frame: ARFrame?
     
+    static var focusEntity: FocusEntity?
+    
     func makeUIView(context: Context) -> ARView {
         let arView = MainARView.shared
         
@@ -59,7 +61,6 @@ struct MainARViewContainer: UIViewRepresentable {
         var activeModelName: String = "mansion"
         var anchor: AnchorEntity?
         var addedModel = false
-        var focusEntity: FocusEntity?
         var workMode: MainUIView.WorkMode = ProjectSettings.initialWorkMode
 
         var argumentStorage = [
@@ -104,14 +105,14 @@ struct MainARViewContainer: UIViewRepresentable {
         }
         
         private func loadFocusEntity() {
-            guard let view = self.view, self.focusEntity == nil else { return }
-            self.focusEntity = FocusEntity(on: view, style: .classic(color: .yellow))
+            guard let view = self.view, MainARViewContainer.focusEntity == nil else { return }
+            MainARViewContainer.focusEntity = FocusEntity(on: view, style: .classic(color: .yellow))
         }
         
         private func destroyFocusEntity() {
 #if !targetEnvironment(simulator)
-            self.focusEntity?.destroy()
-            self.focusEntity = nil
+            MainARViewContainer.focusEntity?.destroy()
+            MainARViewContainer.focusEntity = nil
 #endif
         }
         
@@ -127,6 +128,10 @@ struct MainARViewContainer: UIViewRepresentable {
             guard let view = self.view else { return }
             view.updateFrameData(frame: frame)
             
+            if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay" {
+                ReplaySceneSetup.renderSceneNext(forRecording: "test", frameNumber: view.currentFrameNumber, view: view)
+            }
+            
             let worldMappingStatus: String = { (_ status: ARFrame.WorldMappingStatus) -> String in
                 switch status {
                 case .extending: return "extending"
@@ -140,9 +145,12 @@ struct MainARViewContainer: UIViewRepresentable {
             let output = " WMP=\(worldMappingStatus), FP=\(String(describing: frame.rawFeaturePoints?.points.count))"
             let information = [
                 "WMP": worldMappingStatus,
+                "FN": view.currentFrameNumber,
                 "FP": frame.rawFeaturePoints?.points.count, // gives Optional(n)
-                "FN": view.currentFrameNumber
             ] as [String : Any]
+            
+            // Populate Scene if data is available
+            
             
             Log.uiPrint(key: "frameInformation", value: information)
         }
@@ -506,25 +514,28 @@ struct MainARViewContainer: UIViewRepresentable {
             //view.stopShaders(target: .correction)
             //view.stopShaders(target: .simulation)
             
+            // Reset all first
+            view.debugOptions.remove(.showStatistics)
+            view.stopShaders(target: .correction)
+            view.stopShaders(target: .simulation)
+            loadFocusEntity()
+            
             if self.workMode == .debug {
-                view.debugOptions.remove(.showStatistics)
-                loadFocusEntity()
                 NotificationCenter.default.post(name: Notification.Name("PipelineReload"), object: self)
             }
             else if self.workMode == .evaluation {
-                view.debugOptions.remove(.showStatistics)
-                view.stopShaders(target: .correction)
-                view.stopShaders(target: .simulation)
             }
             else if self.workMode == .statistics {
                 view.debugOptions.insert(.showStatistics)
+            }
+            else if self.workMode == .populateScene {
             }
         }
         
         // User Controls
         
         fileprivate func handleTapPlaceModel() {
-            guard let view = self.view, let focusEntity = self.focusEntity else { return }
+            guard let view = self.view, let focusEntity = MainARViewContainer.focusEntity else { return }
             
             if self.addedModel {
                 view.scene.removeAnchor(self.anchor!)
@@ -576,8 +587,40 @@ struct MainARViewContainer: UIViewRepresentable {
             }
         }
         
+        let populationModelNames = [ "mansion", "piano" ]
+        var populationIndex = 0
         fileprivate func handleTapPopulateScene(from sender: UITapGestureRecognizer) {
-            Log.print("Populate scene", saveTo: "populateScene")
+            guard let view = self.view, let focusEntity = MainARViewContainer.focusEntity else { return }
+            
+            // Reset storage if needed
+            //UserDefaults.standard.removeObject(forKey: "sceneSetup")
+            
+            if populationIndex >= populationModelNames.count {
+                NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.red])
+                return
+            }
+            
+            // Add next object at position ...
+            var anchor = AnchorEntity(plane: .horizontal)
+            let position = focusEntity.position
+            anchor.position = position
+            guard let model = AccessibleModel.load(named: populationModelNames[populationIndex]) else {
+                fatalError("Failed loading model '\(populationModelNames[populationIndex])'")
+            }
+            anchor.addChild(model)
+            view.scene.addAnchor(anchor)
+            
+            let cameraPosition: SIMD3<Float> = [
+                view.session.currentFrame!.camera.transform.columns.3.x,
+                view.session.currentFrame!.camera.transform.columns.3.y,
+                view.session.currentFrame!.camera.transform.columns.3.z
+            ]
+            let distance = length(cameraPosition - position)
+            
+            // ... and log it
+            Log.print(String(view.currentFrameNumber), populationModelNames[populationIndex], String(describing: position), String(distance), saveTo: "sceneSetup")
+            
+            populationIndex += 1
             
             // Just to show some response
             NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.blue])

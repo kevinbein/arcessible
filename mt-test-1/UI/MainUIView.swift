@@ -277,7 +277,6 @@ struct MainUIView: View {
             }
         }
         .onReceive(countdownTimer) { _ in
-            Log.print("countdown timer received", countdownIsActive, countdown)
             if countdownIsActive {
                 countdown -= 1
                 if countdown <= 0 {
@@ -364,7 +363,7 @@ struct MainUIView: View {
     @State var visualNotificationOpacity: Double = 0.0
     @State var visualNotificationColor: Color = .red
     fileprivate func VisualNotificationView() -> some View {
-        let countdownTimer = Timer.publish(every: 0.002, on: .main, in: .common).autoconnect()
+        let visualNotificationTimer = Timer.publish(every: 0.002, on: .main, in: .common).autoconnect()
         return Group {
             if self.visualNotificationOpacity > 0.0 {
                 RoundedRectangle(cornerRadius: 50)
@@ -376,12 +375,24 @@ struct MainUIView: View {
                 EmptyView()
             }
         }
-        .onReceive(countdownTimer) { timer in
+        .onReceive(visualNotificationTimer) { timer in
             visualNotificationOpacity = max(0.0, visualNotificationOpacity - 0.05)
         }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("VisualNotification"))) { notification in
             visualNotificationColor = notification.userInfo?["color"] as? Color ?? .red
             visualNotificationOpacity = 1.0
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitFailure"))) { notification in
+            evaluationHitStatus = notification.userInfo?["status"] as? String ?? "failure"
+            evaluationHitDistance = notification.userInfo?["distance"] as? Float ?? -1.0
+            Log.print("Notification.EvaluationHitFailure: \(evaluationHitStatus), \(evaluationHitDistance)")
+            NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.red])
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitSuccess"))) { notification in
+            evaluationHitStatus = notification.userInfo?["status"] as? String ?? "failure"
+            evaluationHitDistance = notification.userInfo?["distance"] as? Float ?? -1.0
+            Log.print("Notification.EvaluationHitSuccess: \(evaluationHitStatus), \(evaluationHitDistance)")
+            NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.green])
         }
     }
     
@@ -410,21 +421,20 @@ struct MainUIView: View {
             .foregroundColor(.yellow)
             .fontWeight(.bold)
         }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitFailure"))) { notification in
-            evaluationHitStatus = notification.userInfo?["status"] as? String ?? "failure"
-            evaluationHitDistance = notification.userInfo?["distance"] as? Float ?? -1.0
-            NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.red])
-        }
-        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("EvaluationHitSuccess"))) { notification in
-            evaluationHitStatus = notification.userInfo?["status"] as? String ?? "failure"
-            evaluationHitDistance = notification.userInfo?["distance"] as? Float ?? -1.0
-            NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.green])
-        }
         .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("LogUIPrint"))) { notification in
             let key = notification.userInfo?["key"] as? String ?? "failure"
             if key == "frameInformation" {
                 guard let information = notification.userInfo?["value"] as? [String : Any] else { return }
-                debugFrameInformation = "WMP: \(information["WMP"]!), FN: \(information["FN"]!)"
+                //let information = notification.userInfo?["value"] as? [String : Any]
+                let worldMappingStatus = information["WMP"] as! String
+                let frameNumber = information["FN"] as! Int
+                // For some unknown reason, frameNumber cannot be printed without disabling all timers so we have to leave it out ...
+                // (maybe it has something to do how quickly this value updates and the other timers don't have a chance to update themselves?
+                if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay" {
+                    debugFrameInformation = "WMP: \(worldMappingStatus), FN: \(String(frameNumber))"
+                } else {
+                    debugFrameInformation = "WMP: \(worldMappingStatus)"
+                }
             }
         }
     }
@@ -650,13 +660,9 @@ struct MainUIView: View {
         }
     }
     
-    @State var testVar = 0
     var body: some View {
         let safeAreaHeightTop = UIApplication.shared.keyWindow?.safeAreaInsets.top
         let safeAreaHeightBottom = UIApplication.shared.keyWindow?.safeAreaInsets.bottom
-        
-        let testTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-        
         Group {
             ZStack {
                 VStack(spacing: 0) {
@@ -665,11 +671,6 @@ struct MainUIView: View {
                     InformationBar()
                     Spacer()
                     CountdownView()
-                    VStack {
-                        Text("ASDF: \(testVar)").onReceive(testTimer) {  _ in
-                            testVar += 1
-                        }
-                    }
                     Spacer()
                     Footer()
                     HorizontalSpacingView(height: safeAreaHeightBottom!)
