@@ -42,8 +42,15 @@ kernel void hsbc_kernel(
     
     //vec4 rgba = float4(pow(sourceColor.rgb, float3(2,2,2)), sourceColor.a);
 
-    float4 hsbc = vec4(hue, saturation, brightness, contrast);
-    vec4 outputColor = applyHSBCffect(rgba, hsbc);
+    vec4 outputColor;
+    if (contrast == 2.0) {
+        rgba = applyHSBCffect(rgba, vec4(hue, saturation, brightness, 1.0));
+        outputColor = applyHSBCffect(rgba, vec4(0.0, 0.5, 0.5, 1.0));
+    } else {
+        float4 hsbc = vec4(hue, saturation, brightness, contrast);
+        outputColor = applyHSBCffect(rgba, hsbc);
+    }
+    
     targetTexture.write(outputColor, gridPosition);
     //targetTexture.write(sourceTexture.read(gridPosition), gridPosition);
     

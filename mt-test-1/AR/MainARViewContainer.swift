@@ -42,6 +42,10 @@ struct MainARViewContainer: UIViewRepresentable {
             )
         )
         
+        if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay" {
+            ReplaySceneSetup.setupReplay(forRecording: ProjectSettings.replayScene)
+        }
+        
         return arView
     }
     
@@ -128,8 +132,12 @@ struct MainARViewContainer: UIViewRepresentable {
             guard let view = self.view else { return }
             view.updateFrameData(frame: frame)
             
+            // Populate Scene if data is available in replay mode
             if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay" {
-                ReplaySceneSetup.renderSceneNext(forRecording: "test", frameNumber: view.currentFrameNumber, view: view)
+                if ReplaySceneSetup.sceneOptions[ProjectSettings.replayScene]?.hideUi == true {
+                    destroyFocusEntity()
+                }
+                ReplaySceneSetup.renderSceneNext(forRecording: ProjectSettings.replayScene, frameNumber: view.currentFrameNumber, view: view)
             }
             
             let worldMappingStatus: String = { (_ status: ARFrame.WorldMappingStatus) -> String in
@@ -148,9 +156,6 @@ struct MainARViewContainer: UIViewRepresentable {
                 "FN": view.currentFrameNumber,
                 "FP": frame.rawFeaturePoints?.points.count, // gives Optional(n)
             ] as [String : Any]
-            
-            // Populate Scene if data is available
-            
             
             Log.uiPrint(key: "frameInformation", value: information)
         }
@@ -583,17 +588,27 @@ struct MainARViewContainer: UIViewRepresentable {
                 let result = results.first!
                 evaluationSession.hit(result)
             } else {
-                NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": "failure", "distance": -1.0])
+                evaluationSession.noHit()
             }
         }
         
-        let populationModelNames = [ "mansion", "piano" ]
+        let populationModelNames = [
+            //"populating.keypointWall",
+            "populating.emptyWall",
+            "populating.chair",
+            "populating.shelf",
+            "populating.broom",
+            "populating.bin",
+            "populating.stool",
+            "populating.clock",
+        ]
         var populationIndex = 0
+        var populationPreviousObjectPosition: SIMD3<Float>? = nil
         fileprivate func handleTapPopulateScene(from sender: UITapGestureRecognizer) {
             guard let view = self.view, let focusEntity = MainARViewContainer.focusEntity else { return }
             
             // Reset storage if needed
-            //UserDefaults.standard.removeObject(forKey: "sceneSetup")
+            UserDefaults.standard.removeObject(forKey: "sceneSetup")
             
             if populationIndex >= populationModelNames.count {
                 NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.red])
@@ -604,8 +619,13 @@ struct MainARViewContainer: UIViewRepresentable {
             var anchor = AnchorEntity(plane: .horizontal)
             let position = focusEntity.position
             anchor.position = position
-            guard let model = AccessibleModel.load(named: populationModelNames[populationIndex]) else {
-                fatalError("Failed loading model '\(populationModelNames[populationIndex])'")
+            
+            let fullName = populationModelNames[populationIndex]
+            let nameComponents = fullName.components(separatedBy: ".")
+            let modelName = nameComponents[0]
+            let sceneName = nameComponents[1]
+            guard let model = AccessibleModel.load(named: modelName, scene: sceneName) else {
+                fatalError("Failed loading model '\(fullName)'")
             }
             anchor.addChild(model)
             view.scene.addAnchor(anchor)
@@ -615,11 +635,13 @@ struct MainARViewContainer: UIViewRepresentable {
                 view.session.currentFrame!.camera.transform.columns.3.y,
                 view.session.currentFrame!.camera.transform.columns.3.z
             ]
-            let distance = length(cameraPosition - position)
+            let distanceToCamera = length(cameraPosition - position)
+            let distanceToPreviousObject = populationPreviousObjectPosition != nil ? length(position - populationPreviousObjectPosition!) : -1.0;
             
             // ... and log it
-            Log.print(String(view.currentFrameNumber), populationModelNames[populationIndex], String(describing: position), String(distance), saveTo: "sceneSetup")
+            Log.print(String(view.currentFrameNumber), populationModelNames[populationIndex], String(describing: position), String(distanceToCamera), String(distanceToPreviousObject), saveTo: "sceneSetup")
             
+            populationPreviousObjectPosition = position;
             populationIndex += 1
             
             // Just to show some response

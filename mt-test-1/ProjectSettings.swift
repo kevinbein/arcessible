@@ -21,6 +21,8 @@ struct ProjectSettings {
     static let initialSimulation = MainUIView.Simulation.none
     static let initialEvaluationPreset = MainUIView.EvaluationPreset.game
     
+    static let replayScene = "hallwayStatue" // "nightInHallway"
+    
     static let globalShaders: [String] = [
         "combineModelAndBackground",
         "capturedImageColorspaceConverter"

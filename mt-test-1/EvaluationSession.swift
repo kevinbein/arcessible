@@ -18,6 +18,9 @@ class EvaluationSession {
         var activeAnchor: AnchorEntity?
         var modelEntities: [ModelEntity]?
         var modelEntitiesOptions: [[Any]] = []
+        var evaluationRandomPositions: [Int]? = nil
+        var evaluationRandomIndices: [Int]? = nil
+        var evaluationMaxModelCount: Int? = nil
         
         enum SessionState {
             case unInitialized, started, inProgress, ended, aborted
@@ -28,11 +31,30 @@ class EvaluationSession {
         var startTime: DispatchTime?
         var endTime: DispatchTime?
         var intermediateTimes: [DispatchTime] = []
+        var intermediateMisses: [Int] = []
+        var intermediateMissDistances: [[Float]] = []
         var activeModelIndex: Int = 0
         let id: String = UUID().uuidString
         var candidateName: String = ""
         var evaluationPreset: String = ""
         var evaluationMinDistance: Float = 10.0
+        
+        var totalMisses: Int {
+            return intermediateMisses.reduce(0, { $0 + $1 })
+        }
+        
+        var averageIntermediateMissDistances: [Float] {
+            return intermediateMissDistances.enumerated().map { (index, _) in
+                if intermediateMissDistances[index].count == 0 {
+                    return 0.0
+                }
+                return intermediateMissDistances[index].reduce(0.0, { $0 + $1 }) / Float(intermediateMissDistances[index].count)
+            }
+        }
+        
+        var averageMissDistance: Float {
+            return averageIntermediateMissDistances.reduce(0.0, { $0 + $1 }) / Float(averageIntermediateMissDistances.count)
+        }
         
         var duration: Double {
             guard let startTime = self.startTime,
@@ -70,6 +92,17 @@ class EvaluationSession {
             for time in self.intermediateTimes {
                 Swift.print("\t\t", time.format(differenceTo: startTime))
             }
+            Swift.print("\tTotal misses:", self.totalMisses)
+            Swift.print("\tIntermediate Misses:")
+            for misses in self.intermediateMisses {
+                Swift.print("\t\t", misses)
+            }
+            Swift.print("\tAverage Intermediate Miss Distances:")
+            for missDistance in self.averageIntermediateMissDistances {
+                Swift.print("\t\t", missDistance)
+            }
+            Swift.print("\tAverage Miss Distance:", self.averageMissDistance)
+            Swift.print("\tIntermediate Miss Distances:", self.intermediateMissDistances)
             Swift.print("\tTotal time:", duration)
             Swift.print("")
         }
@@ -98,7 +131,7 @@ class EvaluationSession {
     }
     
     private func showModelEntities(_ show: Bool = true, entity: ModelEntity? = nil) {
-        return
+        //return
         let factor: Float = 1000.0
         let scale = show ? SIMD3<Float>(repeating: factor) : SIMD3<Float>(repeating: 1 / factor)
         if entity != nil {
@@ -184,7 +217,12 @@ class EvaluationSession {
         anchor.position = position
         self.sessionData?.activeAnchor = anchor
         
-        guard let allModels = AccessibleModel.load(named: "evaluation", scene: sessionData.evaluationPreset, generateCollisions: true)
+        var sceneName = sessionData.evaluationPreset
+        if sceneName == "gameContrast" || sceneName == "gameBackground" || sceneName == "gameBlurred" || sceneName == "gameCVD" {
+            sceneName = "game"
+        }
+        
+        guard let allModels = AccessibleModel.load(named: "evaluation", scene: sceneName, generateCollisions: true)
         else {
             fatalError("EvaluationSession: Failed loading existing scene '\(sessionData.evaluationPreset)'")
         }
@@ -196,6 +234,7 @@ class EvaluationSession {
             // Find the model Entity ... and possible variations with options
             var tmpEntity: Entity?
             var fixed = false
+            
             tmpEntity = allModels.findEntity(named: "evaluationModel\(index)")
             if tmpEntity == nil {
                 tmpEntity = allModels.findEntity(named: "evaluationModel\(index)_f")
@@ -214,13 +253,20 @@ class EvaluationSession {
                     if modelEntity == nil {
                         continue
                     }
-                } else {
+                }
+                else if let realisticEntity = entity.findEntity(named: "realistic_lod0") {
+                    modelEntity = realisticEntity.children[0] as? ModelEntity
+                    if modelEntity == nil {
+                        continue
+                    }
+                }
+                else {
                     continue
                 }
             }
             self.sessionData?.modelEntities?.append(modelEntity!)
             self.sessionData?.modelEntitiesOptions.append([fixed])
-            Log.print("DEADBEEF", self.sessionData?.modelEntities, self.sessionData?.modelEntitiesOptions)
+            Log.print("EvaluationSession: Placed model 'evaluationModel\(index)\(fixed ? "_f" : "")'")
             // Storing information in scale does only work for simple meshes. Then they are encrypted in scale directly in the model entity
             // For other objects we need to do the following:
             // Log.print(modelEntity!.name, modelEntity!.scale, modelEntity!.parent?.scale, modelEntity!.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.parent?.parent?.scale, modelEntity!.parent?.parent?.parent?.parent?.parent?.parent?.scale)
@@ -228,6 +274,29 @@ class EvaluationSession {
         
         if self.sessionData?.modelEntities?.count == 0 {
             fatalError("No model entities found. Did you name all models within a scene like this: 'evaluationModelN' where N is a number from 0 to 49?")
+        }
+        
+        // Shuffle entity positions
+        if self.sessionData?.evaluationRandomPositions != nil {
+            let randomPositions = self.sessionData!.evaluationRandomPositions!
+            let originalPositions = allModels.children[0].children[0].children.map { $0.position }
+            for index in 0..<randomPositions.count {
+                let newPositionIndex = randomPositions[index]
+                allModels.children[0].children[0].children[index].position = originalPositions[newPositionIndex]
+            }
+            Log.print("EvaluationSession: Randomized positions from", originalPositions, "to", allModels.children[0].children[0].children.map { $0.position })
+        }
+        
+        // Swap order around
+        if self.sessionData?.evaluationRandomIndices != nil {
+            let indices = self.sessionData?.evaluationRandomIndices!
+            var newEntryOrder: [ModelEntity] = []
+            for index in 0..<indices!.count {
+                let newIndex = self.sessionData!.evaluationRandomIndices![index]
+                newEntryOrder.append(self.sessionData!.modelEntities![newIndex])
+            }
+            self.sessionData?.modelEntities = newEntryOrder
+            Log.print("EvaluationSession: Randomized indices to", indices!)
         }
         
         // Hide all of them (scale extremly down) so the user cannot see them
@@ -267,16 +336,53 @@ class EvaluationSession {
         
         switch sessionData.evaluationPreset {
         case "game":
-            var shaders: [MainARView.ShaderDescriptor] = []
-            shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gammaCorrection", type: .metalShader), frameTarget: .background, arguments: [], textures: []))
+            var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))
+            
+        case "gameCVD":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
+            let type: Float = 1.0;
+            let args: [Float] = [ type, 1.0 ];
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "colorVisionDeficiency", type: .metalShader), arguments: args, textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .simulation, frameMode: .combined))
+            
+        case "gameContrast":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
+            let hue: Float = 0.0
+            let brightness: Float = 0.5
+            let saturation: Float = 0.6
+            let contrast: Float = 2.0
+            let doGammaCorrection: Float = 1.0
+            let args: [Float] = [ hue, brightness, saturation, contrast, doGammaCorrection ]
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .separate))
+            
+        case "gameBackground":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
             let hue: Float = 0.0
             let brightness: Float = 0.5
             let saturation: Float = 0.5
             let contrast: Float = 0.0
-            let args: [Float] = [ hue, brightness, saturation, contrast, 1.0 ]
-            shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
-            shaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
-            view.runShaders(chain: MainARView.ShaderChain(shaders: shaders, pipelineTarget: .simulation, frameMode: .separate))
+            let doGammaCorrection: Float = 1.0
+            let args: [Float] = [ hue, brightness, saturation, contrast, doGammaCorrection ]
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .separate))
+            
+            /*var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))*/
+            
+        case "gameBlurred":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
+            //correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()), frameTarget: .background, arguments: [], textures: []))
+            
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "gaussianBlur", type: .metalPerformanceShader, mpsObject: GaussianBlurMPS()), frameTarget: .background, arguments: [], textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .separate))
             
         default:
             var shaders: [MainARView.ShaderDescriptor] = []
@@ -289,8 +395,33 @@ class EvaluationSession {
     
     private func setupOptions() {
         switch self.sessionData?.evaluationPreset {
+        case "gameTight":
+            self.sessionData?.evaluationRandomPositions = [ 2, 0, 1 ]
+            self.sessionData?.evaluationRandomIndices = [ 0, 1, 2 ]
+            
         case "game":
             self.sessionData?.evaluationMinDistance = 0.7
+            /*
+             function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+             console.log(shuffle([...new Array(15)].map((k,i ) => i )));
+            */
+            self.sessionData?.evaluationMaxModelCount = 10
+            //self.sessionData?.evaluationRandomPositions = [ 0, 8, 7, 14, 11, 6, 13, 10, 1, 12, 2, 3, 5, 4, 9 ]
+            //self.sessionData?.evaluationRandomIndices = [ 0, 8, 7, 14, 11, 6, 13, 10, 1, 12, 2, 3, 5, 4, 9 ]
+            
+        case "gameContrast":
+            self.sessionData?.evaluationMaxModelCount = 10
+            self.sessionData?.evaluationMinDistance = 0.7
+            
+        case "gameCVD":
+            self.sessionData?.evaluationMaxModelCount = 10
+            self.sessionData?.evaluationMinDistance = 0.7
+            
+        case "gameBackground":
+            self.sessionData?.evaluationMaxModelCount = 10
+            self.sessionData?.evaluationMinDistance = 0.7
+            self.sessionData?.evaluationRandomPositions = [ 0, 10, 7, 14, 11, 6, 13, 1, 8, 12, 2, 3, 5, 4, 9 ]
+            self.sessionData?.evaluationRandomIndices = [ 0, 10, 7, 14, 11, 6, 13, 1, 8, 12, 2, 3, 5, 4, 9 ]
             
         case .none:
             fallthrough
@@ -310,15 +441,27 @@ class EvaluationSession {
     public func start() {
         self.sessionData?.startTime = DispatchTime.now()
         self.sessionData?.sessionState = .inProgress
+        let count = self.sessionData?.modelEntities!.count
+        self.sessionData?.intermediateMisses = [Int](repeating: 0, count: count!)
+        self.sessionData?.intermediateMissDistances = [[Float]](repeating: [], count: count!)
         
         Log.print("EvaluationSession: start()")
         
         displayNext()
     }
     
+    public func noHit(status: String = "failure", distance: Float = -1.0) {
+        let index = self.sessionData!.activeModelIndex
+        self.sessionData?.intermediateMisses[index - 1] += 1
+        if status == "out-of-bounds", distance != -1.0 {
+            self.sessionData?.intermediateMissDistances[index - 1].append(distance)
+        }
+        NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": status, "distance": distance])
+    }
+    
     public func hit(_ hit: CollisionCastHit) {
         guard let entity = hit.entity as? ModelEntity else {
-            NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": "missed", "distance": hit.distance])
+            noHit(status: "missed", distance: hit.distance)
             return
         }
         
@@ -327,7 +470,7 @@ class EvaluationSession {
         Log.print("EvaluationSession: Hit model '\(entity.name)' in distance \(hit.distance) after : \(self.sessionData!.startTime!.format(differenceTo: timeNow))")
         
         if hit.distance > self.sessionData!.evaluationMinDistance {
-            NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": "out-of-bounds", "distance": hit.distance])
+            noHit(status: "out-of-bounds", distance: hit.distance)
             return
         }
         
@@ -356,9 +499,10 @@ class EvaluationSession {
     private func displayNext() {
         guard let sessionData = self.sessionData else { return }
         
-        if sessionData.activeModelIndex >= sessionData.modelEntities!.count {
+        if sessionData.activeModelIndex >= sessionData.modelEntities!.count
+            || (sessionData.evaluationMaxModelCount != nil && sessionData.activeModelIndex >= sessionData.evaluationMaxModelCount!)
+        {
             self.sessionData?.activeModelIndex = 0
-            debugPrint("DEADBEEF", sessionData.activeModelIndex, sessionData.modelEntities!.count)
             end()
             return
         }
@@ -371,7 +515,11 @@ class EvaluationSession {
         // Show the next active one
         showModelEntities(true, entity: sessionData.modelEntities![sessionData.activeModelIndex])
         
-        Log.print("EvaluationSession: Display next child \(sessionData.activeModelIndex + 1) of \(sessionData.modelEntities!.count)")
+        var totalDisplayCount = sessionData.modelEntities!.count
+        if sessionData.evaluationMaxModelCount != nil {
+            totalDisplayCount = min(sessionData.modelEntities!.count, sessionData.evaluationMaxModelCount!)
+        }
+        Log.print("EvaluationSession: Display next child \(sessionData.activeModelIndex + 1) of \(totalDisplayCount)")
         self.sessionData?.activeModelIndex += 1
         NotificationCenter.default.post(name: Notification.Name("EvaluationNext"), object: self)
         

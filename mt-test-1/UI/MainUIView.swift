@@ -100,7 +100,7 @@ struct MainUIView: View {
     }
     
     enum EvaluationPreset: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case game, gameTight, downproject, anchorTest, depthTest, piano, spatialAwareness, mansion
+        case game, gameContrast, gameCVD, gameBackground, gameBlurred, gameTight, downproject, anchorTest, depthTest, piano, spatialAwareness, mansion
         var id: Self { self }
         var description: String {
             return self.rawValue
@@ -449,8 +449,13 @@ struct MainUIView: View {
                     Button("OK", action: {})
                 }, message: {
                     let intermediateTimesStr: String = evaluationResult!.intermediateTimes.reduce("", {
-                        //"\($0)\($0.count > 0 ? ", " : "")\(String(format: "%.2f", $1.format(differenceTo: evaluationResult!.startTime)))"
                         "\($0)\($0.count > 0 ? ", " : "")\($1.format(differenceTo: evaluationResult!.startTime).formatDigits(2))"
+                    })
+                    let intermediateMissesStr: String = evaluationResult!.intermediateMisses.reduce("", {
+                        "\($0)\($0.count > 0 ? ", " : "")\($1)"
+                    })
+                    let averageIntermediateMissDistancesStr: String = evaluationResult!.averageIntermediateMissDistances.reduce("", {
+                        "\($0)\($0.count > 0 ? ", " : "")\($1)"
                     })
                     let output: String = """
                     Candidate name: \(evaluationResult!.candidateName)
@@ -458,6 +463,12 @@ struct MainUIView: View {
                     Min distance: \(evaluationResult!.evaluationMinDistance)
                     Intermediate Times:
                     [ \(intermediateTimesStr) ]
+                    Total misses: \(evaluationResult!.totalMisses)
+                    Intermediate Misses:
+                    [ \(intermediateMissesStr) ]
+                    Average Miss Distance: \(evaluationResult!.averageMissDistance)
+                    Average Intermediate Miss Distances:
+                    [ \(averageIntermediateMissDistancesStr) ]
                     Total time: \(evaluationResult!.duration.formatDigits(2))
                     """
                     Text(output).multilineTextAlignment(.leading)
@@ -664,20 +675,28 @@ struct MainUIView: View {
         let safeAreaHeightTop = UIApplication.shared.keyWindow?.safeAreaInsets.top
         let safeAreaHeightBottom = UIApplication.shared.keyWindow?.safeAreaInsets.bottom
         Group {
-            ZStack {
-                VStack(spacing: 0) {
-                    HorizontalSpacingView(height: safeAreaHeightTop!)
-                    Header()
-                    InformationBar()
+            if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay",
+                ReplaySceneSetup.sceneOptions[ProjectSettings.replayScene]?.hideUi == true
+            {
+                // Nothing
+                EmptyView()
+            } else {
+                ZStack {
+                    VStack(spacing: 0) {
+                        HorizontalSpacingView(height: safeAreaHeightTop!)
+                        Header()
+                        InformationBar()
+                        Spacer()
+                        CountdownView()
+                        Spacer()
+                        Footer()
+                        HorizontalSpacingView(height: safeAreaHeightBottom!)
+                    }
+                    VisualNotificationView()
+                    EvaluationResultView()
                     Spacer()
-                    CountdownView()
-                    Spacer()
-                    Footer()
-                    HorizontalSpacingView(height: safeAreaHeightBottom!)
                 }
-                VisualNotificationView()
-                EvaluationResultView()
-                Spacer()
+                
             }
         }
         .onLoad {
