@@ -218,7 +218,7 @@ class EvaluationSession {
         self.sessionData?.activeAnchor = anchor
         
         var sceneName = sessionData.evaluationPreset
-        if sceneName == "gameContrast" || sceneName == "gameBackground" || sceneName == "gameBlurred" || sceneName == "gameCVD" {
+        if sceneName == "gameContrast" || sceneName == "gameBackground" || sceneName == "gameBlurred" || sceneName == "gameCVD" || sceneName == "gameBlackWhite" {
             sceneName = "game"
         }
         
@@ -360,6 +360,18 @@ class EvaluationSession {
             correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
             view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .separate))
             
+        case "gameBlackWhite":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
+            let hue: Float = 0.0
+            let brightness: Float = 0.5
+            let saturation: Float = 0.5
+            let contrast: Float = 0.0
+            let doGammaCorrection: Float = 1.0
+            let args: [Float] = [ hue, brightness, saturation, contrast, doGammaCorrection ]
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .combined, arguments: args, textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .combined))
+            
         case "gameBackground":
             var correctionShaders: [MainARView.ShaderDescriptor] = []
             let hue: Float = 0.0
@@ -408,6 +420,11 @@ class EvaluationSession {
             self.sessionData?.evaluationMaxModelCount = 10
             //self.sessionData?.evaluationRandomPositions = [ 0, 8, 7, 14, 11, 6, 13, 10, 1, 12, 2, 3, 5, 4, 9 ]
             //self.sessionData?.evaluationRandomIndices = [ 0, 8, 7, 14, 11, 6, 13, 10, 1, 12, 2, 3, 5, 4, 9 ]
+            
+        case "gameBlackWhite":
+            self.sessionData?.evaluationMaxModelCount = 10
+            self.sessionData?.evaluationMinDistance = 0.7
+            self.sessionData?.evaluationRandomIndices = [ 0, 10, 7, 14, 11, 6, 13, 1, 8, 12, 2, 3, 5, 4, 9 ]
             
         case "gameContrast":
             self.sessionData?.evaluationMaxModelCount = 10

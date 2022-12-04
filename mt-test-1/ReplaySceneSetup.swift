@@ -13,9 +13,10 @@ class ReplaySceneSetup {
     struct SceneOptions {
         var hideUi: Bool = false
         var renderOptions: ARView.RenderOptions? = nil
+        var debugOptions: ARView.DebugOptions? = nil
     }
     static let sceneOptions: [String : SceneOptions] = [
-        "nightInHallway": SceneOptions(hideUi: true, renderOptions: [
+        "nightInHallway": SceneOptions(hideUi: true, renderOptions: [ // AR Session 27.mov
             .disableGroundingShadows,
             //.disableMotionBlur,
             //.disableDepthOfField, // we definitely need this
@@ -24,8 +25,10 @@ class ReplaySceneSetup {
             //.disableAREnvironmentLighting,
             //.disableFaceMesh
         ]),
-        "hallwayStatue": SceneOptions(hideUi: false, renderOptions: [
+        "hallwayStatue": SceneOptions(hideUi: true, renderOptions: [ // AR Session 29.mov
             
+        ], debugOptions: [
+            // .showWorldOrigin
         ]),
     ]
     
@@ -40,7 +43,11 @@ class ReplaySceneSetup {
             ) ),
         ],
         "hallwayStatue": [
-            "616": ( "populating.chair", SIMD3<Float>(0.33363578, -1.2779127, -3.9622407), 1.419089, -1.0, nil),
+            "616": ( "populating.chair", SIMD3<Float>(0.33363578, -1.2779127, -3.9622407), 1.419089, -1.0, Transform(
+                scale: SIMD3<Float>(repeating: 1.0),
+                rotation: Transform(pitch: 0, yaw: 105, roll: 0).rotation,
+                translation: SIMD3<Float>(0.0, 0.0, 0.23)
+            )),
         ]
         /*"test": [
             "462": ["piano", SIMD3<Float>(-0.017804492, -1.3335254, -4.184091), "4.1003428"],
@@ -62,6 +69,10 @@ class ReplaySceneSetup {
         
         if options.renderOptions != nil {
             MainARView.shared.renderOptions = options.renderOptions!
+        }
+        
+        if (options.debugOptions != nil) {
+            MainARView.shared.debugOptions = options.debugOptions!
         }
         
         Log.print("ReplaySceneSetup: Set up replay scene")

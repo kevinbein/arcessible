@@ -564,16 +564,31 @@ struct MainARViewContainer: UIViewRepresentable {
                 }
                 anchor.position = focusEntity.position
                 UserDefaults.standard.set("\(focusEntity.position)", forKey: "LastModelPosition")
-                guard let model = AccessibleModel.load(named: activeModelName) else {
+                
+                var model: AccessibleModel?
+                let nameComponents = activeModelName.components(separatedBy: "_")
+                if nameComponents.count == 2 {
+                    let modelName = nameComponents[0]
+                    let sceneName = nameComponents[1]
+                    model = AccessibleModel.load(named: modelName, scene: sceneName)
+                } else {
+                    model = AccessibleModel.load(named: activeModelName)
+                }
+                if model == nil {
                     fatalError("Failed loading model '\(activeModelName)'")
                 }
-                anchor.addChild(model)
+                
+                anchor.addChild(model!)
                 view.scene.addAnchor(anchor)
                 destroyFocusEntity()
-                self.model = model
+                self.model = model!
                 self.addedModel = true
                 self.anchor = anchor
                 Log.print("Placed model")
+                
+                if ModelSettings.loadAndApplySettings(modelName: activeModelName) {
+                    Log.print("Loaded model configuration")
+                }
 #endif
             }
         }

@@ -117,7 +117,12 @@ class MainARView: ARView {
     func setupConfiguration() {
         environment.sceneUnderstanding.options = []
         environment.sceneUnderstanding.options.insert(.physics)
+        //environment.sceneUnderstanding.options.insert(.receivesLighting)
         //environment.sceneUnderstanding.options.insert(.occlusion)
+        
+        // Only for depth perception recordings, disable when not used in that specific setting
+        environment.lighting.intensityExponent = 2
+        
         environment.background = Environment.Background.color(.black.withAlphaComponent(0.0))
         
         debugOptions = [

@@ -41,12 +41,14 @@ struct PrimaryButton: UIViewRepresentable {
 struct MainUIView: View {
     
     enum Model: String, CaseIterable, Identifiable {
-        case mansion, pipe, bowlingpin, giebeldach, braunbaer, braunbaerVertical, wuschel1, ninetydegreebracket, dcWhiteHouse, cinemaChair, decorativeLightPole, scaffold, realisticEuropanTree, bathroomInterior, newYorkDowntown, loft
+        case mansion, populating_exitSignGroundStick, populating_exitSign, populating_exitSignGround, pipe, populating_beerpong, bowlingpin, giebeldach, braunbaer, braunbaerVertical, wuschel1, ninetydegreebracket, dcWhiteHouse, cinemaChair, decorativeLightPole, scaffold, realisticEuropanTree, bathroomInterior, newYorkDowntown, loft
         var id: Self { self }
         var description: String {
             switch self {
             case .mansion: return "Mansion"
             case .pipe: return "Pipe"
+            case .populating_exitSign: return "Exit Sign"
+            case .populating_beerpong: return "Beerpong"
             case .bowlingpin: return "Bowling Pin"
             case .giebeldach: return "Giebeldach"
             case .braunbaer: return "Braunbär"
@@ -61,6 +63,7 @@ struct MainUIView: View {
             case .bathroomInterior: return "Bathroom Interior"
             case .newYorkDowntown: return "New York Downtown"
             case .loft: return "Loft"
+            default: return self.rawValue
             }
         }
     }
@@ -100,7 +103,7 @@ struct MainUIView: View {
     }
     
     enum EvaluationPreset: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case game, gameContrast, gameCVD, gameBackground, gameBlurred, gameTight, downproject, anchorTest, depthTest, piano, spatialAwareness, mansion
+        case game, gameContrast, gameBlackWhite, gameCVD, gameBackground, gameBlurred, gameTight, downproject, anchorTest, depthTest, piano, spatialAwareness, mansion
         var id: Self { self }
         var description: String {
             return self.rawValue
@@ -400,8 +403,7 @@ struct MainUIView: View {
     @State var evaluationHitDistance: Float = -1.0
     @State var debugFrameInformation: String = ""
     fileprivate func InformationBar() -> some View {
-        return
-        Group {
+        return Group {
             VStack(alignment: .leading) {
                 HStack {
                     Text("WMP: \(MainARView.shared.session.currentFrame?.worldMappingStatus.rawValue ?? -1)").padding([.trailing], 10)
@@ -442,8 +444,7 @@ struct MainUIView: View {
     @State var showEvaluationResult = true
     @State var evaluationResult: EvaluationSession.SessionData?
     fileprivate func EvaluationResultView() -> some View {
-        return
-        Group {
+        return Group {
             if evaluationResult != nil {
                 HStack{}.alert("Results", isPresented: $showEvaluationResult, actions: {
                     Button("OK", action: {})
@@ -485,8 +486,7 @@ struct MainUIView: View {
     }
     
     fileprivate func Footer() -> some View {
-        return // Footer
-        Group {
+        return Group {
             VStack {
                 if !evaluationIsInProgress {
                     FooterTabSelection()
@@ -515,7 +515,7 @@ struct MainUIView: View {
                 else if activeWorkMode == .debug {
                     // Footer - Controls
                         // Hide Footer
-                        HStack {
+                        /*HStack {
                             Button {
                                 showFooterDebugSettings = false
                             } label: {
@@ -525,7 +525,7 @@ struct MainUIView: View {
                             }
                         }
                         .padding([.bottom], 30)
-                        .padding([.top], 20)
+                        .padding([.top], 20)*/
                         
                         // Picker - Model
                         HStack {
@@ -537,7 +537,7 @@ struct MainUIView: View {
                             }
                             .accentColor(.blue)
                             .onChange(of: activeModelName, perform: onPickerModel)
-                        }
+                        }.frame(maxWidth: .infinity)
                         
                         // Picker - Correction
                         HStack {
@@ -551,7 +551,7 @@ struct MainUIView: View {
                             .onChange(of: activeCorrectionName, perform: onPickerCorrection)
                             
                         }
-                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
                         
                         // Picker - Simulation
                         HStack {
@@ -565,7 +565,7 @@ struct MainUIView: View {
                             .onChange(of: activeSimulationName, perform: onPickerSimulation)
                             
                         }
-                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: .infinity)
                         
                         HorizontalSpacingView()
                         
