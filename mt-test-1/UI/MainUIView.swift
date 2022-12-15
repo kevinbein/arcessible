@@ -103,7 +103,7 @@ struct MainUIView: View {
     }
     
     enum EvaluationPreset: String, CaseIterable, Identifiable, CustomStringConvertible {
-        case game, gameContrast, gameBlackWhite, gameCVD, gameBackground, gameBlurred, gameTight, downproject, anchorTest, depthTest, piano, spatialAwareness, mansion
+        case game0, game1, game2, game3, game, gameContrast, gameBlackWhite, gameCVD, gameBackground, gameBlurred, gameTight, downproject, anchorTest, depthTest, piano, spatialAwareness, mansion
         var id: Self { self }
         var description: String {
             return self.rawValue
@@ -676,7 +676,8 @@ struct MainUIView: View {
         let safeAreaHeightBottom = UIApplication.shared.keyWindow?.safeAreaInsets.bottom
         Group {
             if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay",
-                ReplaySceneSetup.sceneOptions[ProjectSettings.replayScene]?.hideUi == true
+               ProjectSettings.replayScene != nil,
+               ReplaySceneSetup.sceneOptions[ProjectSettings.replayScene!]?.hideUi == true
             {
                 // Nothing
                 EmptyView()

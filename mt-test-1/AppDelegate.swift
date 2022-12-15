@@ -22,7 +22,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let savedLogsLastSession = Log.getSaved(from: "sceneSetup", lastSessionOnly: true)
         Log.print("Last Session:")
         for row in savedLogsLastSession {
-            Log.print("\"\(row[2])\": [\"\(row[3])\", \(row[4]), \"\(row[5])\"],")
+            if row.count >= 6 {
+                Log.print("\"\(row[2])\": [\"\(row[3])\", \(row[4]), \"\(row[5])\"],")
+            }
         }
         
         // Create the SwiftUI view that provides the window contents.

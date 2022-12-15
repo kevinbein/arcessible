@@ -131,7 +131,7 @@ class MainARView: ARView {
             //.showAnchorGeometry,
             //.showPhysics,
 //            .showSceneUnderstanding,
-            .showWorldOrigin
+            //.showWorldOrigin
         ]
         
         // For performance, disable render options that are not required for this app.
@@ -300,14 +300,20 @@ class MainARView: ARView {
         let width = CVPixelBufferGetWidth(imageBuffer)
         let height = CVPixelBufferGetHeight(imageBuffer)
         let imageSize = CGSize(width: width, height: height)
-        var viewPort = self.bounds
-        var viewPortSize = self.bounds.size
+        // This line blocks and waits until the main thread has synchronized
+        // when called from a different thread. We hard code it.
+        // var viewPort = self.bounds
+        var viewPort = CGRect(x: 0, y: 0, width: 390, height: 844)
+        var viewPortSize = viewPort.size
         viewPort.size.width *= 3
         viewPort.size.height *= 3
         viewPortSize.width *= 3
         viewPortSize.height *= 3
         let interfaceOrientation : UIInterfaceOrientation
-        interfaceOrientation = self.window!.windowScene!.interfaceOrientation
+        // Same thing as above, this line blocks and and waits until the main thread
+        // has synchronized when called from a different thread. We hard code it.
+        // interfaceOrientation = self.window!.windowScene!.interfaceOrientation
+        interfaceOrientation = .portrait
         var image = CIImage(cvImageBuffer: imageBuffer)
         
         // Explanation here: https://stackoverflow.com/questions/58809070/transforming-arframecapturedimage-to-view-size
@@ -571,7 +577,7 @@ class MainARView: ARView {
             //frame.displayTransform(for: .portrait, viewportSize: CGSizeMake(CGFloat(w), CGFloat(h)))
             self.pixelBufferToMTLTexture(context, input: frame.capturedImage, targetTexture: self.loadedTextures["g_backgroundTexture"]!)
             if frame.smoothedSceneDepth != nil {
-                self.pixelBufferToMTLTexture(context, input: frame.smoothedSceneDepth!.depthMap, targetTexture: self.loadedTextures["g_depthTexture"]!)
+                //self.pixelBufferToMTLTexture(context, input: frame.smoothedSceneDepth!.depthMap, targetTexture: self.loadedTextures["g_depthTexture"]!)
             }
             
             guard let blitEncoder = context.commandBuffer.makeBlitCommandEncoder() else { return }

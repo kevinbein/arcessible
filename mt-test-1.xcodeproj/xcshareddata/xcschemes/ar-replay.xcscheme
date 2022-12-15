@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1330"
+   LastUpgradeVersion = "1400"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -28,40 +28,19 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "44EA95FC2800967D0032EF81"
-               BuildableName = "mt-test-1Tests.xctest"
-               BlueprintName = "mt-test-1Tests"
-               ReferencedContainer = "container:mt-test-1.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "44EA96062800967D0032EF81"
-               BuildableName = "mt-test-1UITests.xctest"
-               BlueprintName = "mt-test-1UITests"
-               ReferencedContainer = "container:mt-test-1.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      disableMainThreadChecker = "YES"
-      disablePerformanceAntipatternChecker = "YES"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
-      allowLocationSimulation = "YES">
+      allowLocationSimulation = "NO"
+      allowDeviceSensorReplayData = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
          <BuildableReference
@@ -75,12 +54,12 @@
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "SCHEME_TYPE"
-            value = "live"
+            value = "replay"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
       <DeviceSensorReplayFileReference
-         identifier = "../../AR Session 1.mov">
+         identifier = "../../AR Session 51.mov">
       </DeviceSensorReplayFileReference>
    </LaunchAction>
    <ProfileAction

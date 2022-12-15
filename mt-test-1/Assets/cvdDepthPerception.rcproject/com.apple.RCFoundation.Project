@@ -1,0 +1,1218 @@
+{
+  "__content" : [
+    {
+      "scenes" : [
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "6ADC28D0-C15D-4BE8-BCC3-C815A97F1DA3",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "3E5E666F-A6CA-4A65-B503-BFF728D9CA36" : null,
+                  "5DCE4DB2-7BEB-4CF1-9DF6-87D5B743F3E1" : null,
+                  "9FAFFAF3-D98E-40E9-B6EB-12E8893A6630" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Tape"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Realistic"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "iconicItem" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "F06168C5-D98B-499C-8D4A-5596FDC40EC5"
+                                }
+                              ]
+                            ]
+                          }
+                        },
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "0D865DF6-6F80-4CD4-89E3-62A5B63F5575"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.Tape.405af854-9234-40f1-a9d6-a246bce77535",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "DCF5F869-1734-46A4-B2C2-689844FE9091"
+                          }
+                        ],
+                        [
+                          "entityName",
+                          {
+                            "typeName" : "String",
+                            "value" : "15cm"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1
+                      ]
+                    }
+                  }
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "tape",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  0.77600365877151489,
+                  -8.6440170576906894e-09,
+                  -0.63072842359542847,
+                  0,
+                  -0.2197001576423645,
+                  0.93737286329269409,
+                  -0.27030351758003235,
+                  0,
+                  0.59122759103775024,
+                  0.34832772612571716,
+                  0.72740483283996582,
+                  0,
+                  0.69300085306167603,
+                  0.40989911556243896,
+                  0.59448450803756714,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        },
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "563A40ED-FBC0-426B-B729-AFEF812B6E61",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "53B06852-3A68-4B70-9A3F-9F88945C3659" : null,
+                  "BFF73FB0-A922-4D7A-82EF-150AE2EFB3A9" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Clipboard"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Stylized"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "C3DF5DCA-7B30-4A88-8EBA-695116FF4588"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.Clipboard.e1b33efa-6846-456e-b2f4-dd865149d879",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "27F2CA26-59F5-4C47-89F1-72A817CA6349"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1.0728831512096804e-06,
+                        -0.99999940395355225,
+                        0,
+                        0,
+                        0.99999940395355225,
+                        1.0728831512096804e-06,
+                        0,
+                        0,
+                        0.0058403573930263519,
+                        0.1939629465341568,
+                        1
+                      ]
+                    }
+                  }
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "board",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  0.088858909904956818,
+                  3.6865316133116721e-08,
+                  -0.99604427814483643,
+                  0,
+                  -0.17716450989246368,
+                  0.9840543270111084,
+                  -0.015805106610059738,
+                  0,
+                  0.98016166687011719,
+                  0.17786802351474762,
+                  0.087442055344581604,
+                  0,
+                  1.469660758972168,
+                  0.34790271520614624,
+                  0.0043289214372634888,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        },
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "7DA515BB-0076-4926-AFAA-1296C2A764E9",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "0BC35E1A-26C0-4647-B381-9978E7E584BB" : null,
+                  "C9C05B1A-F51F-4203-BB4A-5DA51FD5F93F" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Tall Chair"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Stylized"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "E8047E45-4BF5-4601-94C6-E874AD87675A"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.TallChair.b6044822-4d19-4d2b-b455-b754168345cc",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "74ABCBB5-0DDD-4AD6-BA19-329DF834E531"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        -0.00042462348937988281,
+                        0,
+                        1
+                      ]
+                    }
+                  }
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "chair",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  -0.19916704297065735,
+                  1.6698782800972367e-08,
+                  0.97996556758880615,
+                  0,
+                  0.19872093200683594,
+                  0.97922360897064209,
+                  0.040387779474258423,
+                  0,
+                  -0.95960533618927002,
+                  0.20278355479240417,
+                  -0.19502906501293182,
+                  0,
+                  -2.7869172096252441,
+                  0.82999181747436523,
+                  -0.23295608162879944,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        },
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "8EB2EC62-46DD-454F-96F7-E6781BCB5F85",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "2935FD79-4B18-4F63-878B-6749473EF6CC" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Soccer Ball"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Stylized"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "D4CC67B6-1278-4289-8255-B92E307A2A65"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.SoccerBall.5bd3a612-c9e9-4bc5-b4c2-098b6ece8a5b",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "612408A3-6407-4A13-A36E-B566B13A6D83"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0.5,
+                        0,
+                        1
+                      ]
+                    }
+                  }
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "football",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  0.011218382976949215,
+                  4.4580552582829114e-08,
+                  0.99993705749511719,
+                  0,
+                  0.54787623882293701,
+                  0.83653682470321655,
+                  -0.0061466800980269909,
+                  0,
+                  -0.83648419380187988,
+                  0.54791074991226196,
+                  0.0093844793736934662,
+                  0,
+                  -1.2843008041381836,
+                  0.90587365627288818,
+                  0.17626917362213135,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        },
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "94C61CAA-6958-42AC-A972-DA8465013785",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "25D12CB6-151E-4ECD-A569-F9D7D6286560" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Baseball Hat"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Stylized"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "4EFEA659-F749-4AD5-9206-CD895AD56C17"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.BaseballHat.8e88522c-42fe-49ef-8394-4deb1565e1d2",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "25B2E602-E690-454D-A82F-DA527900191F"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        0.99999922513961792,
+                        1.2037052825377646e-35,
+                        1.6940645818440544e-21,
+                        0,
+                        -1.2037062152420224e-35,
+                        1,
+                        0,
+                        0,
+                        -1.6940645818440544e-21,
+                        0,
+                        0.99999922513961792,
+                        0,
+                        0,
+                        0.5,
+                        0,
+                        1
+                      ]
+                    }
+                  },
+                  "4248D175-D060-42B3-9CDF-E36CAC01F3BB" : null
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "baseballcap",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  0.94539153575897217,
+                  7.616858255232728e-08,
+                  0.32593697309494019,
+                  0,
+                  0.11655185371637344,
+                  0.93387854099273682,
+                  -0.33806315064430237,
+                  0,
+                  -0.30438554286956787,
+                  0.35759055614471436,
+                  0.88288074731826782,
+                  0,
+                  -0.24755474925041199,
+                  0.86359477043151855,
+                  1.3606916666030884,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        },
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "9CD99644-F323-40BF-B1CD-26D07735FCBC",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "82F6A186-56EC-4E98-934C-7CDC76A05F1C" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Boxing Glove"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Realistic"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "0F49B2A3-731F-4145-82B9-0C43C2A66A14"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.BoxingGlove.a45845dc-8fdd-4cef-bb61-17db4d2dbe8f",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "F1CEF280-1BAB-4FEF-AFEF-7B35CC34B2FC"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        0.96151578426361084,
+                        -0.26645633578300476,
+                        0.066987201571464539,
+                        0,
+                        0.2628822922706604,
+                        0.82135075330734253,
+                        -0.50623643398284912,
+                        0,
+                        0.079869948327541351,
+                        0.50436419248580933,
+                        0.85978853702545166,
+                        0,
+                        0.075831815600395203,
+                        0.50495582818984985,
+                        0.067827433347702026,
+                        1
+                      ]
+                    }
+                  },
+                  "7066969E-04B8-46E5-9AB9-5B898EC7377D" : null,
+                  "EC00CBFA-3B5D-4468-B73B-08E9AA6904E5" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Boxing Glove Left"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Realistic"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "955AC9D5-246C-4B80-A003-997953876EA6"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.BoxingGloveLeft.8b4c52eb-d6f2-4b5c-bda8-90b3efe19622",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "6760B6BC-38B8-4611-8332-68117EE334B7"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        0.86602538824081421,
+                        0.49999985098838806,
+                        0,
+                        0,
+                        -0.49999985098838806,
+                        0.86602538824081421,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        -0.02283131331205368,
+                        0.50429749488830566,
+                        0,
+                        1
+                      ]
+                    }
+                  }
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "boxinggloves",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  0.99452751874923706,
+                  1.5763355065701035e-07,
+                  0.10447484999895096,
+                  0,
+                  0.033350348472595215,
+                  0.94768041372299194,
+                  -0.31747367978096008,
+                  0,
+                  -0.09900878369808197,
+                  0.31922030448913574,
+                  0.94249433279037476,
+                  0,
+                  0.073984041810035706,
+                  0.9631572961807251,
+                  1.3158059120178223,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        },
+        {
+          "__content" : [
+            {
+              "arAnchorSpecification" : {
+                "alignment" : "horizontal",
+                "name" : "surface"
+              },
+              "behaviors" : [
+
+              ],
+              "gravity" : [
+                0,
+                -9.8000001907348633,
+                0
+              ],
+              "identifier" : "B7C8CDFD-9C2C-41AC-A8D2-1E7C000886B8",
+              "material" : "concrete",
+              "overrides" : {
+                "children" : {
+                  "2BBC79AA-742F-4196-BDB3-B33CAD17B360" : null,
+                  "4CAE50BA-CBF9-45B2-BCDB-F156EAB7F2B2" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "bevelRadius",
+                          {
+                            "typeName" : "Double",
+                            "value" : 0.0050000000000000001
+                          }
+                        ],
+                        [
+                          "depth",
+                          {
+                            "typeName" : "Double",
+                            "value" : 0.20000000000000001
+                          }
+                        ],
+                        [
+                          "height",
+                          {
+                            "typeName" : "Double",
+                            "value" : 0.20000000000000001
+                          }
+                        ],
+                        [
+                          "material",
+                          {
+                            "typeName" : "String",
+                            "value" : "standard"
+                          }
+                        ],
+                        [
+                          "materialColor",
+                          {
+                            "typeName" : "double4",
+                            "value" : [
+                              0.93333500623703003,
+                              0.93333500623703003,
+                              0.93333500623703003,
+                              1
+                            ]
+                          }
+                        ],
+                        [
+                          "type",
+                          {
+                            "typeName" : "String",
+                            "value" : "box"
+                          }
+                        ],
+                        [
+                          "width",
+                          {
+                            "typeName" : "Double",
+                            "value" : 0.20000000000000001
+                          }
+                        ]
+                      ],
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.CoreAssetFactories.PrimitiveShapeAssetFactory",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "A37401D1-2C86-4715-89DF-D880D28841D3"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0.015698760747909546,
+                        0.13500000536441803,
+                        0,
+                        1
+                      ]
+                    }
+                  },
+                  "7D9DC6DF-787C-494D-A6CF-CA4AE023739C" : {
+                    "overrides" : {
+                      "arguments" : [
+                        [
+                          "item",
+                          {
+                            "typeName" : "String",
+                            "value" : "Soccer Ball"
+                          }
+                        ],
+                        [
+                          "style",
+                          {
+                            "typeName" : "String",
+                            "value" : "Stylized"
+                          }
+                        ]
+                      ],
+                      "children" : {
+                        "item" : {
+                          "overrides" : {
+                            "factory" : null,
+                            "runtimeAttributes" : [
+                              [
+                                "RuntimeIdentifier",
+                                {
+                                  "typeName" : "UUID",
+                                  "value" : "5489D86F-F533-499F-B358-51D036CCEB12"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      },
+                      "factory" : {
+                        "identifier" : "com.apple.rc.af.SoccerBall.5bd3a612-c9e9-4bc5-b4c2-098b6ece8a5b",
+                        "version" : "1.0"
+                      },
+                      "runtimeAttributes" : [
+                        [
+                          "RuntimeIdentifier",
+                          {
+                            "typeName" : "UUID",
+                            "value" : "C2B5C6D4-0693-4D04-B1BD-30642651FB2C"
+                          }
+                        ]
+                      ]
+                    },
+                    "transform" : {
+                      "matrix" : [
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0,
+                        0,
+                        1,
+                        0,
+                        0,
+                        0.10969650000333786,
+                        0,
+                        1
+                      ]
+                    }
+                  },
+                  "D44DFF2B-AA8F-4EAE-8BCF-CF03989C169A" : null
+                },
+                "factory" : null,
+                "runtimeAttributes" : [
+                  [
+                    "isAccessibilityEnabled",
+                    {
+                      "typeName" : "Bool",
+                      "value" : false
+                    }
+                  ]
+                ]
+              },
+              "physicsMode" : "grid",
+              "title" : "Scene",
+              "viewTransform" : {
+                "cameraTransform" : [
+                  0.37612205743789673,
+                  1.5901434835541295e-07,
+                  -0.92657011747360229,
+                  0,
+                  -0.22910000383853912,
+                  0.96895027160644531,
+                  -0.092998243868350983,
+                  0,
+                  0.89780032634735107,
+                  0.2472558468580246,
+                  0.36444360017776489,
+                  0,
+                  1.4339772462844849,
+                  0.44450300931930542,
+                  0.4071756899356842,
+                  1
+                ],
+                "sceneTransform" : [
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1,
+                  0,
+                  0,
+                  0,
+                  0,
+                  1
+                ]
+              }
+            }
+          ],
+          "__version" : 5
+        }
+      ],
+      "tags" : {
+        "__content" : [
+          {
+            "tagsStore" : {
+
+            }
+          }
+        ],
+        "__version" : 1
+      }
+    }
+  ],
+  "__version" : 1
+}

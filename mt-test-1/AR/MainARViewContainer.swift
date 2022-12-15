@@ -133,8 +133,8 @@ struct MainARViewContainer: UIViewRepresentable {
             view.updateFrameData(frame: frame)
             
             // Populate Scene if data is available in replay mode
-            if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay" {
-                if ReplaySceneSetup.sceneOptions[ProjectSettings.replayScene]?.hideUi == true {
+            if ProcessInfo.processInfo.environment["SCHEME_TYPE"] == "replay", ProjectSettings.replayScene != nil {
+                if ReplaySceneSetup.sceneOptions[ProjectSettings.replayScene!]?.hideUi == true {
                     destroyFocusEntity()
                 }
                 ReplaySceneSetup.renderSceneNext(forRecording: ProjectSettings.replayScene, frameNumber: view.currentFrameNumber, view: view)
@@ -609,16 +609,23 @@ struct MainARViewContainer: UIViewRepresentable {
         
         let populationModelNames = [
             //"populating.keypointWall",
-            "populating.emptyWall",
-            "populating.chair",
-            "populating.shelf",
-            "populating.broom",
-            "populating.bin",
-            "populating.stool",
-            "populating.clock",
+            //"populating.emptyWall",
+            //"populating.chair",
+            //"populating.shelf",
+            //"populating.broom",
+            //"populating.bin",
+            //"populating.stool",
+            //"populating.clock",
+            "cvdDepthPerception.boxinggloves",
+            "DISTANCE_TEST",
+            "cvdDepthPerception.football",
+            "cvdDepthPerception.tape",
+            "cvdDepthPerception.board",
+            "cvdDepthPerception.chair",
         ]
         var populationIndex = 0
         var populationPreviousObjectPosition: SIMD3<Float>? = nil
+        var populationLastObjectPosition: SIMD3<Float>? = nil
         fileprivate func handleTapPopulateScene(from sender: UITapGestureRecognizer) {
             guard let view = self.view, let focusEntity = MainARViewContainer.focusEntity else { return }
             
@@ -630,31 +637,49 @@ struct MainARViewContainer: UIViewRepresentable {
                 return
             }
             
+            let cameraPosition: SIMD3<Float> = [
+                view.session.currentFrame!.camera.transform.columns.3.x,
+                view.session.currentFrame!.camera.transform.columns.3.y,
+                view.session.currentFrame!.camera.transform.columns.3.z
+            ]
+            
             // Add next object at position ...
             var anchor = AnchorEntity(plane: .horizontal)
             let position = focusEntity.position
             anchor.position = position
             
             let fullName = populationModelNames[populationIndex]
-            let nameComponents = fullName.components(separatedBy: ".")
-            let modelName = nameComponents[0]
-            let sceneName = nameComponents[1]
-            guard let model = AccessibleModel.load(named: modelName, scene: sceneName) else {
-                fatalError("Failed loading model '\(fullName)'")
+            
+            if fullName == "DISTANCE_TEST" {
+                if populationLastObjectPosition == nil {
+                    NotificationCenter.default.post(name: Notification.Name("VisualNotification"), object: self, userInfo: ["color": Color.red])
+                    return
+                }
+                
+                var cameraPositionAdjusted = cameraPosition
+                cameraPositionAdjusted.y = 0.5;
+                let distanceFromCameraToObject = length(cameraPositionAdjusted - populationLastObjectPosition!)
+                
+                Log.print(String(view.currentFrameNumber), populationModelNames[populationIndex], String(describing: distanceFromCameraToObject), saveTo: "sceneSetup")
+                
+            } else {
+                let nameComponents = fullName.components(separatedBy: ".")
+                let modelName = nameComponents[0]
+                let sceneName = nameComponents[1]
+                guard let model = AccessibleModel.load(named: modelName, scene: sceneName) else {
+                    fatalError("Failed loading model '\(fullName)'")
+                }
+                anchor.addChild(model)
+                view.scene.addAnchor(anchor)
+                
+                let distanceToCamera = length(cameraPosition - position)
+                let distanceToPreviousObject = populationPreviousObjectPosition != nil ? length(position - populationPreviousObjectPosition!) : -1.0;
+                
+                // ... and log it
+                Log.print(String(view.currentFrameNumber), populationModelNames[populationIndex], String(describing: position), String(distanceToCamera), String(distanceToPreviousObject), saveTo: "sceneSetup")
+                
+                populationLastObjectPosition = position
             }
-            anchor.addChild(model)
-            view.scene.addAnchor(anchor)
-            
-            let cameraPosition: SIMD3<Float> = [
-                view.session.currentFrame!.camera.transform.columns.3.x,
-                view.session.currentFrame!.camera.transform.columns.3.y,
-                view.session.currentFrame!.camera.transform.columns.3.z
-            ]
-            let distanceToCamera = length(cameraPosition - position)
-            let distanceToPreviousObject = populationPreviousObjectPosition != nil ? length(position - populationPreviousObjectPosition!) : -1.0;
-            
-            // ... and log it
-            Log.print(String(view.currentFrameNumber), populationModelNames[populationIndex], String(describing: position), String(distanceToCamera), String(distanceToPreviousObject), saveTo: "sceneSetup")
             
             populationPreviousObjectPosition = position;
             populationIndex += 1

@@ -222,6 +222,10 @@ class EvaluationSession {
             sceneName = "game"
         }
         
+        if sceneName == "game0" || sceneName == "game1" || sceneName == "game2" || sceneName == "game3" {
+            sceneName = "game0"
+        }
+        
         guard let allModels = AccessibleModel.load(named: "evaluation", scene: sceneName, generateCollisions: true)
         else {
             fatalError("EvaluationSession: Failed loading existing scene '\(sessionData.evaluationPreset)'")
@@ -335,6 +339,74 @@ class EvaluationSession {
         else { return }
         
         switch sessionData.evaluationPreset {
+            
+            
+        case "evaluationGame0":
+            var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))
+            
+        case "evaluationGame1":
+            var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))
+            
+        case "evaluationGame2":
+            var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))
+            
+        case "evaluationGame3":
+            var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))
+            
+        case "evaluationGame4":
+            var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))
+            
+            
+            
+        case "game0":
+            var simulationShaders: [MainARView.ShaderDescriptor] = []
+            simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: simulationShaders, pipelineTarget: .simulation, frameMode: .combined))
+        case "game1":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
+            let hue: Float = 0.0
+            let brightness: Float = 0.5
+            let saturation: Float = 0.5
+            let contrast: Float = 0.0
+            let doGammaCorrection: Float = 1.0
+            let args: [Float] = [ hue, brightness, saturation, contrast, doGammaCorrection ]
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .separate))
+        case "game2":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
+            let hue: Float = 0.0
+            let brightness: Float = 0.5
+            let saturation: Float = 0.5
+            let contrast: Float = 0.0
+            let doGammaCorrection: Float = 1.0
+            let args: [Float] = [ hue, brightness, saturation, contrast, doGammaCorrection ]
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .combined, arguments: args, textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .combined))
+        case "game3":
+            var correctionShaders: [MainARView.ShaderDescriptor] = []
+            let hue: Float = 0.0
+            let brightness: Float = 0.5
+            let saturation: Float = 0.6
+            let contrast: Float = 2.0
+            let doGammaCorrection: Float = 1.0
+            let args: [Float] = [ hue, brightness, saturation, contrast, doGammaCorrection ]
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "hsbc", type: .metalShader), frameTarget: .background, arguments: args, textures: []))
+            correctionShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
+            view.runShaders(chain: MainARView.ShaderChain(shaders: correctionShaders, pipelineTarget: .correction, frameMode: .separate))
+            
+            
         case "game":
             var simulationShaders: [MainARView.ShaderDescriptor] = []
             simulationShaders.append(MainARView.ShaderDescriptor(shader: MainARView.Shader(name: "crosshair", type: .metalShader), frameTarget: .combined, arguments: [], textures: []))
@@ -417,9 +489,28 @@ class EvaluationSession {
              function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
              console.log(shuffle([...new Array(15)].map((k,i ) => i )));
             */
-            self.sessionData?.evaluationMaxModelCount = 10
+            self.sessionData?.evaluationMaxModelCount = 7
             //self.sessionData?.evaluationRandomPositions = [ 0, 8, 7, 14, 11, 6, 13, 10, 1, 12, 2, 3, 5, 4, 9 ]
             //self.sessionData?.evaluationRandomIndices = [ 0, 8, 7, 14, 11, 6, 13, 10, 1, 12, 2, 3, 5, 4, 9 ]
+            
+        case "game0":
+            self.sessionData?.evaluationMinDistance = 0.7
+            self.sessionData?.evaluationMaxModelCount = 7
+        case "game1":
+            self.sessionData?.evaluationMinDistance = 0.7
+            self.sessionData?.evaluationMaxModelCount = 7
+            self.sessionData?.evaluationRandomPositions = [ 0, 1, 4, 3, 2, 5, 6 ]
+            self.sessionData?.evaluationRandomIndices = [ 0, 1, 4, 3, 2, 5, 6 ]
+        case "game2":
+            self.sessionData?.evaluationMinDistance = 0.7
+            self.sessionData?.evaluationMaxModelCount = 7
+            self.sessionData?.evaluationRandomPositions = [ 0, 3, 1, 5, 4, 2, 6 ]
+            self.sessionData?.evaluationRandomIndices = [ 0, 3, 1, 5, 4, 2, 6 ]
+        case "game3":
+            self.sessionData?.evaluationMinDistance = 0.7
+            self.sessionData?.evaluationMaxModelCount = 7
+            self.sessionData?.evaluationRandomPositions = [ 0, 1, 2, 3, 4, 5, 6 ]
+            self.sessionData?.evaluationRandomIndices = [ 0, 1, 2, 3, 4, 5, 6 ]
             
         case "gameBlackWhite":
             self.sessionData?.evaluationMaxModelCount = 10
@@ -474,6 +565,17 @@ class EvaluationSession {
             self.sessionData?.intermediateMissDistances[index - 1].append(distance)
         }
         NotificationCenter.default.post(name: Notification.Name("EvaluationHitFailure"), object: self, userInfo: ["status": status, "distance": distance])
+        missCount += 1
+        if missCount >= 5 {
+            let timeNow = DispatchTime.now()
+            
+            Log.print("EvaluationSession: Missed model again, '\(self.sessionData!.activeModel!.name)' after : \(self.sessionData!.startTime!.format(differenceTo: timeNow))")
+        
+            self.sessionData!.modelEntities![self.sessionData!.activeModelIndex-1].scale *= 0.0001
+            self.sessionData?.intermediateTimes.append(timeNow)
+            NotificationCenter.default.post(name: Notification.Name("EvaluationHitSuccess"), object: self, userInfo: ["status": "missedTooManyTimes", "distance": -1.0])
+            self.displayNext()
+        }
     }
     
     public func hit(_ hit: CollisionCastHit) {
@@ -513,9 +615,12 @@ class EvaluationSession {
         }
     }
     
+    var missCount = 0
+    
     private func displayNext() {
         guard let sessionData = self.sessionData else { return }
         
+        missCount = 0
         if sessionData.activeModelIndex >= sessionData.modelEntities!.count
             || (sessionData.evaluationMaxModelCount != nil && sessionData.activeModelIndex >= sessionData.evaluationMaxModelCount!)
         {
